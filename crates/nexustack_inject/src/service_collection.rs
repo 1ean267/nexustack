@@ -33,7 +33,7 @@ impl ServiceCollection {
     pub fn build(self) -> ServiceProvider {
         let container_builder = ContainerBuilder::new(
             self.root_builders,
-            if self.scoped_builders.len() > 0 {
+            if !self.scoped_builders.is_empty() {
                 Some(self.scoped_builders)
             } else {
                 None

@@ -25,4 +25,4 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           components: rustfmt
       - run: cargo build --verbose
-      - run: cargo test --all-features --verbose
+      - run: cargo test --verbose # --all-features

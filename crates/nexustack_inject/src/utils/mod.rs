@@ -8,10 +8,10 @@
 pub mod atomic_once_cell;
 
 #[allow(dead_code)]
-pub const fn ensure_send<T: Send>() -> () {}
+pub const fn ensure_send<T: Send>() {}
 
 #[allow(dead_code)]
-pub const fn ensure_sync<T: Sync>() -> () {}
+pub const fn ensure_sync<T: Sync>() {}
 
 #[allow(dead_code)]
-pub const fn ensure_clone<T: Clone>() -> () {}
+pub const fn ensure_clone<T: Clone>() {}

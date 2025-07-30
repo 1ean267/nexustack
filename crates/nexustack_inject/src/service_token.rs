@@ -18,18 +18,18 @@ pub struct ServiceToken {
 
 impl ServiceToken {
     pub fn create<TService: 'static>() -> Self {
-        return Self {
+        Self {
             type_id: TypeId::of::<TService>(),
             type_name: type_name::<TService>(),
-        };
+        }
     }
 
     pub fn type_id(&self) -> &TypeId {
-        return &self.type_id;
+        &self.type_id
     }
 
     pub fn type_name(&self) -> &str {
-        return self.type_name;
+        self.type_name
     }
 }
 

@@ -9,7 +9,7 @@ use nexustack_inject_macros_impl::expand_injectable;
 use quote::quote;
 use rust_format::{Formatter, RustFmt};
 
-static EXPECTED: &'static str = stringify! {
+static EXPECTED: &str = stringify! {
     impl Basic {
         pub fn new() -> Self {}
     }

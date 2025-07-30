@@ -153,26 +153,14 @@ fn process_item_impl(ctxt: &Ctxt, attr: TokenStream, item_impl: syn::ItemImpl) -
 }
 
 fn get_injectable_ctor_attr(fun: &syn::ImplItemFn) -> Option<&syn::Attribute> {
-    return fun
-        .attrs
-        .iter()
-        .filter(|attr| match &attr.meta {
-            syn::Meta::Path(attr_path) => {
-                return attr_path.is_ident("injectable_ctor");
-            }
-            _ => false,
-        })
-        .next();
+    fun.attrs.iter().find(|attr| match &attr.meta {
+        syn::Meta::Path(attr_path) => attr_path.is_ident("injectable_ctor"),
+        _ => false,
+    })
 }
 
 fn is_static_func(fun: &syn::ImplItemFn) -> bool {
-    match fun.sig.inputs.first() {
-        None => return true,
-        Some(input) => match input {
-            syn::FnArg::Receiver(_) => return false,
-            _ => return true,
-        },
-    }
+    !matches!(fun.sig.inputs.first(), Some(syn::FnArg::Receiver(_)))
 }
 
 fn find_injectable_ctor<'a>(
@@ -185,13 +173,13 @@ fn find_injectable_ctor<'a>(
     for fun in fns {
         let injectable_ctor_attr = get_injectable_ctor_attr(fun);
 
-        if let Some(injectable_ctor_attr) = injectable_ctor_attr {
-            if decorated_ctor.is_some() {
-                ctxt.error_spanned_by(
-                    injectable_ctor_attr,
-                    "Found multiple viable type constructors decorated with #[injectable_ctor].",
-                );
-            }
+        if let Some(injectable_ctor_attr) = injectable_ctor_attr
+            && decorated_ctor.is_some()
+        {
+            ctxt.error_spanned_by(
+                injectable_ctor_attr,
+                "Found multiple viable type constructors decorated with #[injectable_ctor].",
+            );
         }
 
         if !is_static_func(fun) {
@@ -202,7 +190,7 @@ fn find_injectable_ctor<'a>(
             continue;
         }
 
-        if fun.sig.generics.params.len() > 0 {
+        if !fun.sig.generics.params.is_empty() {
             if let Some(injectable_ctor_attr) = injectable_ctor_attr {
                 ctxt.error_spanned_by(
                     injectable_ctor_attr,
@@ -215,10 +203,10 @@ fn find_injectable_ctor<'a>(
 
         if injectable_ctor_attr.is_some() {
             decorated_ctor = Some(fun);
-        } else if fun.sig.ident == "new" {
-            if let syn::Visibility::Public(_) = fun.vis {
-                default_ctor = Some(fun);
-            }
+        } else if fun.sig.ident == "new"
+            && let syn::Visibility::Public(_) = fun.vis
+        {
+            default_ctor = Some(fun);
         }
     }
 

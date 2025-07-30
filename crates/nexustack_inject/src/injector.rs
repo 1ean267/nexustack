@@ -29,7 +29,7 @@ impl<'i> Injector<'i> {
             inner: InjectorInner::Container(container),
             service_token,
             parent_injector,
-            _not_send_sync: PhantomData::default(),
+            _not_send_sync: PhantomData,
         }
     }
 
@@ -42,15 +42,16 @@ impl<'i> Injector<'i> {
             inner: InjectorInner::ContainerBuilder(container_builder),
             service_token,
             parent_injector,
-            _not_send_sync: PhantomData::default(),
+            _not_send_sync: PhantomData,
         }
     }
 
     fn has_service_type_in_chain(&self, service_type: TypeId) -> bool {
         self.service_token.type_id() == &service_type
-            || self.parent_injector.map_or(false, |parent_injector| {
-                parent_injector.has_service_type_in_chain(service_type)
-            })
+            || self
+                .parent_injector
+                .map(|parent_injector| parent_injector.has_service_type_in_chain(service_type))
+                .unwrap_or_default()
     }
 
     pub(crate) fn resolve_dependency_chain(&self) -> Vec<ServiceToken> {
@@ -63,7 +64,7 @@ impl<'i> Injector<'i> {
             curr = injector.parent_injector;
         }
 
-        return result;
+        result
     }
 
     pub fn resolve<TService: 'static>(&self) -> InjectionResult<TService> {

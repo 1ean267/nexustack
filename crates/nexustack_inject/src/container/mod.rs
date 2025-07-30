@@ -60,7 +60,7 @@ impl Container {
                     // TODO: Validate that this is correct!
                     dependency_chain: parent_injector
                         .map(|parent_injector| parent_injector.resolve_dependency_chain())
-                        .unwrap_or(Vec::new()),
+                        .unwrap_or_default(),
                 }),
             },
         }

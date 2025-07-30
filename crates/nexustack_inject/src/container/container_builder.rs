@@ -99,7 +99,7 @@ impl ContainerBuilder {
             entries: entry_builders
                 .into_iter()
                 .map(|builder| {
-                    let service_type = builder.service_token().type_id().clone();
+                    let service_type = *builder.service_token().type_id();
                     let entry = RefCell::new(ContainerBuilderEntry::Builder(builder));
 
                     (service_type, entry)
@@ -199,7 +199,7 @@ impl ContainerBuilder {
                     // TODO: Validate that this is correct!
                     dependency_chain: parent_injector
                         .map(|parent_injector| parent_injector.resolve_dependency_chain())
-                        .unwrap_or(Vec::new()),
+                        .unwrap_or_default(),
                 }),
             },
         }

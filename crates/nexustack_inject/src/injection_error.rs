@@ -24,9 +24,9 @@ pub type ConstructionResult<T> = std::result::Result<T, ConstructionError>;
 
 fn format_service<'r>(
     service: &'r ServiceToken,
-    dependency_chain: &Vec<ServiceToken>,
+    dependency_chain: &[ServiceToken],
 ) -> Cow<'r, str> {
-    if dependency_chain.len() == 0 {
+    if dependency_chain.is_empty() {
         return Cow::Borrowed(service.type_name());
     }
 
@@ -53,31 +53,43 @@ fn format_service<'r>(
 #[derive(Clone, Debug, Error)]
 #[non_exhaustive]
 pub enum InjectionError {
-    #[error("cannot resolve service {} from uninitialized service-provider", format_service(&service, &dependency_chain))]
+    #[error(
+        "cannot resolve service {} from uninitialized service-provider",
+        format_service(service, dependency_chain)
+    )]
     UninitializedServiceProvider {
         service: ServiceToken,
         dependency_chain: Vec<ServiceToken>,
     },
 
-    #[error("cannot resolve service {} from dropped service-provider", format_service(&service, &dependency_chain))]
+    #[error(
+        "cannot resolve service {} from dropped service-provider",
+        format_service(service, dependency_chain)
+    )]
     DroppedServiceProvider {
         service: ServiceToken,
         dependency_chain: Vec<ServiceToken>,
     },
 
-    #[error("cannot resolve service {} with cyclic reference", format_service(&service, &dependency_chain))]
+    #[error(
+        "cannot resolve service {} with cyclic reference",
+        format_service(service, dependency_chain)
+    )]
     CyclicReference {
         service: ServiceToken,
         dependency_chain: Vec<ServiceToken>,
     },
 
-    #[error("service {} not found", format_service(&service, &dependency_chain))]
+    #[error("service {} not found", format_service(service, dependency_chain))]
     ServiceNotFound {
         service: ServiceToken,
         dependency_chain: Vec<ServiceToken>,
     },
 
-    #[error("service {} cannot be constructed due to an error", format_service(&service, &dependency_chain))]
+    #[error(
+        "service {} cannot be constructed due to an error",
+        format_service(service, dependency_chain)
+    )]
     Custom {
         service: ServiceToken,
         dependency_chain: Vec<ServiceToken>,

@@ -68,7 +68,7 @@ impl<T> AtomicOnceCell<T> {
             Ordering::Relaxed,
         );
 
-        if let Ok(_) = res {
+        if res.is_ok() {
             // SAFETY: There are no readers of this memory location, as the state is not set to init yes and
             //         we are the only writer, as we are the one that set the busy flag.
             *unsafe { &mut *self.inner.get() } = Some(value);

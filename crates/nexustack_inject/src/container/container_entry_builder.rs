@@ -13,6 +13,11 @@ use crate::{
 };
 use std::sync::Arc;
 
+type ScopedServiceFactory<TService> =
+    dyn Fn(&Injector) -> ConstructionResult<TService> + Send + Sync;
+
+type SingletonServiceFactory<TService> = dyn FnOnce(&Injector) -> ConstructionResult<TService>;
+
 // aka service-descriptor
 pub(crate) trait ScopedUntypedContainerEntryBuilder: UntypedContainerEntryBuilder {
     fn to_builder(&self) -> Box<dyn UntypedContainerEntryBuilder>;
@@ -27,7 +32,7 @@ pub(crate) trait UntypedContainerEntryBuilder {
 }
 
 pub(crate) struct TransientContainerEntryBuilder<TService> {
-    factory: Box<dyn Fn(&Injector) -> ConstructionResult<TService> + Send + Sync>,
+    factory: Box<ScopedServiceFactory<TService>>,
 }
 
 impl<TService> TransientContainerEntryBuilder<TService> {
@@ -56,7 +61,7 @@ impl<TService: Send + Sync + 'static> UntypedContainerEntryBuilder
 }
 
 pub(crate) struct SingletonContainerEntryBuilder<TService> {
-    factory: Box<dyn FnOnce(&Injector) -> ConstructionResult<TService>>,
+    factory: Box<SingletonServiceFactory<TService>>,
     clone_resolved: fn(service: &InjectionResult<TService>) -> InjectionResult<TService>,
 }
 
@@ -100,7 +105,7 @@ impl<TService: Send + Sync + 'static> UntypedContainerEntryBuilder
 
 #[derive(Clone)]
 pub(crate) struct ScopedContainerEntryBuilder<TService> {
-    factory: Arc<dyn Fn(&Injector) -> ConstructionResult<TService> + Send + Sync>,
+    factory: Arc<ScopedServiceFactory<TService>>,
     clone_resolved: fn(service: &InjectionResult<TService>) -> InjectionResult<TService>,
 }
 

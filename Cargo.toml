@@ -7,6 +7,7 @@ members = [
 ]
 
 [workspace.package]
+rust-version="1.88.0"
 version = "0.1.0"
 authors = ["Cato Truetschel and contributors"]
 description = "A rust web framework inspired by nestjs and asp.net"

@@ -16,7 +16,7 @@ impl ServiceScope {
         Self { service_provider }
     }
 
-    pub fn service_provider(&self) -> ServiceProvider {
-        self.service_provider.clone()
+    pub fn service_provider(&self) -> &ServiceProvider {
+        &self.service_provider
     }
 }

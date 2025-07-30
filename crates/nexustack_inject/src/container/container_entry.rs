@@ -12,6 +12,9 @@ use crate::{
 };
 use std::any::Any;
 
+type TransientServiceFactory<TService> =
+    dyn Fn(&Injector) -> ConstructionResult<TService> + Send + Sync;
+
 pub(crate) trait UntypedContainerEntry {
     fn as_any(&self) -> &dyn Any;
 }
@@ -23,9 +26,7 @@ pub(crate) enum ContainerEntry<TService> {
 }
 
 impl<TService: 'static> ContainerEntry<TService> {
-    pub(crate) fn transient(
-        factory: Box<dyn Fn(&Injector) -> ConstructionResult<TService> + Send + Sync>,
-    ) -> Self {
+    pub(crate) fn transient(factory: Box<TransientServiceFactory<TService>>) -> Self {
         Self::Transient(TransientContainerEntry { factory })
     }
 
@@ -65,7 +66,7 @@ impl<TService: 'static> UntypedContainerEntry for ContainerEntry<TService> {
 }
 
 pub(crate) struct TransientContainerEntry<TService> {
-    factory: Box<dyn Fn(&Injector) -> ConstructionResult<TService> + Send + Sync>,
+    factory: Box<TransientServiceFactory<TService>>,
 }
 
 impl<TService: 'static> TransientContainerEntry<TService> {
