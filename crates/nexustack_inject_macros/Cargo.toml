@@ -1,13 +1,17 @@
 [package]
 name = "nexustack_inject_macros"
-version = "0.1.0"
 edition = "2024"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+repository.workspace = true
+license.workspace = true
 
 [lib]
 proc-macro = true
 
 [dependencies]
-proc-macro2 = "1.0.95"
-nexustack_inject_macros_impl = { path = "../nexustack_inject_macros_impl" }
+proc-macro2 = { workspace = true }
+nexustack_inject_macros_impl = { workspace = true }
 
 [dev-dependencies]

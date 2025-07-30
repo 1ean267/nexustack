@@ -1,7 +1,11 @@
 [package]
 name = "nexustack_inject"
-version = "0.1.0"
 edition = "2024"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+repository.workspace = true
+license.workspace = true
 
 [features]
 default = ["derive"]
@@ -10,7 +14,7 @@ unsize = []
 
 [dependencies]
 
-nexustack_inject_macros = { path = "../nexustack_inject_macros" }
-thiserror = "2.0.12"
+nexustack_inject_macros = { workspace = true }
+thiserror = { workspace = true }
 
 [dev-dependencies]

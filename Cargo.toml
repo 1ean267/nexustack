@@ -1,3 +1,23 @@
 [workspace]
 resolver = "2"
-members = ["crates/nexustack_inject", "crates/nexustack_inject_macros", "crates/nexustack_inject_macros_impl"]
+members = [
+    "crates/nexustack_inject",
+    "crates/nexustack_inject_macros",
+    "crates/nexustack_inject_macros_impl"
+]
+
+[workspace.package]
+version = "0.1.0"
+authors = ["Cato Truetschel and contributors"]
+description = "A rust web framework inspired by nestjs and asp.net"
+repository = "https://github.com/1ean267/nexustack"
+license = "MIT"
+
+[workspace.dependencies]
+nexustack_inject_macros = { path = 'crates\nexustack_inject_macros' }
+nexustack_inject_macros_impl = { path = 'crates\nexustack_inject_macros_impl' }
+proc-macro2 = "1.0.95"
+quote = "1.0.40"
+rust-format = "0.3.4"
+syn = "2.0.100"
+thiserror = "2.0.12"
