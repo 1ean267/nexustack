@@ -1,0 +1,16 @@
+[package]
+name = "nexustack_inject"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = ["derive"]
+derive = []
+unsize = []
+
+[dependencies]
+
+nexustack_inject_macros = { path = "../nexustack_inject_macros" }
+thiserror = "2.0.12"
+
+[dev-dependencies]
