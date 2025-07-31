@@ -15,8 +15,8 @@ repository = "https://github.com/1ean267/nexustack"
 license = "MIT"
 
 [workspace.dependencies]
-nexustack_inject_macros = { path = 'crates/nexustack_inject_macros' }
-nexustack_inject_macros_impl = { path = 'crates/nexustack_inject_macros_impl' }
+nexustack_inject_macros = { path = "crates/nexustack_inject_macros" }
+nexustack_inject_macros_impl = { path = "crates/nexustack_inject_macros_impl" }
 proc-macro2 = "1.0.95"
 quote = "1.0.40"
 rust-format = "0.3.4"
