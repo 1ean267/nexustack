@@ -71,9 +71,10 @@ impl ContainerBuilder {
         let container: Arc<AtomicOnceCell<Container>> = Arc::new(AtomicOnceCell::new());
         let inner_service_provider = ServiceProvider::create_weak(Arc::downgrade(&container));
 
-        if let Some(scoped_builders) = scoped_builders {
+        entry_builders.push(Box::new(TransientContainerEntryBuilder::new({
             let inner_service_provider = inner_service_provider.clone();
-            entry_builders.push(Box::new(TransientContainerEntryBuilder::new(move |_| {
+            let scoped_builders = scoped_builders.unwrap_or_default();
+            move |_| {
                 let entry_builders = scoped_builders
                     .iter()
                     .map(|builder| builder.to_builder())
@@ -88,8 +89,8 @@ impl ContainerBuilder {
                 let scope_service_provider = scope_container_builder.build();
 
                 Ok(ServiceScope::new(scope_service_provider))
-            })));
-        }
+            }
+        })));
 
         entry_builders.push(Box::new(SingletonContainerEntryBuilder::new(|_| {
             Ok(inner_service_provider)

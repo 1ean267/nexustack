@@ -12,6 +12,16 @@ use crate::{
 };
 use std::{any::TypeId, marker::PhantomData};
 
+/// Represents a service injector that is used to perform the actual injection of services
+/// into dependent services.
+///
+/// # Remarks
+/// This type cannot be constructed manually but is used as a
+/// Non-Static, Non-Send, Non-Sync proxy that cannot escape the calling stack of a service
+/// factory function (see [Injectable]). A [ServiceProvider] can be resolved from the injector
+/// (for example for lazy service retrieval) but it is only usable when the [ServiceProvider] or
+/// [ServiceScope] is fully constructed. Prior use will result in a [InjectionError] at service
+/// retrieval time. For a general purpose way to retrieve services, see the [ServiceProvider] type.
 pub struct Injector<'i> {
     inner: InjectorInner<'i>,
     service_token: ServiceToken,
@@ -67,6 +77,47 @@ impl<'i> Injector<'i> {
         result
     }
 
+    /// Resolves a service from the provider. If the service cannot be resolved, an [InjectionError] is returned.
+    ///
+    /// # Type arguments
+    ///
+    /// * `TService` - The type of the service to resolve from the provider.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use nexustack_inject::injectable;
+    /// use nexustack_inject::ServiceCollection;
+    /// use nexustack_inject::ServiceScope;
+    ///
+    /// #[derive(Clone)]
+    /// struct MyService { }
+    ///
+    /// #[injectable]
+    /// impl MyService {
+    ///     pub fn new() -> Self {
+    ///         Self { }
+    ///     }
+    /// }
+    ///
+    /// #[derive(Clone)]
+    /// struct MyOtherService {
+    ///     my_service: MyService
+    /// }
+    ///
+    /// impl MyOtherService {
+    ///     pub fn new(my_service: MyService) -> Self {
+    ///         Self { my_service }
+    ///     }
+    /// }
+    ///
+    /// let service_provider = ServiceCollection::new()
+    ///     .add_singleton::<MyService>()
+    ///     .add_singleton_factory(|injector| Ok(MyOtherService::new(injector.resolve::<MyService>()?)))
+    ///     .build();
+    ///
+    /// let my_other_service = service_provider.resolve::<MyOtherService>().unwrap();
+    /// ```
     pub fn resolve<TService: 'static>(&self) -> InjectionResult<TService> {
         if self.has_service_type_in_chain(TypeId::of::<TService>()) {
             return Err(InjectionError::CyclicReference {

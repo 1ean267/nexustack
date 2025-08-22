@@ -10,6 +10,7 @@ use std::{
     fmt::Display,
 };
 
+/// Represents a service (i.e. a type) in the injection system.
 #[derive(Debug, Clone)]
 pub struct ServiceToken {
     type_id: TypeId,
@@ -17,17 +18,19 @@ pub struct ServiceToken {
 }
 
 impl ServiceToken {
-    pub fn create<TService: 'static>() -> Self {
+    pub(crate) fn create<TService: 'static>() -> Self {
         Self {
             type_id: TypeId::of::<TService>(),
             type_name: type_name::<TService>(),
         }
     }
 
+    /// The [type identifier](TypeId) as return by [TypeId::of].
     pub fn type_id(&self) -> &TypeId {
         &self.type_id
     }
 
+    /// A string slice containing the human readable type name that is provided in a best effort approach.
     pub fn type_name(&self) -> &str {
         self.type_name
     }

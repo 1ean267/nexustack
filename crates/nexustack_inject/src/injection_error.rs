@@ -19,7 +19,10 @@ const _: () = ensure_clone::<InjectionResult<String>>();
 const _: () = ensure_send::<ConstructionResult<String>>();
 const _: () = ensure_sync::<ConstructionResult<String>>();
 
+/// An injection result that represents the result of a dependency resolution
 pub type InjectionResult<T> = std::result::Result<T, InjectionError>;
+
+/// A construction result that represents the result of a service construction
 pub type ConstructionResult<T> = std::result::Result<T, ConstructionError>;
 
 fn format_service<'r>(
@@ -50,55 +53,88 @@ fn format_service<'r>(
     Cow::Owned(result)
 }
 
+/// An injection error representing an error in the resolution of a service
 #[derive(Clone, Debug, Error)]
 #[non_exhaustive]
 pub enum InjectionError {
+    /// Raised when the service provider is not initialized yet. It can only be used after
+    /// the service-collection was built
     #[error(
         "cannot resolve service {} from uninitialized service-provider",
         format_service(service, dependency_chain)
     )]
     UninitializedServiceProvider {
+        /// The [ServiceToken] that describes the service that failed to be resolved
         service: ServiceToken,
+
+        /// The list of [ServiceTokens](ServiceToken) that describe the dependency chain
+        /// of the service resolution operation
         dependency_chain: Vec<ServiceToken>,
     },
 
+    /// Raised when the service provider was dropped and can no longer be used
     #[error(
         "cannot resolve service {} from dropped service-provider",
         format_service(service, dependency_chain)
     )]
     DroppedServiceProvider {
+        /// The [ServiceToken] that describes the service that failed to be resolved
         service: ServiceToken,
+
+        /// The list of [ServiceTokens](ServiceToken) that describe the dependency chain
+        /// of the service resolution operation
         dependency_chain: Vec<ServiceToken>,
     },
 
+    // TODO: Implement weak service reference and link the type here
+    /// Raised when a service cannot be resolved due to a cyclic reference its dependency chain.
+    /// This can be worked around by using a weak service reference
     #[error(
         "cannot resolve service {} with cyclic reference",
         format_service(service, dependency_chain)
     )]
     CyclicReference {
+        /// The [ServiceToken] that describes the service that failed to be resolved
         service: ServiceToken,
+
+        /// The list of [ServiceTokens](ServiceToken) that describe the dependency chain
+        /// of the service resolution operation
         dependency_chain: Vec<ServiceToken>,
     },
 
+    /// Raised when the requested service was not found in the service provider
     #[error("service {} not found", format_service(service, dependency_chain))]
     ServiceNotFound {
+        /// The [ServiceToken] that describes the service that failed to be resolved
         service: ServiceToken,
+
+        /// The list of [ServiceTokens](ServiceToken) that describe the dependency chain
+        /// of the service resolution operation
         dependency_chain: Vec<ServiceToken>,
     },
 
+    /// Raised when the requested service cannot be constructed as there occurred an error during its
+    /// construction
     #[error(
         "service {} cannot be constructed due to an error",
         format_service(service, dependency_chain)
     )]
     Custom {
+        /// The [ServiceToken] that describes the service that failed to be resolved
         service: ServiceToken,
+
+        /// The list of [ServiceTokens](ServiceToken) that describe the dependency chain
+        /// of the service resolution operation
         dependency_chain: Vec<ServiceToken>,
+
+        /// The underlying construction error
         #[source]
         source: Arc<dyn std::error::Error + Send + Sync>,
     },
 }
 
 impl InjectionError {
+    /// Accesses the [ServiceToken] that describes the service that failed to be resolved
     pub fn service(&self) -> &ServiceToken {
         match self {
             InjectionError::UninitializedServiceProvider {
@@ -125,6 +161,8 @@ impl InjectionError {
         }
     }
 
+    /// Accesses the list of [ServiceTokens](ServiceToken) that describe the dependency chain
+    /// of the service resolution operation
     pub fn dependency_chain(&self) -> &Vec<ServiceToken> {
         match self {
             InjectionError::UninitializedServiceProvider {
@@ -152,19 +190,32 @@ impl InjectionError {
     }
 }
 
+/// An construction error representing an error in the construction of a service.
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum ConstructionError {
+    /// A service cannot be constructed as one of its dependencies cannot be resolved.
+    /// Contains the error describing the cause of the dependency resolution failure.
     #[error(transparent)]
     InjectionError(#[from] InjectionError),
 
+    /// A service cannot be constructed as the construction of the service itself errored.
+    /// Contains the error describing the construction failure.
     #[error(transparent)]
     Custom(#[from] Box<dyn std::error::Error + Send + Sync>),
 }
 
+/// Conversion into a [ConstructionResult].
+///
+/// By implementing [IntoConstructionResult] for a type, you define how it will be converted to a construction result.
+/// This is common for services that take part in the dependency injection system.
 pub trait IntoConstructionResult {
+    // TODO: Rename Value to Service
+
+    /// The type of service.
     type Value;
 
+    /// Creates a [ConstructionResult] from a value.
     fn into_construction_result(self) -> ConstructionResult<Self::Value>;
 }
 

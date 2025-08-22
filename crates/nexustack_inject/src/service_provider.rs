@@ -16,6 +16,8 @@ use std::sync::{Arc, Weak};
 const _: () = ensure_send::<ServiceProvider>();
 const _: () = ensure_sync::<ServiceProvider>();
 
+/// Represents a service-provider built from a [ServiceCollection] that can be used to resolve services from the
+/// constructed dependency injection container via its [resolve] function.
 #[derive(Clone)]
 pub struct ServiceProvider {
     inner: ServiceProviderInner,
@@ -47,6 +49,35 @@ impl ServiceProvider {
         }
     }
 
+    /// Resolves a service from the provider. If the service cannot be resolved, an [InjectionError] is returned.
+    ///
+    /// # Type arguments
+    ///
+    /// * `TService` - The type of the service to resolve from the provider.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use nexustack_inject::injectable;
+    /// use nexustack_inject::ServiceCollection;
+    /// use nexustack_inject::ServiceScope;
+    ///
+    /// #[derive(Clone)]
+    /// struct MyService { }
+    ///
+    /// #[injectable]
+    /// impl MyService {
+    ///     pub fn new() -> Self {
+    ///         Self { }
+    ///     }
+    /// }
+    ///
+    /// let service_provider = ServiceCollection::new()
+    ///     .add_singleton::<MyService>()
+    ///     .build();
+    ///
+    /// let my_service = service_provider.resolve::<MyService>().unwrap();
+    /// ```
     pub fn resolve<TService: 'static>(&self) -> InjectionResult<TService> {
         match &self.inner {
             ServiceProviderInner::Container(container) => Self::resolve_from_container(container),
