@@ -5,8 +5,6 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
-use std::path::Path;
-
 use crate::{dummy, internals::Ctxt};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -416,8 +414,7 @@ fn is_path(path: &syn::Path, segments: &[&str]) -> bool {
         return false;
     }
 
-    for i in 0..segments.len() {
-        let segment = &path.segments[i];
+    for (i, segment) in path.segments.iter().enumerate() {
         if !segment.arguments.is_none() {
             return false;
         }
