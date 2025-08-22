@@ -7,29 +7,46 @@
 
 use crate::{dummy, internals::Ctxt};
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{format_ident, quote};
 
 pub fn expand_injectable(attr: TokenStream, item: TokenStream) -> syn::Result<TokenStream> {
     // TODO: Replace receiver
     let ctxt = Ctxt::new();
 
-    let item_impl = match syn::parse2::<syn::ItemImpl>(item) {
-        Ok(item_impl) => item_impl,
-        Err(_) => {
+    match syn::parse2::<syn::Item>(item) {
+        Ok(syn::Item::Impl(item_impl)) => {
+            let result = process_item_impl(&ctxt, attr, item_impl);
+            ctxt.check()?;
+            Ok(result)
+        }
+        Ok(syn::Item::Struct(item_struct)) => match &item_struct.fields {
+            _fields @ syn::Fields::Named(_) => {
+                let result = process_item_struct(&ctxt, attr, item_struct);
+                ctxt.check()?;
+                Ok(result)
+            }
+            _fields @ syn::Fields::Unnamed(_) => {
+                let result = process_item_tuple_struct(&ctxt, attr, item_struct);
+                ctxt.check()?;
+                Ok(result)
+            }
+            _fields @ syn::Fields::Unit => {
+                let result = process_item_unit_struct(&ctxt, attr, item_struct);
+                ctxt.check()?;
+                Ok(result)
+            }
+        },
+        _ => {
             ctxt.error_spanned_by(
                 attr,
-                "The #[injectable] attribute must be placed on an impl definition.",
+                "The #[injectable] attribute must be placed on an impl definition or struct definition.",
             );
 
             // Will error anyway
             ctxt.check()?;
-            return Ok(TokenStream::new());
+            Ok(TokenStream::new())
         }
-    };
-
-    let result = process_item_impl(&ctxt, attr, item_impl);
-    ctxt.check()?;
-    Ok(result)
+    }
 }
 
 fn process_item_impl(ctxt: &Ctxt, attr: TokenStream, item_impl: syn::ItemImpl) -> TokenStream {
@@ -211,4 +228,179 @@ fn find_injectable_ctor<'a>(
     }
 
     decorated_ctor.or(default_ctor)
+}
+
+fn process_item_unit_struct(
+    ctxt: &Ctxt,
+    attr: TokenStream,
+    struct_impl: syn::ItemStruct,
+) -> TokenStream {
+    if struct_impl.generics.lifetimes().any(|_| true) {
+        ctxt.error_spanned_by(
+            &attr,
+            "The injectable type must be a type without lifetime parameters.",
+        );
+    }
+
+    let ident = &struct_impl.ident;
+    let generics = &struct_impl.generics.params;
+    let where_clause = &struct_impl.generics.where_clause;
+
+    let impl_block = quote! {
+        #[automatically_derived]
+        impl <#generics> _nexustack_inject::FromInjector for #ident #where_clause  {
+            fn from_injector(
+                injector: &_nexustack_inject::Injector,
+            ) -> _nexustack_inject::ConstructionResult<Self> {
+                _nexustack_inject::IntoConstructionResult::into_construction_result(Self)
+            }
+        }
+
+        #[automatically_derived]
+        impl <#generics> _nexustack_inject::Injectable for #ident #where_clause { }
+
+        #[automatically_derived]
+        impl <#generics> _nexustack_inject::IntoConstructionResult for #ident #where_clause {
+            type Service = #ident;
+
+            fn into_construction_result(self) -> _nexustack_inject::ConstructionResult<Self::Service> {
+                _nexustack_inject::ConstructionResult::Ok(self)
+            }
+        }
+    };
+
+    let impl_block = dummy::wrap_in_const(None, impl_block);
+
+    quote! {
+        #struct_impl
+        #impl_block
+    }
+}
+
+fn process_item_tuple_struct(
+    ctxt: &Ctxt,
+    attr: TokenStream,
+    struct_impl: syn::ItemStruct,
+) -> TokenStream {
+    if struct_impl.generics.lifetimes().any(|_| true) {
+        ctxt.error_spanned_by(
+            &attr,
+            "The injectable type must be a type without lifetime parameters.",
+        );
+    }
+
+    // let {#parameter_name} = injector.resolve::<{#parameter_type}>()?;
+    let arguments = struct_impl.fields.iter().enumerate().map(|(index, field)| {
+        let field_type = &field.ty;
+        let var_name = format_ident!("arg_{index}");
+
+        quote! {
+            let #var_name = injector.resolve::<#field_type>()?;
+        }
+    });
+
+    let field_names = (0usize..struct_impl.fields.len()).map(|index| format_ident!("arg_{index}"));
+
+    let ident = &struct_impl.ident;
+    let generics = &struct_impl.generics.params;
+    let where_clause = &struct_impl.generics.where_clause;
+
+    let impl_block = quote! {
+        #[automatically_derived]
+        impl <#generics> _nexustack_inject::FromInjector for #ident #where_clause  {
+            fn from_injector(
+                injector: &_nexustack_inject::Injector,
+            ) -> _nexustack_inject::ConstructionResult<Self> {
+                #(#arguments)*
+
+                _nexustack_inject::IntoConstructionResult::into_construction_result(Self ( #(#field_names),* ))
+            }
+        }
+
+        #[automatically_derived]
+        impl <#generics> _nexustack_inject::Injectable for #ident #where_clause { }
+
+        #[automatically_derived]
+        impl <#generics> _nexustack_inject::IntoConstructionResult for #ident #where_clause {
+            type Service = #ident;
+
+            fn into_construction_result(self) -> _nexustack_inject::ConstructionResult<Self::Service> {
+                _nexustack_inject::ConstructionResult::Ok(self)
+            }
+        }
+    };
+
+    let impl_block = dummy::wrap_in_const(None, impl_block);
+
+    quote! {
+        #struct_impl
+        #impl_block
+    }
+}
+
+fn process_item_struct(
+    ctxt: &Ctxt,
+    attr: TokenStream,
+    struct_impl: syn::ItemStruct,
+) -> TokenStream {
+    if struct_impl.generics.lifetimes().any(|_| true) {
+        ctxt.error_spanned_by(
+            &attr,
+            "The injectable type must be a type without lifetime parameters.",
+        );
+    }
+
+    // let {#parameter_name} = injector.resolve::<{#parameter_type}>()?;
+    let arguments = struct_impl.fields.iter().map(|field| {
+        let field_type = &field.ty;
+        let field_name = match &field.ident {
+            Some(ident) => ident,
+            _ => unreachable!("Fields of braced structs are always named"),
+        };
+
+        quote! {
+            let #field_name = injector.resolve::<#field_type>()?;
+        }
+    });
+
+    let field_names = struct_impl.fields.iter().map(|field| match &field.ident {
+        Some(ident) => ident,
+        _ => unreachable!("Fields of braced structs are always named"),
+    });
+
+    let ident = &struct_impl.ident;
+    let generics = &struct_impl.generics.params;
+    let where_clause = &struct_impl.generics.where_clause;
+
+    let impl_block = quote! {
+        #[automatically_derived]
+        impl <#generics> _nexustack_inject::FromInjector for #ident #where_clause  {
+            fn from_injector(
+                injector: &_nexustack_inject::Injector,
+            ) -> _nexustack_inject::ConstructionResult<Self> {
+                #(#arguments)*
+
+                _nexustack_inject::IntoConstructionResult::into_construction_result(Self { #(#field_names),* })
+            }
+        }
+
+        #[automatically_derived]
+        impl <#generics> _nexustack_inject::Injectable for #ident #where_clause { }
+
+        #[automatically_derived]
+        impl <#generics> _nexustack_inject::IntoConstructionResult for #ident #where_clause {
+            type Service = #ident;
+
+            fn into_construction_result(self) -> _nexustack_inject::ConstructionResult<Self::Service> {
+                _nexustack_inject::ConstructionResult::Ok(self)
+            }
+        }
+    };
+
+    let impl_block = dummy::wrap_in_const(None, impl_block);
+
+    quote! {
+        #struct_impl
+        #impl_block
+    }
 }
