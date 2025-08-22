@@ -5,6 +5,8 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
+use std::path::Path;
+
 use crate::{dummy, internals::Ctxt};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -125,7 +127,7 @@ fn process_item_impl(ctxt: &Ctxt, attr: TokenStream, item_impl: syn::ItemImpl) -
         })
     {
         if let Some(index) = fn_item.attrs.iter().position(|attr| match &attr.meta {
-            syn::Meta::Path(attr_path) => attr_path.is_ident("injectable_ctor"),
+            syn::Meta::Path(attr_path) => is_path(attr_path, &["injectable", "ctor"]),
             _ => false,
         }) {
             fn_item.attrs.swap_remove(index);
@@ -171,7 +173,7 @@ fn process_item_impl(ctxt: &Ctxt, attr: TokenStream, item_impl: syn::ItemImpl) -
 
 fn get_injectable_ctor_attr(fun: &syn::ImplItemFn) -> Option<&syn::Attribute> {
     fun.attrs.iter().find(|attr| match &attr.meta {
-        syn::Meta::Path(attr_path) => attr_path.is_ident("injectable_ctor"),
+        syn::Meta::Path(attr_path) => is_path(attr_path, &["injectable", "ctor"]),
         _ => false,
     })
 }
@@ -195,7 +197,7 @@ fn find_injectable_ctor<'a>(
         {
             ctxt.error_spanned_by(
                 injectable_ctor_attr,
-                "Found multiple viable type constructors decorated with #[injectable_ctor].",
+                "Found multiple viable type constructors decorated with #[injectable::ctor].",
             );
         }
 
@@ -403,4 +405,27 @@ fn process_item_struct(
         #struct_impl
         #impl_block
     }
+}
+
+fn is_path(path: &syn::Path, segments: &[&str]) -> bool {
+    if path.leading_colon.is_some() {
+        return false;
+    }
+
+    if path.segments.len() != segments.len() {
+        return false;
+    }
+
+    for i in 0..segments.len() {
+        let segment = &path.segments[i];
+        if !segment.arguments.is_none() {
+            return false;
+        }
+
+        if segment.ident != segments[i] {
+            return false;
+        }
+    }
+
+    true
 }

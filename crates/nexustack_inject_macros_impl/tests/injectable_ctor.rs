@@ -59,7 +59,7 @@ fn test_injectable_ctor() {
         impl Basic {
             pub fn new() -> Self {}
 
-            #[injectable_ctor]
+            #[injectable::ctor]
             pub fn new2(dependency1: Dependency1, dependency2: Dependency2) -> Self {}
         }
     };
