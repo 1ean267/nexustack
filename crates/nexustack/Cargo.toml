@@ -1,0 +1,24 @@
+[package]
+name = "nexustack"
+edition = "2024"
+readme = "README.md"
+keywords = ["nexustack", "inject", "dependency-injection", "DI", "inversion of control", "IOC", "container"]
+categories = ["web-programming"]
+rust-version.workspace = true
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[features]
+default = ["derive"]
+derive = []
+unsize = []
+
+[dependencies]
+
+nexustack_macros = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]

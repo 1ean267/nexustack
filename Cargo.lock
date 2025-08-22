@@ -3,23 +3,23 @@
 version = 4
 
 [[package]]
-name = "nexustack_inject"
+name = "nexustack"
 version = "0.1.0"
 dependencies = [
- "nexustack_inject_macros",
+ "nexustack_macros",
  "thiserror",
 ]
 
 [[package]]
-name = "nexustack_inject_macros"
+name = "nexustack_macros"
 version = "0.1.0"
 dependencies = [
- "nexustack_inject_macros_impl",
+ "nexustack_macros_impl",
  "proc-macro2",
 ]
 
 [[package]]
-name = "nexustack_inject_macros_impl"
+name = "nexustack_macros_impl"
 version = "0.1.0"
 dependencies = [
  "proc-macro2",

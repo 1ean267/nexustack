@@ -1,9 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/nexustack_inject",
-    "crates/nexustack_inject_macros",
-    "crates/nexustack_inject_macros_impl"
+    "crates/nexustack",
+    "crates/nexustack_macros",
+    "crates/nexustack_macros_impl"
 ]
 
 [workspace.package]
@@ -15,8 +15,8 @@ repository = "https://github.com/1ean267/nexustack"
 license = "MIT"
 
 [workspace.dependencies]
-nexustack_inject_macros = { path = "crates/nexustack_inject_macros" }
-nexustack_inject_macros_impl = { path = "crates/nexustack_inject_macros_impl" }
+nexustack_macros = { path = "crates/nexustack_macros" }
+nexustack_macros_impl = { path = "crates/nexustack_macros_impl" }
 proc-macro2 = "1.0.95"
 quote = "1.0.40"
 rust-format = "0.3.4"
