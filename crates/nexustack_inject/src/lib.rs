@@ -17,6 +17,7 @@
 #![warn(clippy::complexity)]
 #![warn(clippy::suspicious)]
 #![warn(clippy::correctness)]
+#![allow(clippy::redundant_pub_crate)]
 #![cfg_attr(feature = "unsize", feature(unsize))]
 
 mod container;

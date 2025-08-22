@@ -1,6 +1,9 @@
 [package]
 name = "nexustack_inject_macros"
 edition = "2024"
+readme = "README.md"
+keywords = ["nexustack", "inject", "dependency-injection", "DI", "inversion of control", "IOC", "container"]
+categories = ["web-programming"]
 rust-version.workspace = true
 version.workspace = true
 authors.workspace = true

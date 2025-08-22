@@ -18,7 +18,7 @@ use crate::{
 };
 
 /// Represents a service-collection that can be used to register and collection services. It acts as a factory
-/// for a [ServiceProvider] that can be constructed via its [build] function.
+/// for a [`ServiceProvider`] that can be constructed via its [build] function.
 pub struct ServiceCollection {
     root_builders: Vec<Box<dyn UntypedContainerEntryBuilder>>,
     scoped_builders: Vec<Box<dyn ScopedUntypedContainerEntryBuilder + Send + Sync>>,
@@ -26,6 +26,7 @@ pub struct ServiceCollection {
 
 impl ServiceCollection {
     /// Constructs a new empty service collection.
+    #[must_use]
     pub fn new() -> Self {
         Self {
             root_builders: Vec::new(),
@@ -33,7 +34,7 @@ impl ServiceCollection {
         }
     }
 
-    /// Consumes the service collection and constructs a [ServiceProvider] that can be used to resolve the registered
+    /// Consumes the service collection and constructs a [`ServiceProvider`] that can be used to resolve the registered
     /// services.
     ///
     /// # Example
@@ -56,13 +57,14 @@ impl ServiceCollection {
     ///     .add_singleton::<MyService>()
     ///     .build();
     /// ```
+    #[must_use]
     pub fn build(self) -> ServiceProvider {
         let container_builder = ContainerBuilder::new(
             self.root_builders,
-            if !self.scoped_builders.is_empty() {
-                Some(self.scoped_builders)
-            } else {
+            if self.scoped_builders.is_empty() {
                 None
+            } else {
+                Some(self.scoped_builders)
             },
             None,
         );
@@ -111,6 +113,7 @@ impl ServiceCollection {
     ///
     /// let my_service = service_provider.resolve::<MyService>().unwrap();
     /// ```
+    #[must_use]
     pub fn add_value<TService: Clone + Send + Sync + 'static>(mut self, value: TService) -> Self {
         self.root_builders
             .push(Box::new(SingletonContainerEntryBuilder::new(|_| Ok(value))));
@@ -164,6 +167,7 @@ impl ServiceCollection {
     ///
     /// assert_eq!(1, my_service.seq_num);
     /// ```
+    #[must_use]
     pub fn add_singleton<TService: Clone + Send + Sync + Injectable + 'static>(mut self) -> Self {
         self.root_builders
             .push(Box::new(SingletonContainerEntryBuilder::new(
@@ -224,6 +228,7 @@ impl ServiceCollection {
     ///
     /// assert_eq!(2, my_service.seq_num);
     /// ```
+    #[must_use]
     pub fn add_scoped<TService: Clone + Send + Sync + Injectable + 'static>(mut self) -> Self {
         self.scoped_builders
             .push(Box::new(ScopedContainerEntryBuilder::new(
@@ -279,6 +284,7 @@ impl ServiceCollection {
     ///
     /// assert_eq!(3, my_service.seq_num);
     /// ```
+    #[must_use]
     pub fn add_transient<TService: Send + Sync + Injectable + 'static>(mut self) -> Self {
         self.root_builders
             .push(Box::new(TransientContainerEntryBuilder::new(
@@ -350,6 +356,7 @@ impl ServiceCollection {
     ///
     /// assert_eq!(1, my_service.seq_num);
     /// ```
+    #[must_use]
     pub fn add_singleton_factory<TService: Clone + Send + Sync + 'static>(
         mut self,
         factory: impl FnOnce(&Injector) -> ConstructionResult<TService> + 'static,
@@ -427,6 +434,7 @@ impl ServiceCollection {
     ///
     /// assert_eq!(2, my_service.seq_num);
     /// ```
+    #[must_use]
     pub fn add_scoped_factory<TService: Clone + Send + Sync + 'static>(
         mut self,
         factory: impl Fn(&Injector) -> ConstructionResult<TService> + Send + Sync + 'static,
@@ -499,6 +507,7 @@ impl ServiceCollection {
     ///
     /// assert_eq!(3, my_service.seq_num);
     /// ```
+    #[must_use]
     pub fn add_transient_factory<TService: Send + Sync + 'static>(
         mut self,
         factory: impl Fn(&Injector) -> ConstructionResult<TService> + Send + Sync + 'static,

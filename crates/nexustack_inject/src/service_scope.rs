@@ -39,12 +39,13 @@ pub struct ServiceScope {
 }
 
 impl ServiceScope {
-    pub(crate) fn new(service_provider: ServiceProvider) -> Self {
+    pub(crate) const fn new(service_provider: ServiceProvider) -> Self {
         Self { service_provider }
     }
 
     /// A reference to the scoped service provider.
-    pub fn service_provider(&self) -> &ServiceProvider {
+    #[must_use]
+    pub const fn service_provider(&self) -> &ServiceProvider {
         &self.service_provider
     }
 }

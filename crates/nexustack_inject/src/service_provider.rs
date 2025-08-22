@@ -16,21 +16,21 @@ use std::sync::{Arc, Weak};
 const _: () = ensure_send::<ServiceProvider>();
 const _: () = ensure_sync::<ServiceProvider>();
 
-/// Represents a service-provider built from a [ServiceCollection] that can be used to resolve services from the
-/// constructed dependency injection container via its [resolve] function.
+/// Represents a service-provider built from a [`ServiceCollection`] that can be used to resolve services from the
+/// constructed dependency injection container via its [`resolve`] function.
 #[derive(Clone)]
 pub struct ServiceProvider {
     inner: ServiceProviderInner,
 }
 
 impl ServiceProvider {
-    pub(crate) fn create(container: Arc<AtomicOnceCell<Container>>) -> Self {
+    pub(crate) const fn create(container: Arc<AtomicOnceCell<Container>>) -> Self {
         Self {
             inner: ServiceProviderInner::Container(container),
         }
     }
 
-    pub(crate) fn create_weak(container: Weak<AtomicOnceCell<Container>>) -> Self {
+    pub(crate) const fn create_weak(container: Weak<AtomicOnceCell<Container>>) -> Self {
         Self {
             inner: ServiceProviderInner::ContainerWeak(container),
         }
@@ -39,17 +39,19 @@ impl ServiceProvider {
     fn resolve_from_container<TService: 'static>(
         container: &Arc<AtomicOnceCell<Container>>,
     ) -> InjectionResult<TService> {
-        match container.get() {
-            Some(container) => container.resolve_core(None),
-            None => Err(InjectionError::UninitializedServiceProvider {
-                service: ServiceToken::create::<TService>(),
-                // TODO: Dependency chain is missing here! (Is it possible this is not the root call from the caller?)
-                dependency_chain: Vec::new(),
-            }),
-        }
+        container.get().map_or_else(
+            || {
+                Err(InjectionError::UninitializedServiceProvider {
+                    service: ServiceToken::create::<TService>(),
+                    // TODO: Dependency chain is missing here! (Is it possible this is not the root call from the caller?)
+                    dependency_chain: Vec::new(),
+                })
+            },
+            |container| container.resolve_core(None),
+        )
     }
 
-    /// Resolves a service from the provider. If the service cannot be resolved, an [InjectionError] is returned.
+    /// Resolves a service from the provider. If the service cannot be resolved, an [`InjectionError`] is returned.
     ///
     /// # Type arguments
     ///
@@ -78,17 +80,26 @@ impl ServiceProvider {
     ///
     /// let my_service = service_provider.resolve::<MyService>().unwrap();
     /// ```
+    ///
+    /// # Errors
+    ///  * `InjectionError` when the service cannot be resolved either due to a resolution error or when a constructor/factory function
+    ///    has raised a custom error. See the [`InjectError`] enum for further information.
+    ///  
     pub fn resolve<TService: 'static>(&self) -> InjectionResult<TService> {
         match &self.inner {
             ServiceProviderInner::Container(container) => Self::resolve_from_container(container),
-            ServiceProviderInner::ContainerWeak(container_weak) => match container_weak.upgrade() {
-                Some(container) => Self::resolve_from_container(&container),
-                None => Err(InjectionError::DroppedServiceProvider {
-                    service: ServiceToken::create::<TService>(),
-                    // TODO: Dependency chain is missing here! (Is it possible this is not the root call from the caller?)
-                    dependency_chain: Vec::new(),
-                }),
-            },
+            ServiceProviderInner::ContainerWeak(container_weak) => {
+                container_weak.upgrade().map_or_else(
+                    || {
+                        Err(InjectionError::DroppedServiceProvider {
+                            service: ServiceToken::create::<TService>(),
+                            // TODO: Dependency chain is missing here! (Is it possible this is not the root call from the caller?)
+                            dependency_chain: Vec::new(),
+                        })
+                    },
+                    |container| Self::resolve_from_container(&container),
+                )
+            }
         }
     }
 }

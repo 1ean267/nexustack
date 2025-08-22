@@ -64,10 +64,10 @@ pub enum InjectionError {
         format_service(service, dependency_chain)
     )]
     UninitializedServiceProvider {
-        /// The [ServiceToken] that describes the service that failed to be resolved
+        /// The [`ServiceToken`] that describes the service that failed to be resolved
         service: ServiceToken,
 
-        /// The list of [ServiceTokens](ServiceToken) that describe the dependency chain
+        /// The list of [`ServiceTokens`](ServiceToken) that describe the dependency chain
         /// of the service resolution operation
         dependency_chain: Vec<ServiceToken>,
     },
@@ -78,10 +78,10 @@ pub enum InjectionError {
         format_service(service, dependency_chain)
     )]
     DroppedServiceProvider {
-        /// The [ServiceToken] that describes the service that failed to be resolved
+        /// The [`ServiceToken`] that describes the service that failed to be resolved
         service: ServiceToken,
 
-        /// The list of [ServiceTokens](ServiceToken) that describe the dependency chain
+        /// The list of [`ServiceTokens`](ServiceToken) that describe the dependency chain
         /// of the service resolution operation
         dependency_chain: Vec<ServiceToken>,
     },
@@ -94,10 +94,10 @@ pub enum InjectionError {
         format_service(service, dependency_chain)
     )]
     CyclicReference {
-        /// The [ServiceToken] that describes the service that failed to be resolved
+        /// The [`ServiceToken`] that describes the service that failed to be resolved
         service: ServiceToken,
 
-        /// The list of [ServiceTokens](ServiceToken) that describe the dependency chain
+        /// The list of [`ServiceTokens`](ServiceToken) that describe the dependency chain
         /// of the service resolution operation
         dependency_chain: Vec<ServiceToken>,
     },
@@ -105,10 +105,10 @@ pub enum InjectionError {
     /// Raised when the requested service was not found in the service provider
     #[error("service {} not found", format_service(service, dependency_chain))]
     ServiceNotFound {
-        /// The [ServiceToken] that describes the service that failed to be resolved
+        /// The [`ServiceToken`] that describes the service that failed to be resolved
         service: ServiceToken,
 
-        /// The list of [ServiceTokens](ServiceToken) that describe the dependency chain
+        /// The list of [`ServiceTokens`](ServiceToken) that describe the dependency chain
         /// of the service resolution operation
         dependency_chain: Vec<ServiceToken>,
     },
@@ -120,10 +120,10 @@ pub enum InjectionError {
         format_service(service, dependency_chain)
     )]
     Custom {
-        /// The [ServiceToken] that describes the service that failed to be resolved
+        /// The [`ServiceToken`] that describes the service that failed to be resolved
         service: ServiceToken,
 
-        /// The list of [ServiceTokens](ServiceToken) that describe the dependency chain
+        /// The list of [`ServiceTokens`](ServiceToken) that describe the dependency chain
         /// of the service resolution operation
         dependency_chain: Vec<ServiceToken>,
 
@@ -134,26 +134,27 @@ pub enum InjectionError {
 }
 
 impl InjectionError {
-    /// Accesses the [ServiceToken] that describes the service that failed to be resolved
-    pub fn service(&self) -> &ServiceToken {
+    /// Accesses the [`ServiceToken`] that describes the service that failed to be resolved
+    #[allow(clippy::must_use_candidate)]
+    pub const fn service(&self) -> &ServiceToken {
         match self {
-            InjectionError::UninitializedServiceProvider {
+            Self::UninitializedServiceProvider {
                 service,
                 dependency_chain: _,
-            } => service,
-            InjectionError::DroppedServiceProvider {
+            }
+            | Self::DroppedServiceProvider {
                 service,
                 dependency_chain: _,
-            } => service,
-            InjectionError::CyclicReference {
+            }
+            | Self::CyclicReference {
                 service,
                 dependency_chain: _,
-            } => service,
-            InjectionError::ServiceNotFound {
+            }
+            | Self::ServiceNotFound {
                 service,
                 dependency_chain: _,
-            } => service,
-            InjectionError::Custom {
+            }
+            | Self::Custom {
                 service,
                 dependency_chain: _,
                 source: _,
@@ -161,27 +162,28 @@ impl InjectionError {
         }
     }
 
-    /// Accesses the list of [ServiceTokens](ServiceToken) that describe the dependency chain
+    /// Accesses the list of [`ServiceTokens`] that describe the dependency chain
     /// of the service resolution operation
-    pub fn dependency_chain(&self) -> &Vec<ServiceToken> {
+    #[allow(clippy::must_use_candidate)]
+    pub const fn dependency_chain(&self) -> &Vec<ServiceToken> {
         match self {
-            InjectionError::UninitializedServiceProvider {
+            Self::UninitializedServiceProvider {
                 service: _,
                 dependency_chain,
-            } => dependency_chain,
-            InjectionError::DroppedServiceProvider {
+            }
+            | Self::DroppedServiceProvider {
                 service: _,
                 dependency_chain,
-            } => dependency_chain,
-            InjectionError::CyclicReference {
+            }
+            | Self::CyclicReference {
                 service: _,
                 dependency_chain,
-            } => dependency_chain,
-            InjectionError::ServiceNotFound {
+            }
+            | Self::ServiceNotFound {
                 service: _,
                 dependency_chain,
-            } => dependency_chain,
-            InjectionError::Custom {
+            }
+            | Self::Custom {
                 service: _,
                 dependency_chain,
                 source: _,
@@ -205,24 +207,23 @@ pub enum ConstructionError {
     Custom(#[from] Box<dyn std::error::Error + Send + Sync>),
 }
 
-/// Conversion into a [ConstructionResult].
+/// Conversion into a [`ConstructionResult`].
 ///
-/// By implementing [IntoConstructionResult] for a type, you define how it will be converted to a construction result.
+/// By implementing [`IntoConstructionResult`] for a type, you define how it will be converted to a construction result.
 /// This is common for services that take part in the dependency injection system.
 pub trait IntoConstructionResult {
-    // TODO: Rename Value to Service
-
     /// The type of service.
-    type Value;
+    type Service;
 
-    /// Creates a [ConstructionResult] from a value.
-    fn into_construction_result(self) -> ConstructionResult<Self::Value>;
+    /// Creates a [`ConstructionResult`] from a value.
+    #[allow(clippy::missing_errors_doc)]
+    fn into_construction_result(self) -> ConstructionResult<Self::Service>;
 }
 
 impl<T, E: std::error::Error + Send + Sync + 'static> IntoConstructionResult for Result<T, E> {
-    type Value = T;
+    type Service = T;
 
-    fn into_construction_result(self) -> ConstructionResult<Self::Value> {
+    fn into_construction_result(self) -> ConstructionResult<Self::Service> {
         match self {
             Ok(value) => ConstructionResult::Ok(value),
             Err(err) => ConstructionResult::Err(ConstructionError::Custom(Box::new(err))),

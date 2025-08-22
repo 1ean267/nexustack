@@ -14,8 +14,8 @@ pub(crate) use container_entry_builder::*;
 
 use crate::{
     injection_error::{InjectionError, InjectionResult},
-    injector::Injector,
-    service_provider::ServiceProvider,
+    injector::{self, Injector},
+    service_provider::{self, ServiceProvider},
     service_token::ServiceToken,
 };
 use container_entry::{ContainerEntry, UntypedContainerEntry};
@@ -53,16 +53,18 @@ impl Container {
 
                 typed_entry.resolve(&injector)
             }
-            None => match &self.parent_service_provider {
-                Some(parent_service_provider) => parent_service_provider.resolve(),
-                None => Err(InjectionError::ServiceNotFound {
-                    service: service_token,
-                    // TODO: Validate that this is correct!
-                    dependency_chain: parent_injector
-                        .map(|parent_injector| parent_injector.resolve_dependency_chain())
-                        .unwrap_or_default(),
-                }),
-            },
+            None => self.parent_service_provider.as_ref().map_or_else(
+                || {
+                    Err(InjectionError::ServiceNotFound {
+                        service: service_token,
+                        // TODO: Validate that this is correct!
+                        dependency_chain: parent_injector
+                            .map(injector::Injector::resolve_dependency_chain)
+                            .unwrap_or_default(),
+                    })
+                },
+                service_provider::ServiceProvider::resolve,
+            ),
         }
     }
 }

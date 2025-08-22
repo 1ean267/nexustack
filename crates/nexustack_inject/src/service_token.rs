@@ -25,13 +25,15 @@ impl ServiceToken {
         }
     }
 
-    /// The [type identifier](TypeId) as return by [TypeId::of].
-    pub fn type_id(&self) -> &TypeId {
+    /// The [type identifier](TypeId) as return by [`TypeId::of`].
+    #[allow(clippy::must_use_candidate)]
+    pub const fn type_id(&self) -> &TypeId {
         &self.type_id
     }
 
     /// A string slice containing the human readable type name that is provided in a best effort approach.
-    pub fn type_name(&self) -> &str {
+    #[allow(clippy::must_use_candidate)]
+    pub const fn type_name(&self) -> &str {
         self.type_name
     }
 }

@@ -6,15 +6,17 @@
  */
 
 use crate::{
-    container::Container,
-    container::container_entry::{ContainerEntry, UntypedContainerEntry},
-    container::container_entry_builder::{
-        ScopedUntypedContainerEntryBuilder, SingletonContainerEntryBuilder,
-        TransientContainerEntryBuilder, UntypedContainerEntryBuilder,
+    container::{
+        Container,
+        container_entry::{ContainerEntry, UntypedContainerEntry},
+        container_entry_builder::{
+            ScopedUntypedContainerEntryBuilder, SingletonContainerEntryBuilder,
+            TransientContainerEntryBuilder, UntypedContainerEntryBuilder,
+        },
     },
     injection_error::{InjectionError, InjectionResult},
-    injector::Injector,
-    service_provider::ServiceProvider,
+    injector::{self, Injector},
+    service_provider::{self, ServiceProvider},
     service_scope::ServiceScope,
     service_token::ServiceToken,
     utils::atomic_once_cell::AtomicOnceCell,
@@ -30,7 +32,7 @@ enum ContainerBuilderEntry {
 impl ContainerBuilderEntry {
     fn unwrap_into_builder(self) -> Box<dyn UntypedContainerEntryBuilder> {
         match self {
-            ContainerBuilderEntry::Builder(builder) => builder,
+            Self::Builder(builder) => builder,
             _ => {
                 panic!("Cannot unwrap into builder.")
             }
@@ -39,7 +41,7 @@ impl ContainerBuilderEntry {
 
     fn unwrap_into_entry(self) -> Box<dyn UntypedContainerEntry + Send + Sync> {
         match self {
-            ContainerBuilderEntry::Entry(entry) => entry,
+            Self::Entry(entry) => entry,
             _ => {
                 panic!("Cannot unwrap into entry.")
             }
@@ -48,7 +50,7 @@ impl ContainerBuilderEntry {
 
     fn unwrap_entry_mut(&mut self) -> &mut Box<dyn UntypedContainerEntry + Send + Sync> {
         match self {
-            ContainerBuilderEntry::Entry(entry) => entry,
+            Self::Entry(entry) => entry,
             _ => {
                 panic!("Cannot unwrap entry.")
             }
@@ -80,11 +82,8 @@ impl ContainerBuilder {
                     .map(|builder| builder.to_builder())
                     .collect::<Vec<_>>();
 
-                let scope_container_builder = ContainerBuilder::new(
-                    entry_builders,
-                    None,
-                    Some(inner_service_provider.clone()),
-                );
+                let scope_container_builder =
+                    Self::new(entry_builders, None, Some(inner_service_provider.clone()));
 
                 let scope_service_provider = scope_container_builder.build();
 
@@ -113,14 +112,11 @@ impl ContainerBuilder {
 
     pub(crate) fn build(self) -> ServiceProvider {
         for entry in self.entries.values() {
-            let mut entry = match entry.try_borrow_mut() {
-                Ok(entry) => entry,
-                Err(_) => {
-                    unreachable!(
-                        "The injector guarantees that there are no cyclic references, so that the ref-cell cannot be borrowed here."
-                    )
-                }
-            };
+            let mut entry = entry.try_borrow_mut().unwrap_or_else(|_|
+                unreachable!(
+                    "The injector guarantees that there are no cyclic references, so that the ref-cell cannot be borrowed here."
+                )
+            );
             if let ContainerBuilderEntry::Builder(builder) = &*entry {
                 let service_token = builder.service_token();
                 let injector = Injector::from_container_builder(&self, service_token, None);
@@ -157,16 +153,25 @@ impl ContainerBuilder {
             parent_injector,
         );
 
-        match self.entries.get(&TypeId::of::<TService>()) {
-            Some(entry) => {
-                let mut entry = match entry.try_borrow_mut() {
-                    Ok(entry) => entry,
-                    Err(_) => {
-                        unreachable!(
-                            "The injector guarantees that there are no cyclic references, so that the ref-cell cannot be borrowed here."
-                        )
-                    }
-                };
+        self.entries.get(&TypeId::of::<TService>()).map_or_else(|| {
+            self.parent_service_provider.as_ref().map_or_else(
+                || {
+                    Err(InjectionError::ServiceNotFound {
+                        service: ServiceToken::create::<TService>(),
+                        // TODO: Validate that this is correct!
+                        dependency_chain: parent_injector
+                            .map(injector::Injector::resolve_dependency_chain)
+                            .unwrap_or_default(),
+                    })
+                },
+                service_provider::ServiceProvider::resolve,
+            )
+        }, |entry| {
+            let mut entry = entry.try_borrow_mut().unwrap_or_else(|_| {
+                    unreachable!(
+                        "The injector guarantees that there are no cyclic references, so that the ref-cell cannot be borrowed here."
+                    )
+                });
 
                 let entry = match &mut *entry {
                     ContainerBuilderEntry::Builder(_) => {
@@ -192,17 +197,6 @@ impl ContainerBuilder {
                     .unwrap();
 
                 typed_entry.resolve(&injector)
-            }
-            None => match &self.parent_service_provider {
-                Some(parent_service_provider) => parent_service_provider.resolve(),
-                None => Err(InjectionError::ServiceNotFound {
-                    service: ServiceToken::create::<TService>(),
-                    // TODO: Validate that this is correct!
-                    dependency_chain: parent_injector
-                        .map(|parent_injector| parent_injector.resolve_dependency_chain())
-                        .unwrap_or_default(),
-                }),
-            },
-        }
+        })
     }
 }

@@ -9,9 +9,9 @@ use crate::{injection_error::ConstructionResult, injector::Injector};
 use std::sync::Arc;
 
 // The injector is a non-send, non-sync type with a lifetime to ensure that it can not escape the
-// [FromInjector::from_injector] factory function.
+// [`FromInjector::from_injector`] factory function.
 
-/// The implementing type is a service resolvable from an [injector](Injector). The provided injector can be
+/// The implementing type is a service resolvable from an [`Injector`]. The provided injector can be
 /// used to resolve dependencies of the implementing service
 ///
 /// The provided `#[injectable]` macro can be used to auto-generate the implementation of this trait.
@@ -49,23 +49,25 @@ use std::sync::Arc;
 /// }
 /// ```
 pub trait FromInjector {
-    /// Constructs the service, resolving all necessary dependencies from the provided [injector](Injector)
+    /// Constructs the service, resolving all necessary dependencies from the provided [`Injector`]
     ///
     /// # Errors
     ///
     /// This function will return an error if either a dependency could not be resolved via the provided
-    /// [injector](Injector) resulting in a [ConstructionError::InjectionError](crate::ConstructionError::InjectionError)
+    /// [`Injector`] resulting in a [`ConstructionError::InjectionError`]
     /// or the construction of the service itself errored resulting in a
-    /// [ConstructionError::Custom](crate::ConstructionError::Custom) error.
+    /// [`ConstructionError::Custom`] error.
     fn from_injector(injector: &Injector) -> ConstructionResult<Self>
     where
         Self: Sized;
 }
 
-/// Marks a type to be injectable as a dependency into other services. This is a marker trait that requires
-/// implementors to implement the [FromInjector] trait. Not all services that can be resolved from an injector
+/// Marks a type to be injectable as a dependency into other services.
+///
+/// This is a marker trait that requires
+/// implementors to implement the [`FromInjector`] trait. Not all services that can be resolved from an injector
 /// are also injectable into other services. If a service should only be constructed from an injector but never
-/// be injectable into other services implement only the [FromInjector] trait and not the [Injectable] trait.
+/// be injectable into other services implement only the [`FromInjector`] trait and not the [`Injectable`] trait.
 pub trait Injectable: FromInjector {}
 
 impl<T: FromInjector> FromInjector for Arc<T> {
@@ -73,7 +75,7 @@ impl<T: FromInjector> FromInjector for Arc<T> {
     where
         Self: Sized,
     {
-        Ok(Arc::new(T::from_injector(injector)?))
+        Ok(Self::new(T::from_injector(injector)?))
     }
 }
 

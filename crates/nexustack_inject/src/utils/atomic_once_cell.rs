@@ -128,10 +128,8 @@ impl<T> AtomicOnceCell<T> {
 
 impl<T: Clone> Clone for AtomicOnceCell<T> {
     fn clone(&self) -> Self {
-        match self.get() {
-            Some(value) => Self::from_value(value.clone()),
-            None => Self::new(),
-        }
+        self.get()
+            .map_or_else(Self::new, |value| Self::from_value(value.clone()))
     }
 }
 

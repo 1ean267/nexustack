@@ -18,66 +18,65 @@ use std::{any::TypeId, marker::PhantomData};
 /// # Remarks
 /// This type cannot be constructed manually but is used as a
 /// Non-Static, Non-Send, Non-Sync proxy that cannot escape the calling stack of a service
-/// factory function (see [Injectable]). A [ServiceProvider] can be resolved from the injector
-/// (for example for lazy service retrieval) but it is only usable when the [ServiceProvider] or
-/// [ServiceScope] is fully constructed. Prior use will result in a [InjectionError] at service
-/// retrieval time. For a general purpose way to retrieve services, see the [ServiceProvider] type.
+/// factory function (see [`Injectable`]). A [`ServiceProvider`] can be resolved from the injector
+/// (for example for lazy service retrieval) but it is only usable when the [`ServiceProvider`] or
+/// [`ServiceScope`] is fully constructed. Prior use will result in a [`InjectionError`] at service
+/// retrieval time. For a general purpose way to retrieve services, see the [`ServiceProvider`] type.
 pub struct Injector<'i> {
     inner: InjectorInner<'i>,
     service_token: ServiceToken,
-    parent_injector: Option<&'i Injector<'i>>,
+    parent: Option<&'i Self>,
     _not_send_sync: PhantomData<*const ()>,
 }
 
 impl<'i> Injector<'i> {
-    pub(crate) fn from_container(
+    pub(crate) const fn from_container(
         container: &'i Container,
         service_token: ServiceToken,
-        parent_injector: Option<&'i Injector<'i>>,
+        parent_injector: Option<&'i Self>,
     ) -> Self {
         Injector {
             inner: InjectorInner::Container(container),
             service_token,
-            parent_injector,
+            parent: parent_injector,
             _not_send_sync: PhantomData,
         }
     }
 
-    pub(crate) fn from_container_builder(
+    pub(crate) const fn from_container_builder(
         container_builder: &'i ContainerBuilder,
         service_token: ServiceToken,
-        parent_injector: Option<&'i Injector<'i>>,
+        parent_injector: Option<&'i Self>,
     ) -> Self {
         Injector {
             inner: InjectorInner::ContainerBuilder(container_builder),
             service_token,
-            parent_injector,
+            parent: parent_injector,
             _not_send_sync: PhantomData,
         }
     }
 
     fn has_service_type_in_chain(&self, service_type: TypeId) -> bool {
         self.service_token.type_id() == &service_type
-            || self
-                .parent_injector
-                .map(|parent_injector| parent_injector.has_service_type_in_chain(service_type))
-                .unwrap_or_default()
+            || self.parent.is_some_and(|parent_injector| {
+                parent_injector.has_service_type_in_chain(service_type)
+            })
     }
 
     pub(crate) fn resolve_dependency_chain(&self) -> Vec<ServiceToken> {
         let mut result = Vec::new();
         result.push(self.service_token.clone());
-        let mut curr = self.parent_injector;
+        let mut curr = self.parent;
 
         while let Some(injector) = curr {
             result.push(injector.service_token.clone());
-            curr = injector.parent_injector;
+            curr = injector.parent;
         }
 
         result
     }
 
-    /// Resolves a service from the provider. If the service cannot be resolved, an [InjectionError] is returned.
+    /// Resolves a service from the provider. If the service cannot be resolved, an [`InjectionError`] is returned.
     ///
     /// # Type arguments
     ///
@@ -118,6 +117,11 @@ impl<'i> Injector<'i> {
     ///
     /// let my_other_service = service_provider.resolve::<MyOtherService>().unwrap();
     /// ```
+    ///
+    /// # Errors
+    ///  * `InjectionError` when the service cannot be resolved either due to a resolution error or when a constructor/factory function
+    ///    has raised a custom error. See the [`InjectError`] enum for further information.
+    ///
     pub fn resolve<TService: 'static>(&self) -> InjectionResult<TService> {
         if self.has_service_type_in_chain(TypeId::of::<TService>()) {
             return Err(InjectionError::CyclicReference {

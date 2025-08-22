@@ -52,9 +52,9 @@ impl<TService: 'static> ContainerEntry<TService> {
 
     pub(crate) fn resolve(&self, injector: &Injector) -> InjectionResult<TService> {
         match self {
-            ContainerEntry::Transient(transient) => transient.resolve(injector),
-            ContainerEntry::Singleton(singleton) => singleton.resolve(),
-            ContainerEntry::Scoped(scoped) => scoped.resolve(),
+            Self::Transient(transient) => transient.resolve(injector),
+            Self::Singleton(singleton) => singleton.resolve(),
+            Self::Scoped(scoped) => scoped.resolve(),
         }
     }
 }
