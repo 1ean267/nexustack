@@ -42,8 +42,8 @@ static EXPECTED: &str = stringify! {
         impl _nexustack_inject::Injectable for Basic {}
         #[automatically_derived]
         impl _nexustack_inject::IntoConstructionResult for Basic {
-            type Value = Basic;
-            fn into_construction_result(self) -> _nexustack_inject::ConstructionResult<Self::Value> {
+            type Service = Basic;
+            fn into_construction_result(self) -> _nexustack_inject::ConstructionResult<Self::Service> {
                 _nexustack_inject::ConstructionResult::Ok(self)
             }
         }

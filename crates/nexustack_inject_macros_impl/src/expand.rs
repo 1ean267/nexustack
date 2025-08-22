@@ -136,9 +136,9 @@ fn process_item_impl(ctxt: &Ctxt, attr: TokenStream, item_impl: syn::ItemImpl) -
 
         #[automatically_derived]
         impl <#generics> _nexustack_inject::IntoConstructionResult for #ident #where_clause {
-            type Value = #ident;
+            type Service = #ident;
 
-            fn into_construction_result(self) -> _nexustack_inject::ConstructionResult<Self::Value> {
+            fn into_construction_result(self) -> _nexustack_inject::ConstructionResult<Self::Service> {
                 _nexustack_inject::ConstructionResult::Ok(self)
             }
         }
