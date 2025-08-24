@@ -22,7 +22,11 @@ pub mod inject;
 #[cfg(feature = "openapi")]
 pub mod openapi;
 
+mod application;
 mod callsite;
 mod utils;
 
+pub use application::{
+    Application, ApplicationBuilder, ApplicationPart, ApplicationPartBuilder, application_builder,
+};
 pub use callsite::Callsite;

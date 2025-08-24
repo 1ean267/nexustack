@@ -38,12 +38,18 @@ missing_crate_level_docs = "warn"
 unescaped_backticks = "warn"
 
 [dependencies]
+anyhow = { workspace = true }
+axum = { workspace = true }
+const_format = { workspace = true, optional = true }
+either = { workspace = true, optional = true }
+futures-util = { workspace = true }
 nexustack_macros = { workspace = true }
-thiserror = { workspace = true }
 serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
-either = { workspace = true, optional = true }
-const_format = { workspace = true, optional = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt", "signal", "time"] }
+tokio-util = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }

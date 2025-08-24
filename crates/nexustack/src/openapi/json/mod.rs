@@ -27,21 +27,17 @@
 //!
 //! Typical usage involves calling [`build_schema`] or [`build_schema_with_collection`] with a Rust type and desired specification. The module is designed to be extensible and composable, supporting advanced `OpenAPI` schema features.
 
-use crate::{
-    openapi::{
-        impossible::Impossible,
-        json::schema_collection::SchemaCollectionResolutionError,
-        nop::Nop,
-        post_process::{PostProcessSchemaBuilder, Transform},
-        schema::Schema,
-        schema_builder::{
-            Combinator, CombinatorSchemaBuilder, EnumSchemaBuilder, FieldMod, IntoSchemaBuilder,
-            MapSchemaBuilder, SchemaBuilder, SchemaId, StructSchemaBuilder,
-            StructVariantSchemaBuilder, TupleSchemaBuilder, TupleStructSchemaBuilder,
-            TupleVariantSchemaBuilder, VariantTag,
-        },
+use crate::openapi::{
+    impossible::Impossible,
+    json::schema_collection::SchemaCollectionResolutionError,
+    nop::Nop,
+    post_process::{PostProcessSchemaBuilder, Transform},
+    schema::Schema,
+    schema_builder::{
+        Combinator, CombinatorSchemaBuilder, EnumSchemaBuilder, FieldMod, IntoSchemaBuilder,
+        MapSchemaBuilder, SchemaBuilder, SchemaId, StructSchemaBuilder, StructVariantSchemaBuilder,
+        TupleSchemaBuilder, TupleStructSchemaBuilder, TupleVariantSchemaBuilder, VariantTag,
     },
-    utils,
 };
 use serde::Serialize;
 use serde_json::Value as JsonValue;
@@ -444,7 +440,9 @@ impl StructSchemaBuilder for StructJsonSchemaBuilder {
     ) -> Result<Self::FieldSchemaBuilder<'a>, Self::Error> {
         let specification = self.specification;
         let schema_collection = self.schema_collection.clone();
-        let default = utils::invert(default.map(|default| serde_json::to_value(default)))
+        let default = default
+            .map(|default| serde_json::to_value(default))
+            .transpose()
             .map_err(Error::custom)?;
         Ok(PostProcessSchemaBuilder::new(
             StructFieldTransform::new(self, key, modifier, description, deprecated, true, default),
@@ -1688,7 +1686,9 @@ impl MapSchemaBuilder for MapJsonSchemaBuilder {
     ) -> Result<Self::MapValueSchemaBuilder<'a>, Self::Error> {
         let specification = self.specification;
         let schema_collection = self.schema_collection.clone();
-        let default = utils::invert(default.map(|default| serde_json::to_value(default)))
+        let default = default
+            .map(|default| serde_json::to_value(default))
+            .transpose()
             .map_err(Error::custom)?;
         Ok(PostProcessSchemaBuilder::new(
             MapElementTransform::Named(NamedMapElementTransform {
