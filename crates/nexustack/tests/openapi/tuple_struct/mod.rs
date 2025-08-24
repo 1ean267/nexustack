@@ -1,0 +1,12 @@
+/*
+ * This file is part of the nexustack (https://github.com/1ean267/nexustack) distribution.
+ *
+ * Copyright (c) Cato Truetschel and contributors. All rights reserved.
+ * Licensed under the MIT license. See LICENSE file in the project root for details.
+ */
+
+mod tuple_struct_basic;
+mod tuple_struct_generic;
+mod tuple_struct_rename;
+mod tuple_struct_skip;
+mod tuple_struct_skip_single;

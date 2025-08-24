@@ -12,10 +12,11 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-proc-macro2 = { workspace = true }
+proc-macro2 = { workspace = true, features = ["span-locations"]}
 quote = { workspace = true }
 syn = { workspace = true, features = ["full", "extra-traits", "visit"] }
 
 
 [dev-dependencies]
 rust-format = { workspace = true, features = ["token_stream"] }
+pretty_assertions = { workspace = true }

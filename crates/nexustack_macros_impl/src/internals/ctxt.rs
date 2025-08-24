@@ -12,9 +12,7 @@
  */
 
 use quote::ToTokens;
-use std::cell::RefCell;
-use std::fmt::Display;
-use std::thread;
+use std::{cell::RefCell, fmt::Display, thread};
 
 /// A type to collect errors together and format them.
 ///
@@ -51,7 +49,6 @@ impl Ctxt {
     }
 
     /// Add one of Syn's parse errors.
-    #[cfg(any())]
     pub fn syn_error(&self, err: syn::Error) {
         self.errors.borrow_mut().as_mut().unwrap().push(err);
     }

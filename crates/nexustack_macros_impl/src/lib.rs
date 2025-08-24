@@ -6,5 +6,9 @@
  */
 
 mod dummy;
-pub mod inject;
+#[macro_use]
+mod fragment;
 mod internals;
+
+pub mod inject;
+pub mod openapi;

@@ -12,13 +12,38 @@ repository.workspace = true
 license.workspace = true
 
 [features]
-default = ["derive"]
+default = ["derive", "openapi"]
 derive = []
 unsize = []
+openapi = ["serde", "serde_json", "either", "const_format"]
+
+[lints.rust]
+missing_docs = "warn"
+
+[lints.clippy]
+pedantic = "warn"
+nursery = "warn"
+cargo = "warn"
+style = "warn"
+perf = "warn"
+complexity = "warn"
+suspicious = "warn"
+correctness = "warn"
+redundant_pub_crate = { level = "allow", priority = 1 }
+large_stack_frames = { level = "warn", priority = 1 }
+large_types_passed_by_value = { level = "warn", priority = 1 }
+
+[lints.rustdoc]
+missing_crate_level_docs = "warn"
+unescaped_backticks = "warn"
 
 [dependencies]
-
 nexustack_macros = { workspace = true }
 thiserror = { workspace = true }
+serde = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
+either = { workspace = true, optional = true }
+const_format = { workspace = true, optional = true }
 
 [dev-dependencies]
+pretty_assertions = { workspace = true }

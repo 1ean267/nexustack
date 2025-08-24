@@ -17,8 +17,13 @@ license = "MIT"
 [workspace.dependencies]
 nexustack_macros = { path = "crates/nexustack_macros" }
 nexustack_macros_impl = { path = "crates/nexustack_macros_impl" }
-proc-macro2 = "1.0.95"
+proc-macro2 = "1.0.101"
 quote = "1.0.40"
 rust-format = "0.3.4"
 syn = "2.0.100"
 thiserror = "2.0.12"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.143"
+either = "1.15.0"
+const_format = "0.2.34"
+pretty_assertions = "1.4.1"

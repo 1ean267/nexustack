@@ -15,3 +15,7 @@ pub const fn ensure_sync<T: Sync>() {}
 
 #[allow(dead_code)]
 pub const fn ensure_clone<T: Clone>() {}
+
+pub fn invert<T, E>(x: Option<Result<T, E>>) -> Result<Option<T>, E> {
+    x.map_or(Ok(None), |v| v.map(Some))
+}

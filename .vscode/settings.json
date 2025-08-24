@@ -10,6 +10,7 @@
         "cattrs",
         "chrono",
         "clippy",
+        "combinators",
         "concatcp",
         "ctxt",
         "Deque",
@@ -37,6 +38,7 @@
         "respan",
         "respanned",
         "rustc",
+        "rustdoc",
         "rustup",
         "serde",
         "socketioxide",
@@ -58,4 +60,5 @@
     "rust-analyzer.restartServerOnConfigChange": true,
     "rust-analyzer.assist.preferSelf": true,
     "rust-analyzer.diagnostics.enable": false,
+    "rust-analyzer.check.command": "clippy",
 }
