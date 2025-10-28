@@ -7,24 +7,29 @@
 
 use crate::{
     ApplicationPart,
-    application::{ApplicationPartBuilder, configurable::Configurable},
+    application::{
+        ApplicationPartBuilder, Chain,
+        chain::{Here, Index, There},
+        configurable::Configurable,
+        instrumentation::WithInstrumentation,
+    },
     inject::{ConstructionResult, ServiceProvider},
 };
 use either::Either;
 use futures_util::TryFutureExt;
-use std::{any::Any, borrow::Cow};
+use std::{any::TypeId, borrow::Cow};
 use tokio_util::sync::CancellationToken;
 
-pub(crate) struct Node<Head, Tail> {
-    pub head: Head,
-    pub tail: Tail,
+pub struct Node<Head, Tail> {
+    pub(crate) head: Head,
+    pub(crate) tail: Tail,
 }
 
 impl<Head, Tail> ApplicationPart for Node<Head, Tail>
 where
-    Head: ApplicationPart + Sync,
+    Head: ApplicationPart + Send + Sync,
     <Head as ApplicationPart>::Error: Send,
-    Tail: ApplicationPart + Sync,
+    Tail: ApplicationPart + Send + Sync,
     <Tail as ApplicationPart>::Error: Send,
 {
     type Error = Either<Head::Error, Tail::Error>;
@@ -58,7 +63,7 @@ where
     }
 
     async fn before_startup(
-        &self,
+        &mut self,
         cancellation_token: CancellationToken,
     ) -> Result<(), Self::Error> {
         tokio::try_join!(
@@ -72,7 +77,7 @@ where
         .map(|_| ())
     }
 
-    async fn run(&self, cancellation_token: CancellationToken) -> Result<(), Self::Error> {
+    async fn run(&mut self, cancellation_token: CancellationToken) -> Result<(), Self::Error> {
         tokio::try_join!(
             self.head
                 .run(cancellation_token.clone())
@@ -83,7 +88,7 @@ where
     }
 
     async fn before_shutdown(
-        &self,
+        &mut self,
         cancellation_token: CancellationToken,
     ) -> Result<(), Self::Error> {
         tokio::try_join!(
@@ -102,16 +107,17 @@ impl<Head, Tail> ApplicationPartBuilder for Node<Head, Tail>
 where
     Head: ApplicationPartBuilder,
     <Head as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
-    <<Head as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error: Send,
+    <<Head as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error:
+        std::fmt::Display + Send,
     Tail: ApplicationPartBuilder,
-    <Tail as ApplicationPartBuilder>::ApplicationPart: Sync,
+    <Tail as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
     <<Tail as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error: Send,
 {
-    type ApplicationPart = Node<Head::ApplicationPart, Tail::ApplicationPart>;
+    type ApplicationPart = Node<WithInstrumentation<Head::ApplicationPart>, Tail::ApplicationPart>;
 
     fn build(self, service_provider: ServiceProvider) -> ConstructionResult<Self::ApplicationPart> {
         Ok(Node {
-            head: self.head.build(service_provider.clone())?,
+            head: WithInstrumentation(self.head.build(service_provider.clone())?),
             tail: self.tail.build(service_provider)?,
         })
     }
@@ -122,23 +128,32 @@ where
     Head: ApplicationPartBuilder + 'static,
     Tail: ApplicationPartBuilder + Configurable<'static>,
 {
-    fn configure<I: 'static, C>(&mut self, configure: C) -> Result<(), C>
-    where
-        C: FnOnce(&mut I),
-    {
-        // This is not sound, can we make it sound?
-        // if TypeId::of::<Head>() == TypeId::of::<I>() {
-        //     let head = &mut self.head;
-        //     let head = unsafe { &mut *(head as *mut Head as *mut I) };
-        //     configure(head);
-        //     Ok(())
-        // }
+    fn has_item<I: 'static>() -> bool {
+        // TODO: This is a nasty hack. Can we find another way?
+        TypeId::of::<Head>() == TypeId::of::<I>() || <Tail as Configurable<'_>>::has_item::<I>()
+    }
+}
 
-        if let Some(head) = (&mut self.head as &mut dyn Any).downcast_mut::<I>() {
-            configure(head);
-            Ok(())
-        } else {
-            self.tail.configure::<I, C>(configure)
-        }
+impl<Head, Tail> Chain<Head, Here> for Node<Head, Tail> {
+    fn get(&self) -> &Head {
+        &self.head
+    }
+
+    fn get_mut(&mut self) -> &mut Head {
+        &mut self.head
+    }
+}
+
+impl<Head, Tail, FromTail, TailIndex> Chain<FromTail, There<TailIndex>> for Node<Head, Tail>
+where
+    TailIndex: Index,
+    Tail: Chain<FromTail, TailIndex>,
+{
+    fn get(&self) -> &FromTail {
+        self.tail.get()
+    }
+
+    fn get_mut(&mut self) -> &mut FromTail {
+        self.tail.get_mut()
     }
 }

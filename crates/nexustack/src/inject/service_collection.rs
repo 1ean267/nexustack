@@ -24,6 +24,12 @@ pub struct ServiceCollection {
     scoped_builders: Vec<Box<dyn ScopedUntypedContainerEntryBuilder + Send + Sync>>,
 }
 
+impl Default for ServiceCollection {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ServiceCollection {
     /// Constructs a new empty service collection.
     #[must_use]
@@ -53,9 +59,9 @@ impl ServiceCollection {
     ///     }
     /// }
     ///
-    /// let service_provider = ServiceCollection::new()
-    ///     .add_singleton::<MyService>()
-    ///     .build();
+    /// let mut services = ServiceCollection::new();
+    /// services.add_singleton::<MyService>();
+    /// let service_provider = services.build();
     /// ```
     #[must_use]
     pub fn build(self) -> ServiceProvider {
@@ -71,15 +77,7 @@ impl ServiceCollection {
 
         container_builder.build()
     }
-}
 
-impl Default for ServiceCollection {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl ServiceCollection {
     // TODO: Add missing register functions
 
     /// Adds a value as singleton service to the service collection.
@@ -107,14 +105,16 @@ impl ServiceCollection {
     ///     }
     /// }
     ///
-    /// let service_provider = ServiceCollection::new()
-    ///     .add_value(MyService::new())
-    ///     .build();
+    /// let mut services = ServiceCollection::new();
+    /// services.add_value(MyService::new());
+    /// let service_provider = services.build();
     ///
     /// let my_service = service_provider.resolve::<MyService>().unwrap();
     /// ```
-    #[must_use]
-    pub fn add_value<TService: Clone + Send + Sync + 'static>(mut self, value: TService) -> Self {
+    pub fn add_value<TService: Clone + Send + Sync + 'static>(
+        &mut self,
+        value: TService,
+    ) -> &mut Self {
         self.root_builders
             .push(Box::new(SingletonContainerEntryBuilder::new(|_| Ok(value))));
 
@@ -149,10 +149,9 @@ impl ServiceCollection {
     ///         Self { seq_num: NEXT_SEQ_NUM.fetch_add(1, Ordering::Relaxed) }
     ///     }
     /// }
-    ///
-    /// let service_provider = ServiceCollection::new()
-    ///     .add_singleton::<MyService>()
-    ///     .build();
+    /// let mut services = ServiceCollection::new();
+    /// services.add_singleton::<MyService>();
+    /// let service_provider = services.build();
     ///
     /// let my_service = service_provider.resolve::<MyService>().unwrap();
     ///
@@ -167,8 +166,9 @@ impl ServiceCollection {
     ///
     /// assert_eq!(1, my_service.seq_num);
     /// ```
-    #[must_use]
-    pub fn add_singleton<TService: Clone + Send + Sync + Injectable + 'static>(mut self) -> Self {
+    pub fn add_singleton<TService: Clone + Send + Sync + Injectable + 'static>(
+        &mut self,
+    ) -> &mut Self {
         self.root_builders
             .push(Box::new(SingletonContainerEntryBuilder::new(
                 TService::from_injector,
@@ -206,9 +206,9 @@ impl ServiceCollection {
     ///     }
     /// }
     ///
-    /// let service_provider = ServiceCollection::new()
-    ///     .add_scoped::<MyService>()
-    ///     .build();
+    /// let mut services = ServiceCollection::new();
+    /// services.add_scoped::<MyService>();
+    /// let service_provider = services.build();
     ///
     /// let my_service_result = service_provider.resolve::<MyService>();
     ///
@@ -228,8 +228,9 @@ impl ServiceCollection {
     ///
     /// assert_eq!(2, my_service.seq_num);
     /// ```
-    #[must_use]
-    pub fn add_scoped<TService: Clone + Send + Sync + Injectable + 'static>(mut self) -> Self {
+    pub fn add_scoped<TService: Clone + Send + Sync + Injectable + 'static>(
+        &mut self,
+    ) -> &mut Self {
         self.scoped_builders
             .push(Box::new(ScopedContainerEntryBuilder::new(
                 TService::from_injector,
@@ -267,9 +268,9 @@ impl ServiceCollection {
     ///     }
     /// }
     ///
-    /// let service_provider = ServiceCollection::new()
-    ///     .add_transient::<MyService>()
-    ///     .build();
+    /// let mut services = ServiceCollection::new();
+    /// services.add_transient::<MyService>();
+    /// let service_provider = services.build();
     ///
     /// let my_service = service_provider.resolve::<MyService>().unwrap();
     ///
@@ -284,8 +285,7 @@ impl ServiceCollection {
     ///
     /// assert_eq!(3, my_service.seq_num);
     /// ```
-    #[must_use]
-    pub fn add_transient<TService: Send + Sync + Injectable + 'static>(mut self) -> Self {
+    pub fn add_transient<TService: Send + Sync + Injectable + 'static>(&mut self) -> &mut Self {
         self.root_builders
             .push(Box::new(TransientContainerEntryBuilder::new(
                 TService::from_injector,
@@ -338,10 +338,10 @@ impl ServiceCollection {
     ///     }
     /// }
     ///
-    /// let service_provider = ServiceCollection::new()
-    ///     .add_singleton::<Dependency>()
-    ///     .add_singleton_factory(|injector| Ok(MyService::new(injector.resolve::<Dependency>()?)))
-    ///     .build();
+    /// let mut services = ServiceCollection::new();
+    /// services.add_singleton::<Dependency>()
+    ///     .add_singleton_factory(|injector| Ok(MyService::new(injector.resolve::<Dependency>()?)));
+    /// let service_provider = services.build();
     ///
     /// let my_service = service_provider.resolve::<MyService>().unwrap();
     ///
@@ -356,11 +356,10 @@ impl ServiceCollection {
     ///
     /// assert_eq!(1, my_service.seq_num);
     /// ```
-    #[must_use]
     pub fn add_singleton_factory<TService: Clone + Send + Sync + 'static>(
-        mut self,
+        &mut self,
         factory: impl FnOnce(&Injector) -> ConstructionResult<TService> + 'static,
-    ) -> Self {
+    ) -> &mut Self {
         self.root_builders
             .push(Box::new(SingletonContainerEntryBuilder::new(factory)));
 
@@ -411,10 +410,10 @@ impl ServiceCollection {
     ///     }
     /// }
     ///
-    /// let service_provider = ServiceCollection::new()
-    ///     .add_singleton::<Dependency>()
-    ///     .add_scoped_factory(|injector| Ok(MyService::new(injector.resolve::<Dependency>()?)))
-    ///     .build();
+    /// let mut services = ServiceCollection::new();
+    /// services.add_singleton::<Dependency>()
+    ///     .add_scoped_factory(|injector| Ok(MyService::new(injector.resolve::<Dependency>()?)));
+    /// let service_provider = services.build();
     ///
     /// let my_service_result = service_provider.resolve::<MyService>();
     ///
@@ -434,11 +433,10 @@ impl ServiceCollection {
     ///
     /// assert_eq!(2, my_service.seq_num);
     /// ```
-    #[must_use]
     pub fn add_scoped_factory<TService: Clone + Send + Sync + 'static>(
-        mut self,
+        &mut self,
         factory: impl Fn(&Injector) -> ConstructionResult<TService> + Send + Sync + 'static,
-    ) -> Self {
+    ) -> &mut Self {
         self.scoped_builders
             .push(Box::new(ScopedContainerEntryBuilder::new(factory)));
 
@@ -489,10 +487,10 @@ impl ServiceCollection {
     ///     }
     /// }
     ///
-    /// let service_provider = ServiceCollection::new()
-    ///     .add_singleton::<Dependency>()
-    ///     .add_transient_factory(|injector| Ok(MyService::new(injector.resolve::<Dependency>()?)))
-    ///     .build();
+    /// let mut services = ServiceCollection::new();
+    /// services.add_singleton::<Dependency>()
+    ///     .add_transient_factory(|injector| Ok(MyService::new(injector.resolve::<Dependency>()?)));
+    /// let service_provider = services.build();
     ///
     /// let my_service = service_provider.resolve::<MyService>().unwrap();
     ///
@@ -507,11 +505,10 @@ impl ServiceCollection {
     ///
     /// assert_eq!(3, my_service.seq_num);
     /// ```
-    #[must_use]
     pub fn add_transient_factory<TService: Send + Sync + 'static>(
-        mut self,
+        &mut self,
         factory: impl Fn(&Injector) -> ConstructionResult<TService> + Send + Sync + 'static,
-    ) -> Self {
+    ) -> &mut Self {
         self.root_builders
             .push(Box::new(TransientContainerEntryBuilder::new(factory)));
 

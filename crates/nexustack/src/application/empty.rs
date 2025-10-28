@@ -16,7 +16,7 @@ use tokio_util::sync::CancellationToken;
 impl ApplicationPart for () {
     type Error = Infallible;
 
-    async fn run(&self, _cancellation_token: CancellationToken) -> Result<(), Self::Error> {
+    async fn run(&mut self, _cancellation_token: CancellationToken) -> Result<(), Self::Error> {
         Ok(())
     }
 }
@@ -33,10 +33,7 @@ impl ApplicationPartBuilder for () {
 }
 
 impl Configurable<'_> for () {
-    fn configure<I, C>(&mut self, configure: C) -> Result<(), C>
-    where
-        C: FnOnce(&mut I),
-    {
-        Err(configure)
+    fn has_item<I>() -> bool {
+        false
     }
 }

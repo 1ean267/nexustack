@@ -6,18 +6,20 @@
  */
 
 use crate::{
-    application::{configurable::Configurable, instrumentation::WithInstrumentation, node::Node},
+    application::configurable::Configurable,
     inject::{ConstructionResult, ServiceCollection, ServiceProvider},
 };
-use ::either::Either;
 use std::{borrow::Cow, time::Instant};
 use tokio_util::sync::CancellationToken;
 
+mod chain;
 mod configurable;
-mod either;
 mod empty;
 mod instrumentation;
 mod node;
+
+pub use chain::{Chain, Index};
+pub use node::Node;
 
 /// Builder trait for constructing application parts.
 ///
@@ -69,7 +71,7 @@ pub trait ApplicationPart {
     /// # Returns
     /// A future that resolves to `Result<(), Self::Error>`.
     fn before_startup(
-        &self,
+        &mut self,
         cancellation_token: CancellationToken,
     ) -> impl Future<Output = Result<(), Self::Error>> + Send + '_ {
         let _ = cancellation_token;
@@ -84,7 +86,7 @@ pub trait ApplicationPart {
     /// # Returns
     /// A future that resolves to `Result<(), Self::Error>`.
     fn run(
-        &self,
+        &mut self,
         cancellation_token: CancellationToken,
     ) -> impl Future<Output = Result<(), Self::Error>> + Send + '_;
 
@@ -96,7 +98,7 @@ pub trait ApplicationPart {
     /// # Returns
     /// A future that resolves to `Result<(), Self::Error>`. Should not block for too long.
     fn before_shutdown(
-        &self,
+        &mut self,
         cancellation_token: CancellationToken,
     ) -> impl Future<Output = Result<(), Self::Error>> + Send + '_ {
         let _ = cancellation_token;
@@ -120,58 +122,86 @@ pub fn application_builder() -> impl ApplicationBuilder {
 /// use the [`application_builder`] function to obtain a builder.
 pub trait ApplicationBuilder {
     /// The type of the application part builder chain managed by this builder.
-    type ApplicationPartBuilder: ApplicationPartBuilder;
+    type Chain: ApplicationPartBuilder;
 
-    /// Adds an application part to the builder using a default-constructed builder and a configuration closure.
+    /// Adds an application part to the builder using a default-constructed builder.
     ///
     /// # Type Parameters
     /// - `B`: The application part builder type to add. Must implement [`ApplicationPartBuilder`] and [`Default`].
-    /// - `C`: The configuration closure type.
-    ///
-    /// # Arguments
-    /// * `configuration` - A closure that receives a mutable reference to the part builder and configures it.
     ///
     /// # Returns
     /// A new builder with the application part added.
     #[must_use]
-    fn add_application_part<B, C>(self, configuration: C) -> impl ApplicationBuilder
+    fn add_application_part<B>(self) -> impl ApplicationBuilder<Chain = Node<B, Self::Chain>>
     where
         Self: Sized,
         B: ApplicationPartBuilder + Default + 'static,
         <B as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
         <<B as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error:
             std::fmt::Display + Send,
-        C: FnOnce(&mut B),
+        <Self::Chain as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
+        <<Self::Chain as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error: Send,
     {
-        self.add_application_part_with_factory(B::default, configuration)
+        self.add_application_part_with_factory(B::default)
     }
 
-    /// Adds an application part to the builder using a custom factory and configuration closure.
+    /// Adds an application part to the builder using a custom factory.
     ///
     /// # Type Parameters
     /// - `B`: The application part builder type to add. Must implement [`ApplicationPartBuilder`].
     /// - `F`: The factory closure type.
-    /// - `C`: The configuration closure type.
     ///
     /// # Arguments
     /// * `factory` - A closure that produces a new instance of the part builder.
-    /// * `configure` - A closure that receives a mutable reference to the part builder and configures it.
     ///
     /// # Returns
     /// A new builder with the application part added.
     #[must_use]
-    fn add_application_part_with_factory<B, F, C>(
+    fn add_application_part_with_factory<B, F>(
         self,
         factory: F,
-        configure: C,
-    ) -> impl ApplicationBuilder
+    ) -> impl ApplicationBuilder<Chain = Node<B, Self::Chain>>
     where
         B: ApplicationPartBuilder + 'static,
         <B as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
         <<B as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error:
             std::fmt::Display + Send,
-        F: FnOnce() -> B,
-        C: FnOnce(&mut B);
+        F: FnOnce() -> B;
+
+    #[must_use]
+    /// Configures an already-added application part builder in the chain.
+    ///
+    /// Use this to mutate the configuration of a specific application part builder after it has
+    /// been added with [`add_application_part`] or [`add_application_part_with_factory`]. The
+    /// target builder is addressed by its type `B` and an index `I` into the builder chain.
+    ///
+    /// # Type Parameters
+    /// - `B`: The application part builder type to configure. Must implement
+    ///   [`ApplicationPartBuilder`].
+    /// - `F`: A closure that receives a mutable reference to the selected builder `B` instance.
+    /// - `I`: The index into the builder chain used to select which occurrence of `B` to configure.
+    ///   See [`Index`].
+    ///
+    /// # Arguments
+    /// * `configure` - A closure invoked with a mutable reference to the selected builder
+    ///   instance, allowing customization.
+    ///
+    /// # Returns
+    /// The builder instance, allowing further chaining. The chain type is unchanged.
+    ///
+    /// # Compile-time guarantees
+    /// This method is only available when `Self::Chain` implements [`Chain<B, I>`], ensuring that
+    /// a builder of type `B` exists at index `I` in the chain.
+    fn configure_application_part<B, F, I>(
+        self,
+        configure: F,
+    ) -> impl ApplicationBuilder<Chain = Self::Chain>
+    where
+        B: ApplicationPartBuilder,
+        F: FnOnce(&mut B),
+        I: Index,
+        Self: Sized,
+        Self::Chain: Chain<B, I>;
 
     /// Configures the service collection for dependency injection.
     ///
@@ -184,7 +214,7 @@ pub trait ApplicationBuilder {
     /// # Returns
     /// The builder instance, allowing further chaining.
     #[must_use]
-    fn configure_services<F>(self, configure: F) -> impl ApplicationBuilder
+    fn configure_services<F>(self, configure: F) -> impl ApplicationBuilder<Chain = Self::Chain>
     where
         F: FnOnce(&mut ServiceCollection);
 
@@ -195,7 +225,7 @@ pub trait ApplicationBuilder {
     ///
     /// # Errors
     /// Returns an error if any application part or its dependencies cannot be constructed, or if service configuration fails.
-    fn build(self) -> ConstructionResult<impl Application>;
+    fn build(self) -> ConstructionResult<impl Application + Send>;
 }
 
 /// Concrete implementation of [`ApplicationBuilder`].
@@ -206,53 +236,63 @@ struct ApplicationBuilderConcrete<B> {
     /// The collection of services to be injected into application parts.
     service_collection: ServiceCollection,
     /// The builder chain for application parts.
-    builder: B,
+    application_part_builder_chain: B,
 }
 
-impl<A> ApplicationBuilder for ApplicationBuilderConcrete<A>
+impl<C> ApplicationBuilder for ApplicationBuilderConcrete<C>
 where
-    A: ApplicationPartBuilder + Configurable<'static>,
-    <A as ApplicationPartBuilder>::ApplicationPart: Sync,
-    <<A as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error:
+    C: ApplicationPartBuilder + Configurable<'static>,
+    <C as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
+    <<C as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error:
         std::fmt::Display + Send,
 {
-    type ApplicationPartBuilder = A;
+    type Chain = C;
 
-    fn add_application_part_with_factory<B, F, C>(
-        mut self,
+    fn add_application_part_with_factory<B, F>(
+        self,
         factory: F,
-        configure: C,
-    ) -> impl ApplicationBuilder
+    ) -> impl ApplicationBuilder<Chain = Node<B, Self::Chain>>
     where
         B: ApplicationPartBuilder + 'static,
         <B as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
         <<B as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error:
             std::fmt::Display + Send,
         F: FnOnce() -> B,
-        C: FnOnce(&mut B),
     {
-        let configure = |builder: &mut WithInstrumentation<B>| configure(&mut builder.0);
-        let apply_result = self.builder.configure(configure);
+        // gen_assert!((B, C: Configurable<'static>) => !<C as Configurable<'_>>::has_item::<B>());
 
-        if let Err(configure) = apply_result {
-            let mut application_part_builder = WithInstrumentation(factory());
-            configure(&mut application_part_builder);
-            ApplicationBuilderConcrete {
-                service_collection: self.service_collection,
-                builder: Either::Right(Node {
-                    head: application_part_builder,
-                    tail: self.builder,
-                }),
-            }
-        } else {
-            ApplicationBuilderConcrete {
-                service_collection: self.service_collection,
-                builder: Either::Left(self.builder),
-            }
+        // TODO: Enforce this at compile time!
+        assert!(
+            !<C as Configurable<'_>>::has_item::<B>(),
+            "Application part of type {} already added",
+            std::any::type_name::<B>()
+        );
+
+        ApplicationBuilderConcrete {
+            service_collection: self.service_collection,
+            application_part_builder_chain: Node {
+                head: factory(),
+                tail: self.application_part_builder_chain,
+            },
         }
     }
 
-    fn configure_services<F>(mut self, configure: F) -> impl ApplicationBuilder
+    fn configure_application_part<B, F, I>(
+        mut self,
+        configure: F,
+    ) -> impl ApplicationBuilder<Chain = Self::Chain>
+    where
+        B: ApplicationPartBuilder,
+        F: FnOnce(&mut B),
+        I: Index,
+        Self: Sized,
+        Self::Chain: Chain<B, I>,
+    {
+        configure(self.application_part_builder_chain.get_mut());
+        self
+    }
+
+    fn configure_services<F>(mut self, configure: F) -> impl ApplicationBuilder<Chain = Self::Chain>
     where
         F: FnOnce(&mut ServiceCollection),
     {
@@ -260,12 +300,14 @@ where
         self
     }
 
-    fn build(self) -> ConstructionResult<impl Application> {
+    fn build(self) -> ConstructionResult<impl Application + Send> {
         let service_provider = self.service_collection.build();
 
         Ok(ApplicationConcrete {
             service_provider: service_provider.clone(),
-            app_part: self.builder.build(service_provider)?,
+            application_part_chain: self
+                .application_part_builder_chain
+                .build(service_provider)?,
         })
     }
 }
@@ -274,7 +316,7 @@ impl Default for ApplicationBuilderConcrete<()> {
     fn default() -> Self {
         Self {
             service_collection: ServiceCollection::new(),
-            builder: (),
+            application_part_builder_chain: (),
         }
     }
 }
@@ -284,7 +326,7 @@ impl Default for ApplicationBuilderConcrete<()> {
 /// This trait provides methods to run the application lifecycle, including startup, execution, and shutdown phases.
 pub trait Application {
     /// The error type returned by this application during its lifecycle phases.
-    type Error;
+    type Error: std::fmt::Display;
 
     /// Runs the application, executing all lifecycle phases (startup, run, shutdown) for the collected application parts.
     ///
@@ -340,19 +382,19 @@ struct ApplicationConcrete<T> {
     /// The application's service provider, used to resolve dependencies for application parts.
     service_provider: ServiceProvider,
     /// The collected application parts to be run by the application.
-    app_part: T,
+    application_part_chain: T,
 }
 
 impl<T> Application for ApplicationConcrete<T>
 where
     Self: Sync,
-    T: ApplicationPart,
+    T: ApplicationPart + Send,
     <T as ApplicationPart>::Error: std::fmt::Display,
 {
     type Error = <T as ApplicationPart>::Error;
 
     async fn run_with_cancellation_token(
-        self,
+        mut self,
         cancellation_token: CancellationToken,
     ) -> Result<(), Self::Error> {
         let start_ts = Instant::now();
@@ -409,13 +451,16 @@ where
     #[tracing::instrument(
         name = "application.before_startup",
         skip(self, cancellation_token),
-        fields(application_parts = self.app_part.name().to_string())
+        fields(application_parts = self.application_part_chain.name().to_string())
     )]
-    async fn before_startup(&self, cancellation_token: CancellationToken) -> Result<(), T::Error> {
+    async fn before_startup(
+        &mut self,
+        cancellation_token: CancellationToken,
+    ) -> Result<(), T::Error> {
         tracing::debug!("Executing before_startup phase");
         let start = Instant::now();
 
-        self.app_part
+        self.application_part_chain
             .before_startup(cancellation_token)
             .await
             .inspect(|()| {
@@ -439,13 +484,13 @@ where
     #[tracing::instrument(
         name = "application.run",
         skip(self, cancellation_token),
-        fields(application_parts = self.app_part.name().to_string())
+        fields(application_parts = self.application_part_chain.name().to_string())
     )]
-    async fn run_core(&self, cancellation_token: CancellationToken) -> Result<(), T::Error> {
+    async fn run_core(&mut self, cancellation_token: CancellationToken) -> Result<(), T::Error> {
         tracing::debug!("Executing run phase");
         let start = Instant::now();
 
-        self.app_part
+        self.application_part_chain
             .run(cancellation_token)
             .await
             .inspect(|()| {
@@ -469,13 +514,16 @@ where
     #[tracing::instrument(
         name = "application.before_shutdown",
         skip(self, cancellation_token),
-        fields(application_parts = self.app_part.name().to_string())
+        fields(application_parts = self.application_part_chain.name().to_string())
     )]
-    async fn before_shutdown(&self, cancellation_token: CancellationToken) -> Result<(), T::Error> {
+    async fn before_shutdown(
+        &mut self,
+        cancellation_token: CancellationToken,
+    ) -> Result<(), T::Error> {
         tracing::debug!("Executing before_shutdown phase");
         let start = Instant::now();
 
-        self.app_part
+        self.application_part_chain
             .before_shutdown(cancellation_token)
             .await
             .inspect(|()| {

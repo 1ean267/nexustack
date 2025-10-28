@@ -27,6 +27,7 @@ mod callsite;
 mod utils;
 
 pub use application::{
-    Application, ApplicationBuilder, ApplicationPart, ApplicationPartBuilder, application_builder,
+    Application, ApplicationBuilder, ApplicationPart, ApplicationPartBuilder, Chain, Index,
+    application_builder,
 };
 pub use callsite::Callsite;

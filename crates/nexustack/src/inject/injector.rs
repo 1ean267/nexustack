@@ -110,10 +110,10 @@ impl<'i> Injector<'i> {
     ///     }
     /// }
     ///
-    /// let service_provider = ServiceCollection::new()
-    ///     .add_singleton::<MyService>()
-    ///     .add_singleton_factory(|injector| Ok(MyOtherService::new(injector.resolve::<MyService>()?)))
-    ///     .build();
+    /// let mut services = ServiceCollection::new();
+    /// services.add_singleton::<MyService>()
+    ///     .add_singleton_factory(|injector| Ok(MyOtherService::new(injector.resolve::<MyService>()?)));
+    /// let service_provider = services.build();
     ///
     /// let my_other_service = service_provider.resolve::<MyOtherService>().unwrap();
     /// ```

@@ -24,10 +24,11 @@ fn main() {
 }
 
 fn build_service_provider() -> ServiceProvider {
-    ServiceCollection::new()
+    let mut services = ServiceCollection::new();
+    services
         .add_value(UnitService)
-        .add_singleton_factory(|injector| Ok(Arc::new(SingletonService(injector.resolve()?))))
-        .build()
+        .add_singleton_factory(|injector| Ok(Arc::new(SingletonService(injector.resolve()?))));
+    services.build()
 }
 
 ```
@@ -60,10 +61,11 @@ fn main() {
 }
 
 fn build_service_provider() -> ServiceProvider {
-    ServiceCollection::new()
+    let mut services = ServiceCollection::new();
+    services
         .add_value(UnitService)
-        .add_singleton::<CustomService>()
-        .build()
+        .add_singleton::<CustomService>();
+    services.build()
 }
 
 ```

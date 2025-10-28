@@ -6,6 +6,7 @@
  */
 
 use crate::inject::{
+    ConstructionResult, FromInjector,
     container::Container,
     injection_error::{InjectionError, InjectionResult},
     service_token::ServiceToken,
@@ -51,6 +52,22 @@ impl ServiceProvider {
         )
     }
 
+    fn construct_from_container<TService: FromInjector + 'static>(
+        container: &Arc<AtomicOnceCell<Container>>,
+    ) -> ConstructionResult<TService> {
+        container.get().map_or_else(
+            || {
+                Err(InjectionError::UninitializedServiceProvider {
+                    service: ServiceToken::create::<TService>(),
+                    // TODO: Dependency chain is missing here! (Is it possible this is not the root call from the caller?)
+                    dependency_chain: Vec::new(),
+                }
+                .into())
+            },
+            Container::construct_core,
+        )
+    }
+
     /// Resolves a service from the provider. If the service cannot be resolved, an [`InjectionError`] is returned.
     ///
     /// # Type arguments
@@ -74,9 +91,9 @@ impl ServiceProvider {
     ///     }
     /// }
     ///
-    /// let service_provider = ServiceCollection::new()
-    ///     .add_singleton::<MyService>()
-    ///     .build();
+    /// let mut services = ServiceCollection::new();
+    /// services.add_singleton::<MyService>();
+    /// let service_provider = services.build();
     ///
     /// let my_service = service_provider.resolve::<MyService>().unwrap();
     /// ```
@@ -98,6 +115,67 @@ impl ServiceProvider {
                         })
                     },
                     |container| Self::resolve_from_container(&container),
+                )
+            }
+        }
+    }
+
+    /// Creates a service that implemented [`FromInjector`] with the required dependencies loaded from the provider.
+    /// If the service cannot be created or a dependency cannot be resolved, a [`ConstructionError`] is returned.
+    ///
+    /// # Type arguments
+    ///
+    /// * `TService` - The type of the service to create.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use nexustack::inject::injectable;
+    /// use nexustack::inject::ServiceCollection;
+    /// use nexustack::inject::ServiceScope;
+    /// use nexustack::inject::FromInjector;
+    /// use nexustack::inject::Injector;
+    /// use nexustack::inject::ConstructionResult;
+    ///
+    /// #[derive(Clone)]
+    /// #[injectable]
+    /// struct Dependency {}
+    ///
+    /// struct MyService(Dependency);
+    ///
+    /// impl FromInjector for MyService {
+    ///     fn from_injector(injector: &Injector) -> ConstructionResult<Self> {
+    ///         let dependency = injector.resolve::<Dependency>()?;
+    ///         Ok(Self(dependency))
+    ///     }
+    /// }
+    ///
+    /// let mut services = ServiceCollection::new();
+    /// services.add_singleton::<Dependency>();
+    /// let service_provider = services.build();
+    ///
+    /// let my_service = service_provider.construct::<MyService>().unwrap();
+    /// ```
+    ///
+    /// # Errors
+    ///  * `ConstructionError` when the service cannot be created or one of its dependencies cannot be resolved
+    ///    either due to a resolution error or when a constructor/factory function
+    ///    has raised a custom error. See the [`ConstructionError`] enum for further information.
+    ///
+    pub fn construct<TService: FromInjector + 'static>(&self) -> ConstructionResult<TService> {
+        match &self.inner {
+            ServiceProviderInner::Container(container) => Self::construct_from_container(container),
+            ServiceProviderInner::ContainerWeak(container_weak) => {
+                container_weak.upgrade().map_or_else(
+                    || {
+                        Err(InjectionError::DroppedServiceProvider {
+                            service: ServiceToken::create::<TService>(),
+                            // TODO: Dependency chain is missing here! (Is it possible this is not the root call from the caller?)
+                            dependency_chain: Vec::new(),
+                        }
+                        .into())
+                    },
+                    |container| Self::construct_from_container(&container),
                 )
             }
         }

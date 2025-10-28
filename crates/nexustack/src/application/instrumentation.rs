@@ -5,46 +5,37 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
+use crate::ApplicationPart;
 use std::{borrow::Cow, time::Instant};
-
 use tokio_util::sync::CancellationToken;
 
-use crate::{
-    ApplicationPart,
-    application::{ApplicationPartBuilder, configurable::Configurable},
-    inject::{ConstructionResult, ServiceProvider},
-};
+pub struct WithInstrumentation<T>(pub(crate) T);
 
-pub(crate) struct WithInstrumentation<T>(pub T);
+// impl<T> ApplicationPartBuilder for WithInstrumentation<T>
+// where
+//     T: ApplicationPartBuilder,
+//     <T as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
+//     <<T as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error: std::fmt::Display,
+// {
+//     type ApplicationPart = WithInstrumentation<T::ApplicationPart>;
 
-impl<T> ApplicationPartBuilder for WithInstrumentation<T>
-where
-    T: ApplicationPartBuilder,
-    <T as ApplicationPartBuilder>::ApplicationPart: Sync,
-    <<T as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error: std::fmt::Display,
-{
-    type ApplicationPart = WithInstrumentation<T::ApplicationPart>;
+//     fn build(self, service_provider: ServiceProvider) -> ConstructionResult<Self::ApplicationPart> {
+//         Ok(WithInstrumentation(self.0.build(service_provider)?))
+//     }
+// }
 
-    fn build(self, service_provider: ServiceProvider) -> ConstructionResult<Self::ApplicationPart> {
-        Ok(WithInstrumentation(self.0.build(service_provider)?))
-    }
-}
-
-impl<'a, T> Configurable<'a> for WithInstrumentation<T>
-where
-    T: Configurable<'a>,
-{
-    fn configure<I: 'a, C>(&mut self, configure: C) -> Result<(), C>
-    where
-        C: FnOnce(&mut I),
-    {
-        self.0.configure(configure)
-    }
-}
+// impl<'a, T> Configurable<'a> for WithInstrumentation<T>
+// where
+//     T: Configurable<'a>,
+// {
+//     fn has_item<I: 'static>() -> bool {
+//         <T as Configurable<'_>>::has_item::<I>()
+//     }
+// }
 
 impl<T> ApplicationPart for WithInstrumentation<T>
 where
-    T: ApplicationPart + Sync,
+    T: ApplicationPart + Send + Sync,
     <T as ApplicationPart>::Error: std::fmt::Display,
 {
     type Error = T::Error;
@@ -59,7 +50,7 @@ where
         fields(application_part = self.name().to_string())
     )]
     async fn before_startup(
-        &self,
+        &mut self,
         cancellation_token: CancellationToken,
     ) -> Result<(), Self::Error> {
         let start = Instant::now();
@@ -78,7 +69,7 @@ where
         skip(self, cancellation_token),
         fields(application_part = self.name().to_string())
     )]
-    async fn run(&self, cancellation_token: CancellationToken) -> Result<(), Self::Error> {
+    async fn run(&mut self, cancellation_token: CancellationToken) -> Result<(), Self::Error> {
         let start = Instant::now();
         tracing::debug!("Executing run phase for application part");
 
@@ -96,7 +87,7 @@ where
         fields(application_part = self.name().to_string())
     )]
     async fn before_shutdown(
-        &self,
+        &mut self,
         cancellation_token: CancellationToken,
     ) -> Result<(), Self::Error> {
         let start = Instant::now();
@@ -110,3 +101,17 @@ where
             )
     }
 }
+
+// impl<T, FromInner, InnerIndex> Chain<T, InnerIndex> for WithInstrumentation<FromInner>
+// where
+//     FromInner: Chain<T, InnerIndex>,
+//     InnerIndex: Index,
+// {
+//     fn get(&self) -> &T {
+//         self.0.get()
+//     }
+
+//     fn get_mut(&mut self) -> &mut T {
+//         self.0.get_mut()
+//     }
+// }

@@ -27,13 +27,14 @@ use crate::inject::service_provider::ServiceProvider;
 ///     }
 /// }
 ///
-/// let service_provider = ServiceCollection::new()
-///     .add_scoped::<MyService>()
-///     .build();
+/// let mut services = ServiceCollection::new();
+/// services.add_scoped::<MyService>();
+/// let service_provider = services.build();
 ///
 /// let service_scope = service_provider.resolve::<ServiceScope>().unwrap();
 /// let my_service = service_scope.service_provider().resolve::<MyService>().unwrap();
 /// ```
+#[derive(Clone)]
 pub struct ServiceScope {
     service_provider: ServiceProvider,
 }

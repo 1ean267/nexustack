@@ -9,21 +9,5 @@
 
 /// A trait for types that can be configured using a closure.
 pub(crate) trait Configurable<'a> {
-    /// Configures the item using the provided closure.
-    ///
-    /// # Arguments
-    ///
-    /// * `configure` - A closure that takes a mutable reference to the item (`&mut I`) and performs configuration.
-    ///
-    /// # Type Parameters
-    ///
-    /// * `I` - The item to be configured.
-    /// * `C` - The closure type. Must implement `FnOnce(&mut I) -> ()`.
-    ///
-    /// # Errors
-    ///
-    /// Returns `Err(C)` if the configuration cannot be applied.
-    fn configure<I: 'a, C>(&mut self, configure: C) -> Result<(), C>
-    where
-        C: FnOnce(&mut I);
+    fn has_item<I: 'static>() -> bool;
 }

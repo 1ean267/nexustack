@@ -13,6 +13,7 @@ pub(crate) use container_builder::*;
 pub(crate) use container_entry_builder::*;
 
 use crate::inject::{
+    ConstructionResult, FromInjector,
     injection_error::{InjectionError, InjectionResult},
     injector::{self, Injector},
     service_provider::{self, ServiceProvider},
@@ -66,5 +67,15 @@ impl Container {
                 service_provider::ServiceProvider::resolve,
             ),
         }
+    }
+
+    pub(crate) fn construct_core<TService: FromInjector + 'static>(
+        &self,
+    ) -> ConstructionResult<TService> {
+        TService::from_injector(&Injector::from_container(
+            self,
+            ServiceToken::create::<TService>(),
+            None,
+        ))
     }
 }

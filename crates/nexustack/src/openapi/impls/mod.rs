@@ -19,3 +19,12 @@ pub mod seq;
 pub mod sync;
 pub mod time;
 pub mod tuple;
+
+#[cfg(feature = "chrono")]
+pub mod chrono;
+
+#[cfg(feature = "url")]
+pub mod url;
+
+#[cfg(feature = "uuid")]
+pub mod uuid;
