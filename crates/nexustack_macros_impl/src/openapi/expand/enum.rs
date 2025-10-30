@@ -17,7 +17,7 @@ use crate::{
             ExampleContainerIdentifier, Parameters, StructTrait, TupleTrait,
             describe_struct_visitor, describe_tuple_struct_visitor, effective_style, mut_if,
         },
-        generics::field_contains_generic_params,
+        generics::{field_contains_generic_params, make_lifetimes_static},
         internals::{
             ast::{Container, Field, Style, Variant},
             attr,
@@ -86,7 +86,8 @@ fn example_container(
                 continue;
             }
 
-            let ty = field.ty;
+            let mut ty = field.ty.clone();
+            make_lifetimes_static(&mut ty);
             let serde_field_attr = build_example_field_attribute(field);
 
             if field_contains_generic_params(field, cont) {

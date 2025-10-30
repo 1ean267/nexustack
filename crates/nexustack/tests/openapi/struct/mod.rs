@@ -16,3 +16,4 @@ mod struct_rename;
 mod struct_skip;
 mod struct_skip_serializing_if;
 mod struct_transparent;
+mod struct_with_lifetime;

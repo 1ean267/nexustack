@@ -14,7 +14,7 @@ use crate::{
     internals::callsite,
     openapi::{
         expand::{ExampleContainerIdentifier, Parameters},
-        generics::field_contains_generic_params,
+        generics::{field_contains_generic_params, make_lifetimes_static},
         internals::ast::{Container, Field},
         serde::{build_example_field_attribute, build_example_struct_attribute},
     },
@@ -58,7 +58,8 @@ fn example_container(
     let serde_attr = build_example_struct_attribute(cont);
 
     if field_contains_generic_params(field, cont) {
-        let ty = field.ty;
+        let mut ty = field.ty.clone();
+        make_lifetimes_static(&mut ty);
         let generic_param = syn::Ident::new("T__Example", Span::call_site());
         let serde_field_attr = build_example_field_attribute(field);
 

@@ -17,7 +17,7 @@ use crate::{
             ExampleContainerIdentifier, Parameters, TupleTrait, describe_tuple_struct_visitor,
             mut_if,
         },
-        generics::field_contains_generic_params,
+        generics::{field_contains_generic_params, make_lifetimes_static},
         internals::ast::{Container, Field},
         serde::{build_example_field_attribute, build_example_struct_attribute},
     },
@@ -71,7 +71,8 @@ fn example_container(
     let mut g_fields = Vec::with_capacity(fields.len());
 
     for (index, field) in fields.iter().enumerate() {
-        let ty = field.ty;
+        let mut ty = field.ty.clone();
+        make_lifetimes_static(&mut ty);
         let serde_field_attr = build_example_field_attribute(field);
 
         if field_contains_generic_params(field, cont) {

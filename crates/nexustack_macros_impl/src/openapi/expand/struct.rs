@@ -16,7 +16,7 @@ use crate::{
         expand::{
             ExampleContainerIdentifier, Parameters, StructTrait, describe_struct_visitor, mut_if,
         },
-        generics::field_contains_generic_params,
+        generics::{field_contains_generic_params, make_lifetimes_static},
         internals::{
             ast::{Container, Field},
             attr,
@@ -216,7 +216,8 @@ fn example_container(
     let mut g_fields = Vec::with_capacity(fields.len());
 
     for field in fields {
-        let ty = field.ty;
+        let mut ty = field.ty.clone();
+        make_lifetimes_static(&mut ty);
         let ident = field
             .original
             .ident

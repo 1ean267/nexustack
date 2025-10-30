@@ -6,8 +6,24 @@
  */
 
 use syn::visit::Visit;
+use syn::visit_mut::VisitMut;
 
 use crate::openapi::internals::ast::{Container, Field};
+
+pub fn make_lifetimes_static(t: &mut syn::Type) {
+    struct LifetimeReplacer;
+
+    impl VisitMut for LifetimeReplacer {
+        fn visit_lifetime_mut(&mut self, lt: &mut syn::Lifetime) {
+            if lt.ident != "'static" {
+                *lt = syn::Lifetime::new("'static", lt.span());
+            }
+        }
+    }
+
+    let mut replacer = LifetimeReplacer;
+    replacer.visit_type_mut(t);
+}
 
 pub fn field_contains_generic_params(field: &Field, cont: &Container) -> bool {
     let type_params: Vec<&syn::Ident> = cont
