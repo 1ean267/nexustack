@@ -10,13 +10,17 @@
  */
 
 use crate::internals::{Ctxt, symbol::Symbol};
-use proc_macro2::TokenStream;
-use quote::ToTokens;
 use syn::meta::ParseNestedMeta;
+
+#[cfg(any(feature = "openapi", feature = "cron"))]
+use proc_macro2::TokenStream;
+#[cfg(any(feature = "openapi", feature = "cron"))]
+use quote::ToTokens;
 
 #[cfg(feature = "openapi")]
 use syn::{Token, punctuated::Punctuated};
 
+#[cfg(any(feature = "openapi", feature = "cron"))]
 pub(crate) struct Attr<'c, T> {
     cx: &'c Ctxt,
     name: Symbol,
@@ -24,6 +28,7 @@ pub(crate) struct Attr<'c, T> {
     pub(crate) value: Option<T>,
 }
 
+#[cfg(any(feature = "openapi", feature = "cron"))]
 impl<'c, T> Attr<'c, T> {
     pub(crate) fn none(cx: &'c Ctxt, name: Symbol) -> Self {
         Attr {
@@ -232,6 +237,7 @@ pub(crate) fn parse_lit_into_path(
     })
 }
 
+#[cfg(any(feature = "openapi", feature = "cron"))]
 pub(crate) fn parse_lit_into_expr_path(
     cx: &Ctxt,
     attr_name: Symbol,

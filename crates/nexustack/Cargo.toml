@@ -2,7 +2,7 @@
 name = "nexustack"
 edition = "2024"
 readme = "README.md"
-keywords = ["nexustack", "http", "websocket", "mqtt", "amqp", "cron", "dependency injection", "modular architecture", "openapi", "asyncapi", "rust", "framework", "enterprise", "server", "api", "real-time communication", "iot", "message broker", "scheduling", "rust framework"]
+keywords = ["nexustack", "http", "websocket", "dependency-injection", "modular"]
 categories = ["web-programming"]
 rust-version.workspace = true
 version.workspace = true

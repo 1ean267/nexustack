@@ -1,9 +1,7 @@
 [package]
 name = "nexustack_sample"
 edition = "2024"
-readme = "README.md"
-keywords = ["nexustack", "inject", "dependency-injection", "DI", "inversion of control", "IOC", "container"]
-categories = ["web-programming"]
+publish = false
 rust-version.workspace = true
 version.workspace = true
 authors.workspace = true

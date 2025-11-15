@@ -8,26 +8,26 @@
 #[cfg(feature = "openapi")]
 mod callsite;
 
-#[cfg(any(feature = "openapi", feature = "cron"))]
+#[cfg(any(feature = "openapi", feature = "cron", feature = "inject"))]
 mod ctxt;
 
 #[cfg(feature = "openapi")]
 mod receiver;
 
-#[cfg(any(feature = "openapi", feature = "cron"))]
+#[cfg(any(feature = "openapi", feature = "cron", feature = "inject"))]
 pub(crate) mod attr;
 #[cfg(feature = "openapi")]
 pub(crate) mod case;
 #[cfg(feature = "openapi")]
 pub(crate) mod respan;
 
-#[cfg(any(feature = "openapi", feature = "cron"))]
+#[cfg(any(feature = "openapi", feature = "cron", feature = "inject"))]
 pub(crate) mod symbol;
 
 #[cfg(feature = "openapi")]
 pub use self::callsite::callsite;
 
-#[cfg(any(feature = "openapi", feature = "cron"))]
+#[cfg(any(feature = "openapi", feature = "cron", feature = "inject"))]
 pub use self::ctxt::Ctxt;
 
 #[cfg(feature = "openapi")]

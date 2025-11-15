@@ -8,7 +8,7 @@ members = [
 
 [workspace.package]
 rust-version="1.91.1"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Cato Truetschel and contributors"]
 description = "A rust web framework inspired by nestjs and asp.net"
 repository = "https://github.com/1ean267/nexustack"
@@ -22,7 +22,7 @@ cron = "0.15.0"
 either = "1.15.0"
 futures-util = "0.3.31"
 nexustack = { path = "crates/nexustack" }
-nexustack_macros = { path = "crates/nexustack_macros" }
+nexustack_macros = { path = "crates/nexustack_macros", version = "0.1.1" }
 pretty_assertions = "1.4.1"
 proc-macro2 = "1.0.101"
 quote = "1.0.40"
