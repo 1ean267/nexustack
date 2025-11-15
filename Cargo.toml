@@ -8,7 +8,7 @@ members = [
 
 [workspace.package]
 rust-version="1.91.1"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Cato Truetschel and contributors"]
 description = "Nexustack is a modular Rust framework combining HTTP, WebSockets, MQTT, AMQP, and cron jobs with a unified DI system, enabling scalable, enterprise-ready applications with out-of-the-box API documentation."
 repository = "https://github.com/1ean267/nexustack"
@@ -22,7 +22,7 @@ cron = "0.15.0"
 either = "1.15.0"
 futures-util = "0.3.31"
 nexustack = { path = "crates/nexustack" }
-nexustack_macros = { path = "crates/nexustack_macros", version = "0.1.1" }
+nexustack_macros = { path = "crates/nexustack_macros", version = "0.1.2" }
 pretty_assertions = "1.4.1"
 proc-macro2 = "1.0.101"
 quote = "1.0.40"
