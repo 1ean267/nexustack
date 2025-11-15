@@ -10,7 +10,7 @@ members = [
 rust-version="1.91.1"
 version = "0.1.1"
 authors = ["Cato Truetschel and contributors"]
-description = "A rust web framework inspired by nestjs and asp.net"
+description = "Nexustack is a modular Rust framework combining HTTP, WebSockets, MQTT, AMQP, and cron jobs with a unified DI system, enabling scalable, enterprise-ready applications with out-of-the-box API documentation."
 repository = "https://github.com/1ean267/nexustack"
 license = "MIT"
 

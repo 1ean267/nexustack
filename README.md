@@ -8,20 +8,20 @@
   </a>
 </div>
 
-> []()  
-> **Warning:** Nexustack is a work in progress. Do not use in production environments yet  
-> []()   
+> []()\
+> **Warning:** Nexustack is a work in progress. Do not use in production environments yet\
+> []()\
 > []()
 
 Nexustack is not just another HTTP web framework. While there are countless web frameworks available, Nexustack aims to unify multiple functionalities under a single, cohesive system. It is designed to provide a stable, tested, and enterprise-ready solution for building modern applications.
 
 ### Unified Functionality
 
-Nexustack stands out by integrating multiple functionalities into a single framework. Instead of relying on separate libraries for HTTP, WebSockets, MQTT, AMQP, and cron jobs, Nexustack provides a unified solution. This eliminates the need to manage multiple dependencies and ensures that all features work seamlessly together. By combining these capabilities, Nexustack simplifies the development of modern, multi-protocol applications.
+Nexustack stands out by integrating multiple functionalities into a single framework. Instead of relying on separate libraries for HTTP, `WebSockets`, MQTT, AMQP, and cron jobs, Nexustack provides a unified solution. This eliminates the need to manage multiple dependencies and ensures that all features work seamlessly together. By combining these capabilities, Nexustack simplifies the development of modern, multi-protocol applications.
 
 ### Dependency Injection (DI)
 
-A robust dependency injection (DI) system is at the core of Nexustack. Inspired by frameworks like NestJS and ASP.NET Core, the DI system ensures modularity and testability. Developers can register services with different lifetimes (singleton, scoped, or transient) and resolve them effortlessly. This approach promotes clean architecture, reduces coupling, and makes it easier to write unit tests for individual components.
+A robust dependency injection (DI) system is at the core of Nexustack. Inspired by frameworks like `NestJS` and `ASP.NET Core`, the DI system ensures modularity and testability. Developers can register services with different lifetimes (singleton, scoped, or transient) and resolve them effortlessly. This approach promotes clean architecture, reduces coupling, and makes it easier to write unit tests for individual components.
 
 ### Modular Architecture
 
@@ -29,7 +29,7 @@ Nexustack encourages developers to structure their applications into coherent mo
 
 ### Out-of-the-Box API Documentation
 
-Documentation is a critical aspect of any application, and Nexustack makes it effortless. The framework automatically generates OpenAPI documentation for HTTP services and AsyncAPI documentation for WebSockets, MQTT, and AMQP services. This ensures that your APIs are well-documented and ready for integration with other systems, saving time and effort during development.
+Documentation is a critical aspect of any application, and Nexustack makes it effortless. The framework automatically generates `OpenAPI` documentation for HTTP services and `AsyncAPI` documentation for `WebSockets`, MQTT, and AMQP services. This ensures that your APIs are well-documented and ready for integration with other systems, saving time and effort during development.
 
 ### Enterprise Focus
 
@@ -37,15 +37,15 @@ Nexustack is designed with enterprise environments in mind. It prioritizes stabi
 
 ## Features
 
-- **HTTP Server** · Serve RESTful APIs with ease.
-- **WebSockets** · Real-time communication using WebSockets.
-- **MQTT** · Support for MQTT protocol for IoT and messaging.
-- **AMQP** · Integration with AMQP for message brokers like RabbitMQ.
+- **HTTP Server** · Serve `RESTful` APIs with ease.
+- **`WebSockets`** · Real-time communication using `WebSockets`.
+- **MQTT** · Support for MQTT protocol for `IoT` and messaging.
+- **AMQP** · Integration with AMQP for message brokers like `RabbitMQ`.
 - **Cron Jobs** · Schedule and manage periodic tasks.
-- **Dependency Injection** · A powerful DI system inspired by NestJS and ASP.NET Core.
+- **Dependency Injection** · A powerful DI system inspired by `NestJS` and `ASP.NET Core`.
 - **Modular Design** · Structure your application into reusable modules.
-- **OpenAPI Documentation** · Automatically generate OpenAPI documentation for your HTTP services.
-- **AsyncAPI Documentation** · Generate AsyncAPI documentation for WebSockets, MQTT, and AMQP services.
+- **`OpenAPI` Documentation** · Automatically generate `OpenAPI` documentation for your HTTP services.
+- **`AsyncAPI` Documentation** · Generate `AsyncAPI` documentation for `WebSockets`, MQTT, and AMQP services.
 
 > **Note**: Not all features are implemented yet. Nexustack is a work in progress.
 
@@ -66,7 +66,7 @@ nexustack = "0.1"
 
 Create a new Rust project and set up a simple Nexustack application:
 
-```rust
+```rust, ignore
 use nexustack::{
     application_builder,
     Application as _,
@@ -85,7 +85,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 #### Cron Jobs
 
-```rust
+```rust, ignore
 use nexustack::{
     application_builder,
     Application as _,

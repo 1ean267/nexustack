@@ -5,7 +5,7 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
-#![doc = include_str!("../README.md")]
+#![doc = include_str!("../../../README.md")]
 
 #[cfg(feature = "derive")]
 extern crate nexustack_macros;
