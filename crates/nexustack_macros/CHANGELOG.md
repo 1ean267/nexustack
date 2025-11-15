@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3](https://github.com/1ean267/nexustack/compare/nexustack_macros-v0.1.2...nexustack_macros-v0.1.3) - 2025-11-15
+
+### Fixed
+
+- Fix path to crate doc on publish
+- Absolute include paths
+
+### Other
+
+- Improve rustdoc
+
 ## [0.1.2](https://github.com/1ean267/nexustack/compare/nexustack_macros-v0.1.1...nexustack_macros-v0.1.2) - 2025-11-15
 
 ### Other
