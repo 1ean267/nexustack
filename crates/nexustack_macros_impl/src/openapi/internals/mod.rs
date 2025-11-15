@@ -9,7 +9,6 @@ pub(crate) mod ast;
 pub(crate) mod attr;
 pub(crate) mod check;
 pub(crate) mod name;
-pub(crate) mod symbol;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Derive {

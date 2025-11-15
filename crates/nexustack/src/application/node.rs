@@ -9,7 +9,7 @@ use crate::{
     ApplicationPart,
     application::{
         ApplicationPartBuilder, Chain,
-        chain::{Here, Index, There},
+        chain::{InHead, InTail, Index},
         configurable::Configurable,
         instrumentation::WithInstrumentation,
     },
@@ -28,14 +28,12 @@ pub struct Node<Head, Tail> {
 impl<Head, Tail> ApplicationPart for Node<Head, Tail>
 where
     Head: ApplicationPart + Send + Sync,
-    <Head as ApplicationPart>::Error: Send,
     Tail: ApplicationPart + Send + Sync,
-    <Tail as ApplicationPart>::Error: Send,
 {
     type Error = Either<Head::Error, Tail::Error>;
 
-    fn name(&self) -> Cow<'static, str> {
-        match (self.head.name(), self.tail.name()) {
+    fn name() -> Cow<'static, str> {
+        match (Head::name(), Tail::name()) {
             (Cow::Borrowed(head), Cow::Borrowed(tail)) => Cow::Owned(format!("{head}, {tail}")),
             (Cow::Borrowed(head), Cow::Owned(mut tail)) => {
                 if (tail.capacity() - tail.len()) >= (head.len() + 2) {
@@ -106,12 +104,7 @@ where
 impl<Head, Tail> ApplicationPartBuilder for Node<Head, Tail>
 where
     Head: ApplicationPartBuilder,
-    <Head as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
-    <<Head as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error:
-        std::fmt::Display + Send,
     Tail: ApplicationPartBuilder,
-    <Tail as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
-    <<Tail as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error: Send,
 {
     type ApplicationPart = Node<WithInstrumentation<Head::ApplicationPart>, Tail::ApplicationPart>;
 
@@ -134,26 +127,32 @@ where
     }
 }
 
-impl<Head, Tail> Chain<Head, Here> for Node<Head, Tail> {
-    fn get(&self) -> &Head {
-        &self.head
+impl<Head, Tail, HeadIndex> Chain<InHead<HeadIndex>> for Node<Head, Tail>
+where
+    HeadIndex: Index,
+    Head: Chain<HeadIndex>,
+{
+    type Element = Head::Element;
+    fn get(&self) -> &Self::Element {
+        self.head.get()
     }
 
-    fn get_mut(&mut self) -> &mut Head {
-        &mut self.head
+    fn get_mut(&mut self) -> &mut Self::Element {
+        self.head.get_mut()
     }
 }
 
-impl<Head, Tail, FromTail, TailIndex> Chain<FromTail, There<TailIndex>> for Node<Head, Tail>
+impl<Head, Tail, TailIndex> Chain<InTail<TailIndex>> for Node<Head, Tail>
 where
     TailIndex: Index,
-    Tail: Chain<FromTail, TailIndex>,
+    Tail: Chain<TailIndex>,
 {
-    fn get(&self) -> &FromTail {
+    type Element = Tail::Element;
+    fn get(&self) -> &Self::Element {
         self.tail.get()
     }
 
-    fn get_mut(&mut self) -> &mut FromTail {
+    fn get_mut(&mut self) -> &mut Self::Element {
         self.tail.get_mut()
     }
 }

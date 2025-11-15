@@ -12,13 +12,14 @@ repository.workspace = true
 license.workspace = true
 
 [features]
-default = ["derive", "openapi", "uuid", "url"]
+default = ["derive", "openapi", "uuid", "url", "cron"]
 derive = []
 unsize = []
 openapi = ["serde", "serde_json", "either", "const_format"]
 chrono = ["dep:chrono"]
 uuid = ["dep:uuid"]
 url = ["dep:url"]
+cron = ["dep:cron", "dep:chrono"]
 
 [lints.rust]
 missing_docs = "warn"
@@ -42,19 +43,21 @@ unescaped_backticks = "warn"
 
 [dependencies]
 anyhow = { workspace = true }
+chrono = { workspace = true, optional = true }
 const_format = { workspace = true, optional = true }
+cron = { workspace = true, optional = true, features = ["serde"] }
 either = { workspace = true, optional = true, features = ["serde"] }
 futures-util = { workspace = true }
 nexustack_macros = { workspace = true }
+pin-project = { workspace = true }
 serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt", "signal", "time"] }
 tokio-util = { workspace = true }
 tracing = { workspace = true }
-chrono = { workspace = true, optional = true }
-uuid = { workspace = true, optional = true }
 url = { workspace = true, optional = true }
+uuid = { workspace = true, optional = true }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }

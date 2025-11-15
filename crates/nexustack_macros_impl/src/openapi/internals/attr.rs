@@ -9,17 +9,15 @@
  * Based on https://github.com/serde-rs/serde/blob/master/serde_derive/src/internals/attr.rs
  */
 
-use crate::internals::Ctxt;
-use crate::openapi::internals::{
-    name::{MultiName, Name},
-    symbol::*,
+use crate::{
+    internals::{Ctxt, attr::*, symbol::*},
+    openapi::internals::name::{MultiName, Name},
 };
 use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
-use std::{borrow::Cow, collections::BTreeSet, iter::FromIterator};
+use std::{borrow::Cow, collections::BTreeSet};
 use syn::{
-    Ident, Token, meta::ParseNestedMeta, parse::Parser, parse_quote, punctuated::Punctuated,
-    spanned::Spanned, token,
+    Ident, Token, meta::ParseNestedMeta, parse::Parser, parse_quote, spanned::Spanned, token,
 };
 
 // This module handles parsing of attributes. The entrypoints
@@ -33,115 +31,6 @@ use syn::{
 pub use crate::internals::case::RenameRule;
 
 use super::Derive;
-
-pub(crate) struct Attr<'c, T> {
-    cx: &'c Ctxt,
-    name: Symbol,
-    tokens: TokenStream,
-    value: Option<T>,
-}
-
-impl<'c, T> Attr<'c, T> {
-    fn none(cx: &'c Ctxt, name: Symbol) -> Self {
-        Attr {
-            cx,
-            name,
-            tokens: TokenStream::new(),
-            value: None,
-        }
-    }
-
-    fn set<A: ToTokens>(&mut self, obj: A, value: T) {
-        let tokens = obj.into_token_stream();
-
-        if self.value.is_some() {
-            let msg = format!("duplicate attribute `{}`", self.name);
-            self.cx.error_spanned_by(tokens, msg);
-        } else {
-            self.tokens = tokens;
-            self.value = Some(value);
-        }
-    }
-
-    fn set_opt<A: ToTokens>(&mut self, obj: A, value: Option<T>) {
-        if let Some(value) = value {
-            self.set(obj, value);
-        }
-    }
-
-    fn set_if_none(&mut self, value: T) {
-        if self.value.is_none() {
-            self.value = Some(value);
-        }
-    }
-
-    pub(crate) fn get(self) -> Option<T> {
-        self.value
-    }
-
-    fn get_with_tokens(self) -> Option<(TokenStream, T)> {
-        match self.value {
-            Some(v) => Some((self.tokens, v)),
-            None => None,
-        }
-    }
-}
-
-struct BoolAttr<'c>(Attr<'c, ()>);
-
-impl<'c> BoolAttr<'c> {
-    fn none(cx: &'c Ctxt, name: Symbol) -> Self {
-        BoolAttr(Attr::none(cx, name))
-    }
-
-    fn set_true<A: ToTokens>(&mut self, obj: A) {
-        self.0.set(obj, ());
-    }
-
-    fn get(&self) -> bool {
-        self.0.value.is_some()
-    }
-}
-
-pub(crate) struct VecAttr<'c, T> {
-    cx: &'c Ctxt,
-    name: Symbol,
-    first_dup_tokens: TokenStream,
-    values: Vec<T>,
-}
-
-impl<'c, T> VecAttr<'c, T> {
-    fn none(cx: &'c Ctxt, name: Symbol) -> Self {
-        VecAttr {
-            cx,
-            name,
-            first_dup_tokens: TokenStream::new(),
-            values: Vec::new(),
-        }
-    }
-
-    fn insert<A: ToTokens>(&mut self, obj: A, value: T) {
-        if self.values.len() == 1 {
-            self.first_dup_tokens = obj.into_token_stream();
-        }
-        self.values.push(value);
-    }
-
-    fn at_most_one(mut self) -> Option<T> {
-        if self.values.len() > 1 {
-            let dup_token = self.first_dup_tokens;
-            let msg = format!("duplicate attribute `{}`", self.name);
-            self.cx.error_spanned_by(dup_token, msg);
-            None
-        } else {
-            self.values.pop()
-        }
-    }
-
-    pub(crate) fn get(self) -> Vec<T> {
-        self.values
-    }
-}
 
 fn unraw(ident: &Ident) -> Ident {
     Ident::new(ident.to_string().trim_start_matches("r#"), ident.span())
@@ -480,12 +369,12 @@ impl Container {
                     // #[api_schema(variant_identifier)]
                     variant_identifier.set_true(&meta.path);
                 } else if meta.path == CRATE {
-                    // #[api_schema(serde = "foo")]
+                    // #[api_schema(crate = "foo")]
                     if let Some(path) = parse_lit_into_path(cx, CRATE, &meta)? {
                         crate_path.set(&meta.path, path);
                     }
                 } else if meta.path == SERDE {
-                    // #[api_schema(crate = "foo")]
+                    // #[api_schema(serde = "foo")]
                     if let Some(path) = parse_lit_into_path(cx, SERDE, &meta)? {
                         serde_path.set(&meta.path, path);
                     }
@@ -1449,168 +1338,4 @@ fn get_where_predicates(
 ) -> syn::Result<SerAndDe<Vec<syn::WherePredicate>>> {
     let (ser, de) = get_ser_and_de(cx, BOUND, meta, parse_lit_into_where)?;
     Ok((ser.at_most_one(), de.at_most_one()))
-}
-
-fn get_lit_str(
-    cx: &Ctxt,
-    attr_name: Symbol,
-    meta: &ParseNestedMeta,
-) -> syn::Result<Option<syn::LitStr>> {
-    get_lit_str2(cx, attr_name, attr_name, meta)
-}
-
-fn get_lit_str2(
-    cx: &Ctxt,
-    attr_name: Symbol,
-    meta_item_name: Symbol,
-    meta: &ParseNestedMeta,
-) -> syn::Result<Option<syn::LitStr>> {
-    let expr: syn::Expr = meta.value()?.parse()?;
-    get_lit_str2_expr(cx, attr_name, meta_item_name, &expr)
-}
-
-fn get_lit_str2_expr(
-    cx: &Ctxt,
-    attr_name: Symbol,
-    meta_item_name: Symbol,
-    expr: &syn::Expr,
-) -> syn::Result<Option<syn::LitStr>> {
-    let mut value = expr;
-    while let syn::Expr::Group(e) = value {
-        value = &e.expr;
-    }
-    if let syn::Expr::Lit(syn::ExprLit {
-        lit: syn::Lit::Str(lit),
-        ..
-    }) = value
-    {
-        let suffix = lit.suffix();
-        if !suffix.is_empty() {
-            cx.error_spanned_by(
-                lit,
-                format!("unexpected suffix `{suffix}` on string literal"),
-            );
-        }
-        Ok(Some(lit.clone()))
-    } else {
-        cx.error_spanned_by(
-            expr,
-            format!("expected {attr_name} attribute to be a string: `{meta_item_name} = \"...\"`"),
-        );
-        Ok(None)
-    }
-}
-
-fn parse_lit_into_bool(
-    cx: &Ctxt,
-    attr_name: Symbol,
-    meta: &ParseNestedMeta,
-) -> syn::Result<Option<bool>> {
-    let string = match get_lit_str(cx, attr_name, meta)? {
-        Some(string) => string,
-        None => return Ok(None),
-    };
-
-    if string.value().eq("true") {
-        return Ok(Some(true));
-    }
-
-    if string.value().eq(&"false") {
-        return Ok(Some(false));
-    }
-
-    cx.error_spanned_by(
-        &string,
-        format!("failed to parse path: {:?}", string.value()),
-    );
-
-    Ok(None)
-}
-
-fn parse_lit_into_path(
-    cx: &Ctxt,
-    attr_name: Symbol,
-    meta: &ParseNestedMeta,
-) -> syn::Result<Option<syn::Path>> {
-    let string = match get_lit_str(cx, attr_name, meta)? {
-        Some(string) => string,
-        None => return Ok(None),
-    };
-
-    Ok(match string.parse() {
-        Ok(path) => Some(path),
-        Err(_) => {
-            cx.error_spanned_by(
-                &string,
-                format!("failed to parse path: {:?}", string.value()),
-            );
-            None
-        }
-    })
-}
-
-fn parse_lit_into_expr_path(
-    cx: &Ctxt,
-    attr_name: Symbol,
-    meta: &ParseNestedMeta,
-) -> syn::Result<Option<syn::ExprPath>> {
-    let string = match get_lit_str(cx, attr_name, meta)? {
-        Some(string) => string,
-        None => return Ok(None),
-    };
-
-    Ok(match string.parse() {
-        Ok(expr) => Some(expr),
-        Err(_) => {
-            cx.error_spanned_by(
-                &string,
-                format!("failed to parse path: {:?}", string.value()),
-            );
-            None
-        }
-    })
-}
-
-fn parse_lit_into_where(
-    cx: &Ctxt,
-    attr_name: Symbol,
-    meta_item_name: Symbol,
-    meta: &ParseNestedMeta,
-) -> syn::Result<Vec<syn::WherePredicate>> {
-    let string = match get_lit_str2(cx, attr_name, meta_item_name, meta)? {
-        Some(string) => string,
-        None => return Ok(Vec::new()),
-    };
-
-    Ok(
-        match string.parse_with(Punctuated::<syn::WherePredicate, Token![,]>::parse_terminated) {
-            Ok(predicates) => Vec::from_iter(predicates),
-            Err(err) => {
-                cx.error_spanned_by(string, err);
-                Vec::new()
-            }
-        },
-    )
-}
-
-fn parse_lit_into_ty(
-    cx: &Ctxt,
-    attr_name: Symbol,
-    meta: &ParseNestedMeta,
-) -> syn::Result<Option<syn::Type>> {
-    let string = match get_lit_str(cx, attr_name, meta)? {
-        Some(string) => string,
-        None => return Ok(None),
-    };
-
-    Ok(match string.parse() {
-        Ok(ty) => Some(ty),
-        Err(_) => {
-            cx.error_spanned_by(
-                &string,
-                format!("failed to parse type: {} = {:?}", attr_name, string.value()),
-            );
-            None
-        }
-    })
 }

@@ -5,9 +5,13 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
-use crate::{dummy, internals::Ctxt};
+use crate::{
+    dummy,
+    internals::{Ctxt, attr::*, symbol::*},
+};
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::{ToTokens as _, format_ident, quote};
+use syn::parse::Parser as _;
 
 pub fn expand_injectable(attr: TokenStream, item: TokenStream) -> syn::Result<TokenStream> {
     // TODO: Replace receiver
@@ -55,7 +59,7 @@ fn process_item_impl(ctxt: &Ctxt, attr: TokenStream, item_impl: syn::ItemImpl) -
         _ => {
             ctxt.error_spanned_by(
                 &attr,
-                "The injectable type must be type a without lifetime parameters.",
+                "The injectable type must be a type a without lifetime parameters.",
             );
         }
     };
@@ -63,7 +67,7 @@ fn process_item_impl(ctxt: &Ctxt, attr: TokenStream, item_impl: syn::ItemImpl) -
     if item_impl.generics.lifetimes().any(|_| true) {
         ctxt.error_spanned_by(
             &attr,
-            "The injectable type must be a type without lifetime parameters.",
+            "The injectable type must be a a type without lifetime parameters.",
         );
     }
 
@@ -124,10 +128,7 @@ fn process_item_impl(ctxt: &Ctxt, attr: TokenStream, item_impl: syn::ItemImpl) -
             _ => None,
         })
     {
-        if let Some(index) = fn_item.attrs.iter().position(|attr| match &attr.meta {
-            syn::Meta::Path(attr_path) => is_path(attr_path, &["injectable", "ctor"]),
-            _ => false,
-        }) {
+        if let Some(index) = fn_item.attrs.iter().position(is_injectable_ctor_attr) {
             fn_item.attrs.swap_remove(index);
         }
     }
@@ -161,7 +162,8 @@ fn process_item_impl(ctxt: &Ctxt, attr: TokenStream, item_impl: syn::ItemImpl) -
         }
     };
 
-    let impl_block = dummy::wrap_in_const(None, impl_block);
+    let crate_path = get_crate_path(ctxt, attr);
+    let impl_block = dummy::wrap_in_const(crate_path.as_ref(), impl_block);
 
     quote! {
         #transformed_item_impl
@@ -169,11 +171,45 @@ fn process_item_impl(ctxt: &Ctxt, attr: TokenStream, item_impl: syn::ItemImpl) -
     }
 }
 
-fn get_injectable_ctor_attr(fun: &syn::ImplItemFn) -> Option<&syn::Attribute> {
-    fun.attrs.iter().find(|attr| match &attr.meta {
-        syn::Meta::Path(attr_path) => is_path(attr_path, &["injectable", "ctor"]),
+fn get_crate_path(ctxt: &Ctxt, attr: TokenStream) -> Option<syn::Path> {
+    let mut crate_path = None;
+
+    if !attr.is_empty() {
+        let parser = syn::meta::parser(|meta| {
+            if meta.path == CRATE {
+                // #[inject(crate = "foo")]
+                if let Some(path) = parse_lit_into_path(ctxt, CRATE, &meta)? {
+                    crate_path = Some(path);
+                }
+            } else {
+                let path = meta.path.to_token_stream().to_string().replace(' ', "");
+                return Err(meta.error(format_args!("unknown attribute `{path}`")));
+            }
+            Ok(())
+        });
+
+        let parse_res = parser.parse2(attr);
+        if let Err(err) = parse_res {
+            ctxt.syn_error(err);
+        }
+    }
+
+    crate_path
+}
+
+fn is_injectable_ctor_attr(attr: &syn::Attribute) -> bool {
+    match &attr.meta {
+        syn::Meta::Path(attr_path) => {
+            is_path(attr_path, &["injectable", "ctor"])
+                || is_path(attr_path, &["inject", "injectable", "ctor"])
+                || is_path(attr_path, &["nexustack", "inject", "injectable", "ctor"])
+        }
         _ => false,
-    })
+    }
+}
+
+fn get_injectable_ctor_attr(fun: &syn::ImplItemFn) -> Option<&syn::Attribute> {
+    fun.attrs.iter().find(|attr| is_injectable_ctor_attr(attr))
 }
 
 fn is_static_func(fun: &syn::ImplItemFn) -> bool {
@@ -269,7 +305,8 @@ fn process_item_unit_struct(
         }
     };
 
-    let impl_block = dummy::wrap_in_const(None, impl_block);
+    let crate_path = get_crate_path(ctxt, attr);
+    let impl_block = dummy::wrap_in_const(crate_path.as_ref(), impl_block);
 
     quote! {
         #struct_impl
@@ -330,7 +367,8 @@ fn process_item_tuple_struct(
         }
     };
 
-    let impl_block = dummy::wrap_in_const(None, impl_block);
+    let crate_path = get_crate_path(ctxt, attr);
+    let impl_block = dummy::wrap_in_const(crate_path.as_ref(), impl_block);
 
     quote! {
         #struct_impl
@@ -397,7 +435,8 @@ fn process_item_struct(
         }
     };
 
-    let impl_block = dummy::wrap_in_const(None, impl_block);
+    let crate_path = get_crate_path(ctxt, attr);
+    let impl_block = dummy::wrap_in_const(crate_path.as_ref(), impl_block);
 
     quote! {
         #struct_impl

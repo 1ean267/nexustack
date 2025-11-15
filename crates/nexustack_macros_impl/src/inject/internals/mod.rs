@@ -5,16 +5,4 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
-mod dummy;
-#[macro_use]
-mod fragment;
-mod internals;
-
-#[cfg(feature = "inject")]
-pub mod inject;
-
-#[cfg(feature = "openapi")]
-pub mod openapi;
-
-#[cfg(feature = "cron")]
-pub mod cron;
+pub(crate) mod symbol;

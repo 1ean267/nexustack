@@ -22,6 +22,10 @@ pub mod inject;
 #[cfg(feature = "openapi")]
 pub mod openapi;
 
+#[cfg(feature = "cron")]
+#[doc = include_str!("./cron/README.md")]
+pub mod cron;
+
 mod application;
 mod callsite;
 mod utils;

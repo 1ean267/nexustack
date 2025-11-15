@@ -11,43 +11,20 @@ use tokio_util::sync::CancellationToken;
 
 pub struct WithInstrumentation<T>(pub(crate) T);
 
-// impl<T> ApplicationPartBuilder for WithInstrumentation<T>
-// where
-//     T: ApplicationPartBuilder,
-//     <T as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
-//     <<T as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error: std::fmt::Display,
-// {
-//     type ApplicationPart = WithInstrumentation<T::ApplicationPart>;
-
-//     fn build(self, service_provider: ServiceProvider) -> ConstructionResult<Self::ApplicationPart> {
-//         Ok(WithInstrumentation(self.0.build(service_provider)?))
-//     }
-// }
-
-// impl<'a, T> Configurable<'a> for WithInstrumentation<T>
-// where
-//     T: Configurable<'a>,
-// {
-//     fn has_item<I: 'static>() -> bool {
-//         <T as Configurable<'_>>::has_item::<I>()
-//     }
-// }
-
 impl<T> ApplicationPart for WithInstrumentation<T>
 where
     T: ApplicationPart + Send + Sync,
-    <T as ApplicationPart>::Error: std::fmt::Display,
 {
     type Error = T::Error;
 
-    fn name(&self) -> Cow<'static, str> {
-        self.0.name()
+    fn name() -> Cow<'static, str> {
+        T::name()
     }
 
     #[tracing::instrument(
         name = "application_part.before_startup",
         skip(self, cancellation_token),
-        fields(application_part = self.name().to_string())
+        fields(application_part = Self::name().to_string())
     )]
     async fn before_startup(
         &mut self,
@@ -67,7 +44,7 @@ where
     #[tracing::instrument(
         name = "application_part.run",
         skip(self, cancellation_token),
-        fields(application_part = self.name().to_string())
+        fields(application_part = Self::name().to_string())
     )]
     async fn run(&mut self, cancellation_token: CancellationToken) -> Result<(), Self::Error> {
         let start = Instant::now();
@@ -84,7 +61,7 @@ where
     #[tracing::instrument(
         name = "application_part.before_shutdown",
         skip(self, cancellation_token),
-        fields(application_part = self.name().to_string())
+        fields(application_part = Self::name().to_string())
     )]
     async fn before_shutdown(
         &mut self,
@@ -101,17 +78,3 @@ where
             )
     }
 }
-
-// impl<T, FromInner, InnerIndex> Chain<T, InnerIndex> for WithInstrumentation<FromInner>
-// where
-//     FromInner: Chain<T, InnerIndex>,
-//     InnerIndex: Index,
-// {
-//     fn get(&self) -> &T {
-//         self.0.get()
-//     }
-
-//     fn get_mut(&mut self) -> &mut T {
-//         self.0.get_mut()
-//     }
-// }

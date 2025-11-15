@@ -18,7 +18,7 @@ mod empty;
 mod instrumentation;
 mod node;
 
-pub use chain::{Chain, Index};
+pub use chain::{Chain, Here, InHead, InTail, Index};
 pub use node::Node;
 
 /// Builder trait for constructing application parts.
@@ -31,7 +31,7 @@ pub trait ApplicationPartBuilder {
     /// The type of application part produced by this builder.
     ///
     /// This must implement [`ApplicationPart`].
-    type ApplicationPart: ApplicationPart;
+    type ApplicationPart: ApplicationPart + Send + Sync;
 
     /// Builds an application part instance using the provided service provider.
     ///
@@ -53,13 +53,14 @@ pub trait ApplicationPartBuilder {
 /// Hooks are run in parallel for all parts.
 pub trait ApplicationPart {
     /// The error type returned by this application part's hooks.
-    type Error;
+    type Error: std::error::Error + Send;
 
     /// Returns the name of this application part as a string.
     ///
     /// # Returns
     /// A [`Cow<str>`] containing the type name of the application part. By default, this is the Rust type name, but can be overridden for custom display.
-    fn name(&self) -> Cow<'static, str> {
+    #[must_use]
+    fn name() -> Cow<'static, str> {
         Cow::Borrowed(std::any::type_name::<Self>())
     }
 
@@ -136,11 +137,6 @@ pub trait ApplicationBuilder {
     where
         Self: Sized,
         B: ApplicationPartBuilder + Default + 'static,
-        <B as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
-        <<B as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error:
-            std::fmt::Display + Send,
-        <Self::Chain as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
-        <<Self::Chain as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error: Send,
     {
         self.add_application_part_with_factory(B::default)
     }
@@ -163,9 +159,6 @@ pub trait ApplicationBuilder {
     ) -> impl ApplicationBuilder<Chain = Node<B, Self::Chain>>
     where
         B: ApplicationPartBuilder + 'static,
-        <B as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
-        <<B as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error:
-            std::fmt::Display + Send,
         F: FnOnce() -> B;
 
     #[must_use]
@@ -201,7 +194,25 @@ pub trait ApplicationBuilder {
         F: FnOnce(&mut B),
         I: Index,
         Self: Sized,
-        Self::Chain: Chain<B, I>;
+        Self::Chain: Chain<I, Element = B>;
+
+    /// Configures the entire application part builder chain.
+    ///
+    /// Use this to apply a configuration closure to the entire chain of application part builders.
+    /// This is useful for performing bulk or global configuration on the chain.
+    ///
+    /// # Type Parameters
+    /// - `F`: A closure that receives a mutable reference to the builder chain.
+    ///
+    /// # Arguments
+    /// * `configure` - A closure invoked with a mutable reference to the builder chain, allowing customization.
+    ///
+    /// # Returns
+    /// The builder instance, allowing further chaining. The chain type is unchanged.
+    fn configure_chain<F>(self, configure: F) -> impl ApplicationBuilder<Chain = Self::Chain>
+    where
+        F: FnOnce(&mut Self::Chain),
+        Self: Sized;
 
     /// Configures the service collection for dependency injection.
     ///
@@ -242,9 +253,6 @@ struct ApplicationBuilderConcrete<B> {
 impl<C> ApplicationBuilder for ApplicationBuilderConcrete<C>
 where
     C: ApplicationPartBuilder + Configurable<'static>,
-    <C as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
-    <<C as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error:
-        std::fmt::Display + Send,
 {
     type Chain = C;
 
@@ -254,9 +262,6 @@ where
     ) -> impl ApplicationBuilder<Chain = Node<B, Self::Chain>>
     where
         B: ApplicationPartBuilder + 'static,
-        <B as ApplicationPartBuilder>::ApplicationPart: Send + Sync,
-        <<B as ApplicationPartBuilder>::ApplicationPart as ApplicationPart>::Error:
-            std::fmt::Display + Send,
         F: FnOnce() -> B,
     {
         // gen_assert!((B, C: Configurable<'static>) => !<C as Configurable<'_>>::has_item::<B>());
@@ -286,9 +291,18 @@ where
         F: FnOnce(&mut B),
         I: Index,
         Self: Sized,
-        Self::Chain: Chain<B, I>,
+        Self::Chain: Chain<I, Element = B>,
     {
         configure(self.application_part_builder_chain.get_mut());
+        self
+    }
+
+    fn configure_chain<F>(mut self, configure: F) -> impl ApplicationBuilder<Chain = Self::Chain>
+    where
+        F: FnOnce(&mut Self::Chain),
+        Self: Sized,
+    {
+        configure(&mut self.application_part_builder_chain);
         self
     }
 
@@ -326,7 +340,7 @@ impl Default for ApplicationBuilderConcrete<()> {
 /// This trait provides methods to run the application lifecycle, including startup, execution, and shutdown phases.
 pub trait Application {
     /// The error type returned by this application during its lifecycle phases.
-    type Error: std::fmt::Display;
+    type Error: std::error::Error;
 
     /// Runs the application, executing all lifecycle phases (startup, run, shutdown) for the collected application parts.
     ///
@@ -389,7 +403,6 @@ impl<T> Application for ApplicationConcrete<T>
 where
     Self: Sync,
     T: ApplicationPart + Send,
-    <T as ApplicationPart>::Error: std::fmt::Display,
 {
     type Error = <T as ApplicationPart>::Error;
 
@@ -422,7 +435,7 @@ where
 
         self.before_shutdown(forced_shutdown).await?;
 
-        tracing::info!(
+        tracing::debug!(
             took_ms = start_ts.elapsed().as_millis(),
             "Application shutting down after successful run"
         );
@@ -439,7 +452,6 @@ impl<T> ApplicationConcrete<T>
 where
     Self: Sync,
     T: ApplicationPart,
-    <T as ApplicationPart>::Error: std::fmt::Display,
 {
     /// Executes the `before_startup` lifecycle phase for all collected application parts.
     ///
@@ -451,7 +463,7 @@ where
     #[tracing::instrument(
         name = "application.before_startup",
         skip(self, cancellation_token),
-        fields(application_parts = self.application_part_chain.name().to_string())
+        fields(application_parts = T::name().to_string())
     )]
     async fn before_startup(
         &mut self,
@@ -484,7 +496,7 @@ where
     #[tracing::instrument(
         name = "application.run",
         skip(self, cancellation_token),
-        fields(application_parts = self.application_part_chain.name().to_string())
+        fields(application_parts = T::name().to_string())
     )]
     async fn run_core(&mut self, cancellation_token: CancellationToken) -> Result<(), T::Error> {
         tracing::debug!("Executing run phase");
@@ -514,7 +526,7 @@ where
     #[tracing::instrument(
         name = "application.before_shutdown",
         skip(self, cancellation_token),
-        fields(application_parts = self.application_part_chain.name().to_string())
+        fields(application_parts = T::name().to_string())
     )]
     async fn before_shutdown(
         &mut self,

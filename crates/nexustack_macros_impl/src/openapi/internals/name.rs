@@ -9,7 +9,7 @@
  * Based on https://github.com/serde-rs/serde/blob/master/serde_derive/src/internals/name.rs
  */
 
-use crate::openapi::internals::attr::{Attr, VecAttr};
+use crate::internals::attr::{Attr, VecAttr};
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::ToTokens;
 use std::cmp::Ordering;

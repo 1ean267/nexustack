@@ -9,8 +9,10 @@ pub mod callsite;
 mod ctxt;
 mod receiver;
 
+pub(crate) mod attr;
 pub(crate) mod case;
 pub(crate) mod respan;
+pub(crate) mod symbol;
 
 pub use self::callsite::callsite;
 pub use self::ctxt::Ctxt;
