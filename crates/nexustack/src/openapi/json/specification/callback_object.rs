@@ -7,7 +7,7 @@
 
 use super::{PathItemObject, ReferenceObject};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 /// A map of possible out-of band callbacks related to the parent operation.
 ///
@@ -16,7 +16,7 @@ use std::collections::HashMap;
 /// is an expression, evaluated at runtime, that identifies a URL to use for the callback operation.
 /// See <https://swagger.io/specification/#callback-object>
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct CallbackObject(HashMap<String, PathItemObject>);
+pub struct CallbackObject(HashMap<Cow<'static, str>, PathItemObject>);
 
 /// Represents either a [`CallbackObject`] or [`ReferenceObject`].
 /// Used to allow references to callback objects in `OpenAPI` specifications.

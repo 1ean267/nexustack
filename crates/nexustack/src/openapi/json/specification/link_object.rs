@@ -8,7 +8,7 @@
 use super::{ReferenceObject, ServerObject};
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 /// The Link object represents a possible design-time link for a response.
 ///
@@ -31,7 +31,7 @@ pub struct LinkObject {
         default,
         skip_serializing_if = "Option::is_none"
     )]
-    pub operation_ref: Option<String>,
+    pub operation_ref: Option<Cow<'static, str>>,
 
     /// The name of an existing, resolvable OAS operation, as defined with a unique operationId.
     /// This field is mutually exclusive of the operationRef field.
@@ -40,7 +40,7 @@ pub struct LinkObject {
         default,
         skip_serializing_if = "Option::is_none"
     )]
-    pub operation_id: Option<String>,
+    pub operation_id: Option<Cow<'static, str>>,
 
     /// A map representing parameters to pass to an operation as specified with operationId or identified via operationRef.
     /// The key is the parameter name to be used, whereas the value can be a constant or an expression to be evaluated and
@@ -51,7 +51,7 @@ pub struct LinkObject {
         default,
         skip_serializing_if = "Option::is_none"
     )]
-    pub parameters: Option<HashMap<String, JsonValue>>,
+    pub parameters: Option<HashMap<Cow<'static, str>, JsonValue>>,
     /// A literal value or {expression} to use as a request body when calling the target operation.
     #[serde(
         rename = "requestBody",
@@ -65,7 +65,7 @@ pub struct LinkObject {
         default,
         skip_serializing_if = "Option::is_none"
     )]
-    pub description: Option<String>,
+    pub description: Option<Cow<'static, str>>,
     /// A server object to be used by the target operation.
     #[serde(rename = "server", default, skip_serializing_if = "Option::is_none")]
     pub server: Option<ServerObject>,

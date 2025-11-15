@@ -44,6 +44,8 @@ mod server_variable_object;
 mod tag_object;
 mod xml_object;
 
+use std::{borrow::Cow, collections::HashMap};
+
 pub use callback_object::*;
 pub use components_object::*;
 pub use contact_object::*;
@@ -98,3 +100,12 @@ impl std::fmt::Display for Specification {
         }
     }
 }
+
+/// A list of security requirement objects for an operation, as defined by the `OpenAPI` Specification.
+///
+/// Each entry in the outer vector represents an alternative set of security requirements (logical OR).
+/// Each `HashMap` maps a security scheme name to a list of required scopes (logical AND within the map).
+/// An empty map (`{}`) indicates that security is optional for the operation.
+///
+/// See [OpenAPI Specification: Security Requirement Object](https://swagger.io/specification/#security-requirement-object)
+pub type SecurityRequirements = Vec<HashMap<Cow<'static, str>, Vec<Cow<'static, str>>>>;

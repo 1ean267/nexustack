@@ -23,6 +23,9 @@ mod openapi;
 #[cfg(feature = "cron")]
 mod cron;
 
+// #[cfg(feature = "http")]
+// mod http;
+
 #[cfg(feature = "inject")]
 use crate::inject::injectable as injectable_impl;
 
@@ -31,6 +34,9 @@ use crate::openapi::api_schema as api_schema_impl;
 
 #[cfg(feature = "cron")]
 use crate::cron::{cron as cron_impl, cron_jobs as cron_jobs_impl};
+
+// #[cfg(feature = "http")]
+// use crate::http::expand_http_response as expand_http_response_impl;
 
 #[cfg(feature = "inject")]
 #[proc_macro_attribute]
@@ -68,3 +74,12 @@ pub fn cron(
 pub fn cron_jobs(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     cron_jobs_impl(input.into()).into()
 }
+
+// #[cfg(feature = "http")]
+// #[proc_macro_attribute]
+// pub fn expand_http_response(
+//     attr: proc_macro::TokenStream,
+//     item: proc_macro::TokenStream,
+// ) -> proc_macro::TokenStream {
+//     expand_http_response_impl(attr.into(), item.into()).into()
+// }

@@ -7,21 +7,21 @@
 
 use super::{
     ComponentsObject, ExternalDocumentationObject, InfoObject, PathItemOrReferenceObject,
-    PathsObject, ServerObject, TagObject,
+    PathsObject, SecurityRequirements, ServerObject, TagObject,
 };
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 /// This is the root object of the `OpenAPI` document.
 /// See <https://swagger.io/specification/#openapi-object>
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OpenAPIObject {
     /// REQUIRED.
-    /// This string MUST be the version number of the `OpenAPI` Specification that th`OpenAPI`PI document uses.
+    /// This Cow<'static, str> MUST be the version number of the `OpenAPI` Specification that th`OpenAPI`PI document uses.
     /// The openapi field SHOULD be used by tooling to interpret the `OpenAPI` document.
-    /// This is not related to the API info.version string.
+    /// This is not related to the API info.version Cow<'static, str>.
     #[serde(rename = "openapi")]
-    pub openapi: String,
+    pub openapi: Cow<'static, str>,
 
     /// REQUIRED.
     /// Provides metadata about the API. The metadata MAY be used by tooling as required.
@@ -35,7 +35,7 @@ pub struct OpenAPIObject {
         default,
         skip_serializing_if = "Option::is_none"
     )]
-    pub json_schema_dialect: Option<String>,
+    pub json_schema_dialect: Option<Cow<'static, str>>,
 
     /// An array of Server Objects, which provide connectivity information to a target server.
     /// If the servers property is not provided, or is an empty array, the default value would be a Server Object with a url value of /.
@@ -48,11 +48,11 @@ pub struct OpenAPIObject {
 
     /// The incoming webhooks that MAY be received as part of this API and that the API consumer MAY choose to implement.
     /// Closely related to the callbacks feature, this section describes requests initiated other than by an API call,
-    /// for example by an out of band registration. The key name is a unique string to refer to each webhook,
+    /// for example by an out of band registration. The key name is a unique Cow<'static, str> to refer to each webhook,
     /// while the (optionally referenced) Path Item Object describes a request that may be initiated by the API provider
     /// and the expected responses.
     #[serde(rename = "webhooks", default, skip_serializing_if = "Option::is_none")]
-    pub webhooks: Option<HashMap<String, PathItemOrReferenceObject>>, // TODO: Serialize to JSON object
+    pub webhooks: Option<HashMap<Cow<'static, str>, PathItemOrReferenceObject>>, // TODO: Serialize to JSON object
 
     /// An element to hold various schemas for the document.
     #[serde(
@@ -68,7 +68,7 @@ pub struct OpenAPIObject {
     /// Individual operations can override this definition.
     /// To make security optional, an empty security requirement ({}) can be included in the array.
     #[serde(rename = "security", default, skip_serializing_if = "Option::is_none")]
-    pub security: Option<Vec<HashMap<String, Vec<String>>>>,
+    pub security: Option<SecurityRequirements>,
 
     /// A list of tags used by the document with additional metadata.
     /// The order of the tags can be used to reflect on their order by the parsing tools.

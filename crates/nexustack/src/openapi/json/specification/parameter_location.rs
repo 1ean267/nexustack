@@ -6,6 +6,7 @@
  */
 
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 
 /// Represents the location of an `OpenAPI` parameter.
 ///
@@ -14,7 +15,7 @@ use serde::{Deserialize, Serialize};
 ///
 #[derive(Serialize, Debug, Clone)]
 pub enum ParameterLocation {
-    /// Parameter is located in the query string.
+    /// Parameter is located in the query Cow<'static, str>.
     #[serde(rename = "query")]
     Query,
     /// Parameter is located in the request header.
@@ -33,7 +34,7 @@ impl<'de> Deserialize<'de> for ParameterLocation {
     where
         D: serde::Deserializer<'de>,
     {
-        let s: String = Deserialize::deserialize(deserializer)?;
+        let s: Cow<'static, str> = Deserialize::deserialize(deserializer)?;
         match s.to_lowercase().as_str() {
             "query" => Ok(Self::Query),
             "header" => Ok(Self::Header),

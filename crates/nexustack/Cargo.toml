@@ -16,13 +16,28 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
-default = ["derive", "nexustack_macros/inject"]
+default = ["derive", "nexustack_macros/inject", "http", "openapi", "yaml"]
 derive = []
-openapi = ["serde", "serde_json", "const_format", "nexustack_macros/openapi"]
+openapi = [
+    "dep:serde",
+    "dep:serde_json",
+    "dep:const_format",
+    "dep:include_directory",
+    "dep:mime_guess",
+    "nexustack_macros/openapi",
+]
 chrono = ["dep:chrono"]
 uuid = ["dep:uuid"]
 url = ["dep:url"]
 cron = ["dep:cron", "dep:chrono", "nexustack_macros/cron"]
+http = [
+    "dep:axum",
+    "dep:mime",
+    "dep:nonempty-collections",
+    "dep:serde",
+    "nexustack_macros/http",
+]
+yaml = ["dep:serde_path_to_error", "dep:serde_yaml_bw", "axum/__private"]
 
 [lints.rust]
 missing_docs = "warn"
@@ -46,14 +61,21 @@ unescaped_backticks = "warn"
 
 [dependencies]
 anyhow = { workspace = true }
+axum = { workspace = true, optional = true }
 chrono = { workspace = true, optional = true }
 const_format = { workspace = true, optional = true }
 cron = { workspace = true, optional = true, features = ["serde"] }
 either = { workspace = true, features = ["serde"] }
 futures-util = { workspace = true }
+include_directory = { workspace = true, optional = true }
+mime = { workspace = true, optional = true }
+mime_guess = { workspace = true, optional = true  }
 nexustack_macros = { workspace = true }
-serde = { workspace = true, optional = true }
+nonempty-collections = { workspace = true, optional = true }
+serde = { workspace = true, optional = true, features = ["rc"] }
 serde_json = { workspace = true, optional = true }
+serde_path_to_error = { workspace = true, optional = true }
+serde_yaml_bw = { workspace = true, optional = true  }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt", "signal", "time"] }
 tokio-util = { workspace = true }

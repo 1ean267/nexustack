@@ -413,7 +413,9 @@ impl Schema for std::net::SocketAddrV6 {
 mod test {
     #[test]
     fn test_ip_addr_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -501,7 +503,9 @@ mod test {
 
     #[test]
     fn test_ip_v4_addr_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -544,7 +548,9 @@ mod test {
 
     #[test]
     fn test_ip_v6_addr_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -599,7 +605,9 @@ mod test {
     #[test]
     #[allow(clippy::too_many_lines)]
     fn test_socket_addr_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -715,7 +723,9 @@ mod test {
 
     #[test]
     fn test_socket_addr_v4_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -759,7 +769,9 @@ mod test {
 
     #[test]
     fn test_socket_addr_v6_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));

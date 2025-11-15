@@ -23,6 +23,7 @@ default = []
 openapi = []
 inject = []
 cron = ["dep:cron"]
+http = []
 
 [dependencies]
 cron = { workspace = true, optional = true }
