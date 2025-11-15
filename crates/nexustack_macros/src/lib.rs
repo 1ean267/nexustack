@@ -5,6 +5,8 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 #[cfg(any(feature = "inject", feature = "cron"))]
 mod dummy;
 #[cfg(feature = "openapi")]

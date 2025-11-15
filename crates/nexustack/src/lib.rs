@@ -5,6 +5,8 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(docsrs, feature(rustdoc_internals))]
 #![doc = include_str!("../../../README.md")]
 
 #[cfg(feature = "derive")]

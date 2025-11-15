@@ -12,7 +12,7 @@
 use crate::openapi::{schema::Schema, schema_builder::SchemaBuilder};
 
 #[cfg(target_has_atomic = "8")]
-#[cfg_attr(docsrs, doc(cfg(all(feature = "std", target_has_atomic = $size))))]
+#[cfg_attr(docsrs, doc(cfg(all(feature = "std", target_has_atomic = "8"))))]
 impl Schema for std::sync::atomic::AtomicBool {
     type Example = <bool as Schema>::Example;
     type Examples = <bool as Schema>::Examples;
