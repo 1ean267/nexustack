@@ -7,10 +7,10 @@
 
 use super::{
     CallbackOrReferenceObject, ExternalDocumentationObject, ParameterOrReferenceObject,
-    RequestBodyOrReferenceObject, ResponseObject, ServerObject,
+    RequestBodyOrReferenceObject, ResponseObject, SecurityRequirements, ServerObject,
 };
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, ops::Not};
+use std::{borrow::Cow, collections::HashMap, ops::Not};
 
 /// Describes a single API operation on a path.
 /// See <https://swagger.io/specification/#operation-object>
@@ -19,11 +19,11 @@ pub struct OperationObject {
     /// A list of tags for API documentation control.
     /// Tags can be used for logical grouping of operations by resources or any other qualifier.
     #[serde(rename = "tags", default, skip_serializing_if = "Option::is_none")]
-    pub tags: Option<Vec<String>>,
+    pub tags: Option<Vec<Cow<'static, str>>>,
 
     /// A short summary of what the operation does.
     #[serde(rename = "summary", default, skip_serializing_if = "Option::is_none")]
-    pub summary: Option<String>,
+    pub summary: Option<Cow<'static, str>>,
 
     /// A verbose explanation of the operation behavior.
     /// `CommonMark` syntax MAY be used for rich text representation.
@@ -32,7 +32,7 @@ pub struct OperationObject {
         default,
         skip_serializing_if = "Option::is_none"
     )]
-    pub description: Option<String>,
+    pub description: Option<Cow<'static, str>>,
 
     /// Additional external documentation for this operation.
     #[serde(
@@ -42,7 +42,7 @@ pub struct OperationObject {
     )]
     pub external_docs: Option<ExternalDocumentationObject>,
 
-    /// Unique string used to identify the operation.
+    /// Unique Cow<'static, str> used to identify the operation.
     /// The id MUST be unique among all operations described in the API.
     /// The operationId value is case-sensitive.
     /// Tools and libraries MAY use the operationId to uniquely identify an operation, therefore,
@@ -52,7 +52,7 @@ pub struct OperationObject {
         default,
         skip_serializing_if = "Option::is_none"
     )]
-    pub operation_id: Option<String>,
+    pub operation_id: Option<Cow<'static, str>>,
 
     /// A list of parameters that are applicable for this operation.
     /// If a parameter is already defined at the Path Item, the new definition will override it
@@ -81,14 +81,14 @@ pub struct OperationObject {
 
     /// The list of possible responses as they are returned from executing this operation.
     #[serde(rename = "responses")]
-    pub responses: HashMap<String, ResponseObject>,
+    pub responses: HashMap<u16, ResponseObject>,
 
     /// A map of possible out-of band callbacks related to the parent operation.
     /// The key is a unique identifier for the Callback Object.
     /// Each value in the map is a Callback Object that describes a request that may be initiated
     /// by the API provider and the expected responses.
     #[serde(rename = "callbacks", default, skip_serializing_if = "Option::is_none")]
-    pub callbacks: Option<HashMap<String, CallbackOrReferenceObject>>,
+    pub callbacks: Option<HashMap<Cow<'static, str>, CallbackOrReferenceObject>>,
 
     /// Declares this operation to be deprecated.
     /// Consumers SHOULD refrain from usage of the declared operation.
@@ -103,7 +103,7 @@ pub struct OperationObject {
     /// This definition overrides any declared top-level security.
     /// To remove a top-level security declaration, an empty array can be used.
     #[serde(rename = "security", default, skip_serializing_if = "Option::is_none")]
-    pub security: Option<Vec<HashMap<String, Vec<String>>>>,
+    pub security: Option<SecurityRequirements>,
 
     /// An alternative server array to service this operation.
     /// If an alternative server object is specified at the Path Item Object or Root level,

@@ -334,3 +334,26 @@ pub(crate) fn parse_lit_into_ty_list(
         },
     )
 }
+
+#[cfg(feature = "http")]
+pub(crate) fn parse_lit_into_ident(
+    cx: &Ctxt,
+    attr_name: Symbol,
+    meta: &ParseNestedMeta,
+) -> syn::Result<Option<syn::Ident>> {
+    let string = match get_lit_str(cx, attr_name, meta)? {
+        Some(string) => string,
+        None => return Ok(None),
+    };
+
+    Ok(match string.parse() {
+        Ok(ident) => Some(ident),
+        Err(_) => {
+            cx.error_spanned_by(
+                &string,
+                format!("failed to parse ident: {:?}", string.value()),
+            );
+            None
+        }
+    })
+}

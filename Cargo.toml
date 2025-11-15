@@ -1,5 +1,5 @@
 [workspace]
-resolver = "2"
+resolver = "3"
 members = [
     "crates/nexustack",
     "crates/nexustack_macros",
@@ -16,19 +16,26 @@ license = "MIT"
 
 [workspace.dependencies]
 anyhow = "1.0.100"
+axum = "0.8.7"
 chrono = "0.4.42"
 const_format = "0.2.34"
 cron = "0.15.0"
 either = "1.15.0"
 futures-util = "0.3.31"
+include_directory = "0.1.1"
+mime = "0.3.17"
+mime_guess = "2.0.5"
 nexustack = { path = "crates/nexustack" }
 nexustack_macros = { path = "crates/nexustack_macros", version = "0.2.0" }
+nonempty-collections = "1.2.1"
 pretty_assertions = "1.4.1"
 proc-macro2 = "1.0.101"
 quote = "1.0.40"
 rust-format = "0.3.4"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.143"
+serde_path_to_error = "0.1.20"
+serde_yaml_bw = "2.5.1"
 syn = "2.0.100"
 thiserror = "2.0.12"
 tokio = "1.47.1"

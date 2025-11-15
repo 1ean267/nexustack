@@ -5,6 +5,8 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
+use std::borrow::Cow;
+
 use super::{OperationObject, ParameterOrReferenceObject, ReferenceObject, ServerObject};
 use serde::{Deserialize, Serialize};
 
@@ -20,20 +22,20 @@ pub struct PathItemObject {
     /// In case a Path Item Object field appears both in the defined object and the referenced object,
     /// the behavior is undefined. See the rules for resolving Relative References.
     #[serde(rename = "$ref", default, skip_serializing_if = "Option::is_none")]
-    pub r#ref: Option<String>,
+    pub r#ref: Option<Cow<'static, str>>,
 
-    /// An optional, string summary, intended to apply to all operations in this path.
+    /// An optional, Cow<'static, str> summary, intended to apply to all operations in this path.
     #[serde(rename = "summary", default, skip_serializing_if = "Option::is_none")]
-    pub summary: Option<String>,
+    pub summary: Option<Cow<'static, str>>,
 
-    /// An optional, string description, intended to apply to all operations in this path.
+    /// An optional, Cow<'static, str> description, intended to apply to all operations in this path.
     /// `CommonMark` syntax MAY be used for rich text representation.
     #[serde(
         rename = "description",
         default,
         skip_serializing_if = "Option::is_none"
     )]
-    pub description: Option<String>,
+    pub description: Option<Cow<'static, str>>,
 
     /// A definition of a GET operation on this path.
     #[serde(rename = "get", default, skip_serializing_if = "Option::is_none")]

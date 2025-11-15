@@ -6,6 +6,7 @@
  */
 
 mod notes;
+mod response;
 
 use crate::notes::NotesModule as _;
 use nexustack::{
@@ -13,7 +14,9 @@ use nexustack::{
     cron::{
         Cron as _, CronApplicationBuilder as _, CronResult, cron, cron_jobs, schedule::Schedule,
     },
+    http::HttpApplicationBuilder as _,
     inject::{InjectionResult, ServiceProvider, injectable},
+    openapi,
 };
 use std::str::FromStr as _;
 use tracing::instrument;
@@ -21,7 +24,7 @@ use tracing::instrument;
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     unsafe {
-        std::env::set_var("RUST_LOG", "info");
+        std::env::set_var("RUST_LOG", "INFO");
     }
 
     let subscriber = tracing_subscriber::fmt()
@@ -40,6 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .add_scoped::<MyService>();
         })
         .add_cron_with_default_clock()
+        .add_http_with_openapi("127.0.0.1:8080".parse()?, configure_openapi())
         .configure_cron(cron_jobs![
             remove_expired_sessions_cron_job,
             some_other_cron_job,
@@ -50,6 +54,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     app.run().await?;
 
     Ok(())
+}
+
+fn configure_openapi() -> openapi::HttpDocumentBuilder {
+    openapi::HttpDocumentBuilder::new("Nexustack Sample API", "1.0.0")
+        .with_description("This is a sample API built with Nexustack.")
+        .with_spdx_license("MIT", "MIT")
 }
 
 #[derive(Clone, Debug)]

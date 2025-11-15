@@ -11,7 +11,7 @@ use super::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 /// The Header Object follows the structure of the Parameter Object with the following changes:
 /// * name MUST NOT be specified, it is given in the corresponding headers map.
@@ -32,7 +32,7 @@ pub enum HeaderObject {
             default,
             skip_serializing_if = "Option::is_none"
         )]
-        description: Option<String>,
+        description: Option<Cow<'static, str>>,
 
         /// Determines whether this parameter is mandatory.
         /// If the parameter location is "path", this property is REQUIRED and its value MUST be true.
@@ -91,7 +91,7 @@ pub enum HeaderObject {
         /// Furthermore, if referencing a schema that contains an example, the example value SHALL
         /// override the example provided by the schema.
         /// To represent examples of media types that cannot naturally be represented in JSON or YAML,
-        /// a string value can contain the example with escaping where necessary.
+        /// a Cow<'static, str> value can contain the example with escaping where necessary.
         #[serde(rename = "example", default, skip_serializing_if = "Option::is_none")]
         example: Option<JsonValue>,
 
@@ -101,7 +101,7 @@ pub enum HeaderObject {
         /// Furthermore, if referencing a schema that contains an example, the examples value SHALL override
         /// the example provided by the schema.
         #[serde(rename = "examples", default, skip_serializing_if = "Option::is_none")]
-        examples: Option<HashMap<String, ExampleOrReferenceObject>>,
+        examples: Option<HashMap<Cow<'static, str>, ExampleOrReferenceObject>>,
     },
     /// For more complex scenarios, the content property can define the media type and schema of the parameter.
     /// A parameter MUST contain either a schema property, or a content property, but not both.
@@ -115,7 +115,7 @@ pub enum HeaderObject {
             default,
             skip_serializing_if = "Option::is_none"
         )]
-        description: Option<String>,
+        description: Option<Cow<'static, str>>,
 
         /// Determines whether this parameter is mandatory.
         /// If the parameter location is "path", this property is REQUIRED and its value MUST be true.
@@ -140,7 +140,7 @@ pub enum HeaderObject {
         /// The key is the media type and the value describes it.
         /// The map MUST only contain one entry.
         #[serde(rename = "content", default, skip_serializing_if = "Option::is_none")]
-        content: Option<HashMap<String, MediaTypeObject>>,
+        content: Option<HashMap<Cow<'static, str>, MediaTypeObject>>,
     },
 }
 
