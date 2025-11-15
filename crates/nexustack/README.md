@@ -1,18 +1,18 @@
 <div align="center">
-  <img alt="Nexustack logo" src="https://github.com/1ean267/nexustack/raw/main/artifacts/logo_no_text_round.png" height="128">
+  <img alt="Nexustack logo" src="`HTTP`s://github.com/1ean267/nexustack/raw/main/artifacts/logo_no_text_round.png" height="128">
   <h1>Nexustack</h1>
-  <a href="https://github.com/1ean267/nexustack/actions">
-    <img alt="GitHub branch check runs" src="https://img.shields.io/github/check-runs/1ean267/nexustack/main?style=for-the-badge&labelColor=000000">
+  <a href="`HTTP`s://github.com/1ean267/nexustack/actions">
+    <img alt="GitHub branch check runs" src="`HTTP`s://img.shields.io/github/check-runs/1ean267/nexustack/main?style=for-the-badge&labelColor=000000">
   </a>
-  <a href="https://crates.io/crates/nexustack">
-    <img alt="Deps.rs Crate Dependencies (latest)" src="https://img.shields.io/deps-rs/nexustack/latest?style=for-the-badge&labelColor=000000">
+  <a href="`HTTP`s://crates.io/crates/nexustack">
+    <img alt="Deps.rs Crate Dependencies (latest)" src="`HTTP`s://img.shields.io/deps-rs/nexustack/latest?style=for-the-badge&labelColor=000000">
   </a>
-  <a href="https://crates.io/crates/nexustack"><img alt="Version" src="https://img.shields.io/crates/v/nexustack.svg?style=for-the-badge&labelColor=000000"></a>
-  <a href="https://docs.rs/nexustack/latest/nexustack/">
-    <img alt="docs.rs" src="https://img.shields.io/docsrs/nexustack?style=for-the-badge&labelColor=000000">
+  <a href="`HTTP`s://crates.io/crates/nexustack"><img alt="Version" src="`HTTP`s://img.shields.io/crates/v/nexustack.svg?style=for-the-badge&labelColor=000000"></a>
+  <a href="`HTTP`s://docs.rs/nexustack/latest/nexustack/">
+    <img alt="docs.rs" src="`HTTP`s://img.shields.io/docsrs/nexustack?style=for-the-badge&labelColor=000000">
   </a>
-  <a href="https://github.com/1ean267/nexustack/blob/main/LICENSE">
-    <img alt="License" src="https://img.shields.io/crates/l/nexustack?style=for-the-badge&labelColor=000000">
+  <a href="`HTTP`s://github.com/1ean267/nexustack/blob/main/LICENSE">
+    <img alt="License" src="`HTTP`s://img.shields.io/crates/l/nexustack?style=for-the-badge&labelColor=000000">
   </a>
 </div>
 
@@ -21,11 +21,11 @@
 > []()\
 > []()
 
-Nexustack is not just another HTTP web framework. While there are countless web frameworks available, Nexustack aims to unify multiple functionalities under a single, cohesive system. It is designed to provide a stable, tested, and enterprise-ready solution for building modern applications.
+Nexustack is not just another `HTTP` web framework. While there are countless web frameworks available, Nexustack aims to unify multiple functionalities under a single, cohesive system. It is designed to provide a stable, tested, and enterprise-ready solution for building modern applications.
 
 ### Unified Functionality
 
-Nexustack stands out by integrating multiple functionalities into a single framework. Instead of relying on separate libraries for HTTP, `WebSockets`, MQTT, AMQP, and cron jobs, Nexustack provides a unified solution. This eliminates the need to manage multiple dependencies and ensures that all features work seamlessly together. By combining these capabilities, Nexustack simplifies the development of modern, multi-protocol applications.
+Nexustack stands out by integrating multiple functionalities into a single framework. Instead of relying on separate libraries for `HTTP`, `WebSockets`, `MQTT`, `AMQP`, and cron jobs, Nexustack provides a unified solution. This eliminates the need to manage multiple dependencies and ensures that all features work seamlessly together. By combining these capabilities, Nexustack simplifies the development of modern, multi-protocol applications.
 
 ### Dependency Injection (DI)
 
@@ -35,9 +35,9 @@ A robust dependency injection (DI) system is at the core of Nexustack. Inspired 
 
 Nexustack encourages developers to structure their applications into coherent modules. Each module encapsulates a specific feature or domain, making the application easier to maintain and scale. This modular design aligns with best practices for enterprise software development, enabling teams to work on different parts of the application independently.
 
-### Out-of-the-Box API Documentation
+### API Documentation
 
-Documentation is a critical aspect of any application, and Nexustack makes it effortless. The framework automatically generates `OpenAPI` documentation for HTTP services and `AsyncAPI` documentation for `WebSockets`, MQTT, and AMQP services. This ensures that your APIs are well-documented and ready for integration with other systems, saving time and effort during development.
+Documentation is a critical aspect of any application, and Nexustack makes it effortless. The framework automatically generates `OpenAPI` documentation for `HTTP` services and `AsyncAPI` documentation for `WebSockets`, `MQTT`, and `AMQP` services. This ensures that your APIs are well-documented and ready for integration with other systems, saving time and effort during development.
 
 ### Enterprise Focus
 
@@ -45,15 +45,15 @@ Nexustack is designed with enterprise environments in mind. It prioritizes stabi
 
 ## Features
 
-- **HTTP Server** · Serve `RESTful` APIs with ease.
+- **`HTTP` Server** · Serve `RESTful` APIs with ease.
 - **`WebSockets`** · Real-time communication using `WebSockets`.
-- **MQTT** · Support for MQTT protocol for `IoT` and messaging.
-- **AMQP** · Integration with AMQP for message brokers like `RabbitMQ`.
-- **Cron Jobs** · Schedule and manage periodic tasks.
-- **Dependency Injection** · A powerful DI system inspired by `NestJS` and `ASP.NET Core`.
+- **`MQTT`** · Support for `MQTT` protocol for `IoT` and messaging.
+- **`AMQP`** · Integration with `AMQP` for message brokers like `RabbitMQ`.
+- **[Cron Jobs](`crate::cron`)** · Schedule and manage periodic tasks.
+- **[Dependency Injection](`crate::inject`)** · A powerful DI system inspired by `NestJS` and `ASP.NET Core`.
 - **Modular Design** · Structure your application into reusable modules.
-- **`OpenAPI` Documentation** · Automatically generate `OpenAPI` documentation for your HTTP services.
-- **`AsyncAPI` Documentation** · Generate `AsyncAPI` documentation for `WebSockets`, MQTT, and AMQP services.
+- **[`OpenAPI` Documentation](`crate::openapi`)** · Automatically generate `OpenAPI` documentation for your `HTTP` services.
+- **`AsyncAPI` Documentation** · Generate `AsyncAPI` documentation for `WebSockets`, `MQTT`, and `AMQP` services.
 
 > **Note**: Not all features are implemented yet. Nexustack is a work in progress.
 
@@ -62,19 +62,22 @@ Nexustack is designed with enterprise environments in mind. It prioritizes stabi
 
 ### Installation
 
-Add `nexustack` to your `Cargo.toml`:
+Add `nexustack` by adding in as dependency to your `Cargo.toml`:
 
 ```toml
 [dependencies]
 nexustack = "0.1"
 ```
-> **Note**: Nexustack is not published on crates.io yet
+You can also add it by running the following command:
+```bash
+cargo add nexustack
+```
 
 ### Basic Setup
 
 Create a new Rust project and set up a simple Nexustack application:
 
-```rust, ignore
+```rust, no_run
 use nexustack::{
     application_builder,
     Application as _,
@@ -93,21 +96,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 #### Cron Jobs
 
-```rust, ignore
+```rust, no_run
 use nexustack::{
     application_builder,
     Application as _,
     ApplicationBuilder as _,
-    cron::{CronApplicationBuilder as _, CronResult, cron},
+    cron::{
+      cron,
+      cron_jobs,
+      CronApplicationBuilder as _,
+      CronResult,
+      CronRunner as _,
+      },
 };
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = application_builder()
         .add_cron_with_default_clock()
-        .configure_cron(|cron| {
-            cron.add_job(my_cron_job);
-        })
+        .configure_cron(cron_jobs![my_cron_job])
         .build()?;
 
     app.run().await?;
@@ -124,6 +131,10 @@ async fn my_cron_job() -> CronResult {
 For more examples, refer to the documentation of each feature.
 
 
+## License
+
+Nexustack is licensed under the MIT License. See the [LICENSE](https://github.com/1ean267/nexustack/blob/main/LICENSE) file for details.
+
 ## Contributing
 
 Contributions are welcome! If you'd like to contribute to Nexustack, please follow these steps:
@@ -135,6 +146,4 @@ Contributions are welcome! If you'd like to contribute to Nexustack, please foll
 
 Before contributing, please ensure that your code adheres to the project's coding standards and passes all tests.
 
-## License
-
-Nexustack is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in nexustack by you, shall be licensed as MIT, without any additional terms or conditions.

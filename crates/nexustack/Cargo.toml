@@ -11,6 +11,10 @@ description.workspace = true
 repository.workspace = true
 license.workspace = true
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [features]
 default = ["derive", "nexustack_macros/inject"]
 derive = []

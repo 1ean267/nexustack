@@ -21,6 +21,7 @@ pub mod __private;
 pub mod inject;
 
 #[cfg(feature = "openapi")]
+#[doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "src/openapi/README.md"))]
 pub mod openapi;
 
 #[cfg(feature = "cron")]
