@@ -1,8 +1,16 @@
 <div align="center">
-  <img alt="Nexustack logo" src="artifacts/logo_no_text_round.png" height="128">
+  <img alt="Nexustack logo" src="https://github.com/1ean267/nexustack/raw/main/artifacts/logo_no_text_round.png" height="128">
   <h1>Nexustack</h1>
-  <a href="https://github.com/1ean267/nexustack/actions"><img alt="Checks" src="https://img.shields.io/github/checks-status/1ean267/nexustack/main?style=for-the-badge&labelColor=000000"></a>
+  <a href="https://github.com/1ean267/nexustack/actions">
+    <img alt="GitHub branch check runs" src="https://img.shields.io/github/check-runs/1ean267/nexustack/main?style=for-the-badge&labelColor=000000">
+  </a>
+  <a href="https://crates.io/crates/nexustack">
+    <img alt="Deps.rs Crate Dependencies (latest)" src="https://img.shields.io/deps-rs/nexustack/latest?style=for-the-badge&labelColor=000000">
+  </a>
   <a href="https://crates.io/crates/nexustack"><img alt="Version" src="https://img.shields.io/crates/v/nexustack.svg?style=for-the-badge&labelColor=000000"></a>
+  <a href="https://docs.rs/nexustack/latest/nexustack/">
+    <img alt="docs.rs" src="https://img.shields.io/docsrs/nexustack?style=for-the-badge&labelColor=000000">
+  </a>
   <a href="https://github.com/1ean267/nexustack/blob/main/LICENSE">
     <img alt="License" src="https://img.shields.io/crates/l/nexustack?style=for-the-badge&labelColor=000000">
   </a>
