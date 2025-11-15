@@ -28,6 +28,10 @@ pub mod openapi;
 #[doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "src/cron/README.md"))]
 pub mod cron;
 
+#[cfg(feature = "http")]
+#[doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "src/http/README.md"))]
+pub mod http;
+
 mod application;
 mod callsite;
 mod utils;

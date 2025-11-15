@@ -13,6 +13,9 @@ pub mod __private;
 #[cfg(feature = "derive")]
 pub use nexustack_macros::api_schema;
 
+#[cfg(feature = "http")]
+mod http;
+
 mod either;
 mod error;
 mod example;
@@ -27,6 +30,12 @@ pub mod json;
 
 pub use error::Error;
 pub use example::SchemaExamples;
+#[cfg(feature = "http")]
+pub use http::{
+    HttpContentType, HttpContentTypeBuilder, HttpDocumentBuilder, HttpOperation,
+    HttpOperationBuilder, HttpOperationId, HttpResponse, HttpResponseBuilder, HttpServer,
+    HttpServerVariable,
+};
 pub use impossible::Impossible;
 pub use nop::Nop;
 pub use schema::Schema;

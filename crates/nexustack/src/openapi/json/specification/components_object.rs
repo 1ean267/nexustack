@@ -20,7 +20,7 @@ use std::collections::HashMap;
 /// All objects defined within the components object will have no effect on the API
 /// unless they are explicitly referenced from properties outside the components object.
 /// See <https://swagger.io/specification/#components-object>
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct ComponentsObject {
     /// An object to hold reusable Schema Objects.
     #[serde(rename = "schemas", default, skip_serializing_if = "Option::is_none")]

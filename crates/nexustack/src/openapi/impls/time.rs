@@ -126,7 +126,9 @@ impl Schema for std::time::SystemTime {
 mod test {
     #[test]
     fn test_nanos_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -162,7 +164,9 @@ mod test {
 
     #[test]
     fn test_duration_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -246,7 +250,9 @@ mod test {
 
     #[test]
     fn test_system_time_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));

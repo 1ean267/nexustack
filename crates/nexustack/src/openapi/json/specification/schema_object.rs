@@ -73,7 +73,7 @@ pub struct SchemaObject {
 
     /// A free-form property to include an example of an instance for this schema.
     /// To represent examples that cannot be naturally represented in JSON or YAML,
-    /// a string value can be used to contain the example with escaping where necessary.
+    /// a Cow<'static, str> value can be used to contain the example with escaping where necessary.
     ///
     /// **`OpenAPI` 3.0 and 3.1**
     #[serde(rename = "example", default, skip_serializing_if = "Option::is_none")]
@@ -95,10 +95,10 @@ pub struct SchemaObject {
     )]
     pub deprecated: Option<bool>,
 
-    /// The type(s) of the schema (e.g., "string", "object", "array").
+    /// The type(s) of the schema (e.g., "Cow<'static, str>", "object", "array").
     ///
-    /// **`OpenAPI` 3.0:** Single string value.
-    /// **`OpenAPI` 3.1:** Can be a string or array of strings (JSON Schema 2020-12).
+    /// **`OpenAPI` 3.0:** Single Cow<'static, str> value.
+    /// **`OpenAPI` 3.1:** Can be a Cow<'static, str> or array of Cow<'static, str>s (JSON Schema 2020-12).
     #[serde(rename = "type", default, skip_serializing_if = "Option::is_none")]
     pub r#type: Option<OneOrMany<Cow<'static, str>>>,
 
@@ -244,19 +244,19 @@ pub struct SchemaObject {
     )]
     pub exclusive_minimum: Option<EitherUntagged<bool, JsonNumber>>,
 
-    /// The maximum length of a string.
+    /// The maximum length of a Cow<'static, str>.
     ///
     /// **`OpenAPI` 3.0 and 3.1**
     #[serde(rename = "maxLength", default, skip_serializing_if = "Option::is_none")]
     pub max_length: Option<JsonNumber>,
 
-    /// The minimum length of a string.
+    /// The minimum length of a Cow<'static, str>.
     ///
     /// **`OpenAPI` 3.0 and 3.1**
     #[serde(rename = "minLength", default, skip_serializing_if = "Option::is_none")]
     pub min_length: Option<JsonNumber>,
 
-    /// A regular expression pattern for a string value.
+    /// A regular expression pattern for a Cow<'static, str> value.
     ///
     /// **`OpenAPI` 3.0 and 3.1**
     #[serde(rename = "pattern", default, skip_serializing_if = "Option::is_none")]
@@ -466,7 +466,7 @@ impl From<ReferenceObject> for SchemaOrReferenceObject {
 
 /// Represents either a single value or multiple values.
 ///
-/// **`OpenAPI` 3.1 only**. In `OpenAPI` 3.0, only single string values are allowed for `type`.
+/// **`OpenAPI` 3.1 only**. In `OpenAPI` 3.0, only single Cow<'static, str> values are allowed for `type`.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum OneOrMany<T> {

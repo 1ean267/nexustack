@@ -7,7 +7,7 @@
 
 use super::{MediaTypeObject, ReferenceObject};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, ops::Not};
+use std::{borrow::Cow, collections::HashMap, ops::Not};
 
 /// Describes a single request body.
 /// See <https://swagger.io/specification/#request-body-object>
@@ -21,7 +21,7 @@ pub struct RequestBodyObject {
         default,
         skip_serializing_if = "Option::is_none"
     )]
-    pub description: Option<String>,
+    pub description: Option<Cow<'static, str>>,
 
     /// REQUIRED.
     /// The content of the request body.
@@ -29,7 +29,7 @@ pub struct RequestBodyObject {
     /// For requests that match multiple keys, only the most specific key is applicable.
     /// e.g. text/plain overrides text/*
     #[serde(rename = "content")]
-    pub content: HashMap<String, MediaTypeObject>,
+    pub content: HashMap<Cow<'static, str>, MediaTypeObject>,
 
     /// Determines if the request body is required in the request. Defaults to false.
     #[serde(rename = "required", default, skip_serializing_if = "<&bool>::not")]

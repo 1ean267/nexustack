@@ -8,6 +8,7 @@
 use super::ReferenceObject;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
+use std::borrow::Cow;
 
 /// Represents an `OpenAPI` Example Object.
 ///
@@ -19,7 +20,7 @@ pub enum ExampleObject {
     Value {
         /// Short description for the example.
         #[serde(rename = "summary", default, skip_serializing_if = "Option::is_none")]
-        summary: Option<String>,
+        summary: Option<Cow<'static, str>>,
 
         /// Long description for the example.
         /// `CommonMark` syntax MAY be used for rich text representation.
@@ -28,12 +29,12 @@ pub enum ExampleObject {
             default,
             skip_serializing_if = "Option::is_none"
         )]
-        description: Option<String>,
+        description: Option<Cow<'static, str>>,
 
         /// Embedded literal example.
         /// The value field and externalValue field are mutually exclusive.
         /// To represent examples of media types that cannot naturally represented in JSON or YAML,
-        /// use a string value to contain the example, escaping where necessary.
+        /// use a Cow<'static, str> value to contain the example, escaping where necessary.
         #[serde(rename = "value", default, skip_serializing_if = "Option::is_none")]
         value: Option<JsonValue>,
     },
@@ -41,7 +42,7 @@ pub enum ExampleObject {
     ExternalValue {
         /// Short description for the example.
         #[serde(rename = "summary", default, skip_serializing_if = "Option::is_none")]
-        summary: Option<String>,
+        summary: Option<Cow<'static, str>>,
 
         /// Long description for the example.
         /// `CommonMark` syntax MAY be used for rich text representation.
@@ -50,7 +51,7 @@ pub enum ExampleObject {
             default,
             skip_serializing_if = "Option::is_none"
         )]
-        description: Option<String>,
+        description: Option<Cow<'static, str>>,
 
         /// A URI that points to the literal example.
         /// This provides the capability to reference examples that cannot easily be included in JSON or YAML documents.
@@ -61,7 +62,7 @@ pub enum ExampleObject {
             default,
             skip_serializing_if = "Option::is_none"
         )]
-        external_value: Option<String>,
+        external_value: Option<Cow<'static, str>>,
     },
 }
 

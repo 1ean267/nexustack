@@ -6,6 +6,7 @@
  */
 
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 
 // Allows referencing an external resource for extended documentation.
 /// See <https://swagger.io/specification/#external-documentation-object>
@@ -18,10 +19,10 @@ pub struct ExternalDocumentationObject {
         default,
         skip_serializing_if = "Option::is_none"
     )]
-    pub description: Option<String>,
+    pub description: Option<Cow<'static, str>>,
 
     /// REQUIRED.
     /// The URL for the target documentation. This MUST be in the form of a URL.
     #[serde(rename = "url")]
-    pub url: String,
+    pub url: Cow<'static, str>,
 }

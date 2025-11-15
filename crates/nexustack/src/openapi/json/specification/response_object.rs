@@ -7,7 +7,7 @@
 
 use super::{HeaderOrReferenceObject, LinkOrReferenceObject, MediaTypeObject, ReferenceObject};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 /// Describes a single response from an API Operation, including design-time, static links to operations based on the response.
 /// See <https://swagger.io/specification/#response-object>
@@ -16,25 +16,25 @@ pub struct ResponseObject {
     /// REQUIRED. A description of the response.
     /// `CommonMark` syntax MAY be used for rich text representation.
     #[serde(rename = "description")]
-    pub description: String,
+    pub description: Cow<'static, str>,
 
     /// Maps a header name to its definition. RFC7230 states header names are case insensitive.
     /// If a response header is defined with the name "Content-Type", it SHALL be ignored.
     #[serde(rename = "headers", default, skip_serializing_if = "Option::is_none")]
-    pub headers: Option<HashMap<String, HeaderOrReferenceObject>>,
+    pub headers: Option<HashMap<Cow<'static, str>, HeaderOrReferenceObject>>,
 
     /// A map containing descriptions of potential response payloads.
     /// The key is a media type or media type range and the value describes it.
     /// For responses that match multiple keys, only the most specific key is applicable.
     /// e.g. text/plain overrides text/*
     #[serde(rename = "content", default, skip_serializing_if = "Option::is_none")]
-    pub content: Option<HashMap<String, MediaTypeObject>>,
+    pub content: Option<HashMap<Cow<'static, str>, MediaTypeObject>>,
 
     /// A map of operations links that can be followed from the response.
     /// The key of the map is a short name for the link, following the naming constraints
     /// of the names for Component Objects.
     #[serde(rename = "links", default, skip_serializing_if = "Option::is_none")]
-    pub links: Option<HashMap<String, LinkOrReferenceObject>>,
+    pub links: Option<HashMap<Cow<'static, str>, LinkOrReferenceObject>>,
 }
 
 /// Represents either an [`ResponseObject`] or [`ReferenceObject`] object.
