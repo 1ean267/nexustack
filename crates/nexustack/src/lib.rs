@@ -7,7 +7,7 @@
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![cfg_attr(docsrs, feature(rustdoc_internals))]
-#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "../../README.md"))]
+#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "README.md"))]
 
 #[cfg(feature = "derive")]
 extern crate nexustack_macros;

@@ -1,7 +1,7 @@
 [package]
 name = "nexustack"
 edition = "2024"
-readme = "../../README.md"
+readme = "README.md"
 keywords = ["nexustack", "http", "websocket", "dependency-injection", "modular"]
 categories = ["web-programming"]
 rust-version.workspace = true
