@@ -55,7 +55,6 @@
         "Uninit",
         "unparse",
         "unraw",
-        "unsize"
     ],
     "rust-analyzer.restartServerOnConfigChange": true,
     "rust-analyzer.assist.preferSelf": true,

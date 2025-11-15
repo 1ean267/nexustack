@@ -17,8 +17,10 @@ use crate::inject::{
     service_provider::ServiceProvider,
 };
 
-/// Represents a service-collection that can be used to register and collection services. It acts as a factory
-/// for a [`ServiceProvider`] that can be constructed via its [build] function.
+/// Represents a service-collection that can be used to register and collection services.
+///
+/// It acts as a factory for a [`crate::inject::ServiceProvider`] that can be constructed via
+/// its [`ServiceCollection::build`] function.
 pub struct ServiceCollection {
     root_builders: Vec<Box<dyn UntypedContainerEntryBuilder>>,
     scoped_builders: Vec<Box<dyn ScopedUntypedContainerEntryBuilder + Send + Sync>>,

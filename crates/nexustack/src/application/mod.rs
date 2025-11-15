@@ -165,7 +165,7 @@ pub trait ApplicationBuilder {
     /// Configures an already-added application part builder in the chain.
     ///
     /// Use this to mutate the configuration of a specific application part builder after it has
-    /// been added with [`add_application_part`] or [`add_application_part_with_factory`]. The
+    /// been added with [`ApplicationBuilder::add_application_part`] or [`ApplicationBuilder::add_application_part_with_factory`]. The
     /// target builder is addressed by its type `B` and an index `I` into the builder chain.
     ///
     /// # Type Parameters

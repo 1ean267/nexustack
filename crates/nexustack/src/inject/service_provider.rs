@@ -17,8 +17,10 @@ use std::sync::{Arc, Weak};
 const _: () = ensure_send::<ServiceProvider>();
 const _: () = ensure_sync::<ServiceProvider>();
 
-/// Represents a service-provider built from a [`ServiceCollection`] that can be used to resolve services from the
-/// constructed dependency injection container via its [`resolve`] function.
+/// Represents a service-provider built from a [`crate::inject::ServiceCollection`].
+///
+/// It  can be used to resolve services from the constructed dependency injection container
+/// via its [`ServiceProvider::resolve`] function.
 #[derive(Clone)]
 pub struct ServiceProvider {
     inner: ServiceProviderInner,
@@ -99,8 +101,8 @@ impl ServiceProvider {
     /// ```
     ///
     /// # Errors
-    ///  * `InjectionError` when the service cannot be resolved either due to a resolution error or when a constructor/factory function
-    ///    has raised a custom error. See the [`InjectError`] enum for further information.
+    ///  * `crate::inject::InjectionError` when the service cannot be resolved either due to a resolution error or when a constructor/factory function
+    ///    has raised a custom error. See the [`crate::inject::InjectionError`] enum for further information.
     ///  
     pub fn resolve<TService: 'static>(&self) -> InjectionResult<TService> {
         match &self.inner {
@@ -121,7 +123,7 @@ impl ServiceProvider {
     }
 
     /// Creates a service that implemented [`FromInjector`] with the required dependencies loaded from the provider.
-    /// If the service cannot be created or a dependency cannot be resolved, a [`ConstructionError`] is returned.
+    /// If the service cannot be created or a dependency cannot be resolved, a [`crate::inject::ConstructionError`] is returned.
     ///
     /// # Type arguments
     ///
@@ -158,9 +160,9 @@ impl ServiceProvider {
     /// ```
     ///
     /// # Errors
-    ///  * `ConstructionError` when the service cannot be created or one of its dependencies cannot be resolved
+    ///  * [`crate::inject::ConstructionError`] when the service cannot be created or one of its dependencies cannot be resolved
     ///    either due to a resolution error or when a constructor/factory function
-    ///    has raised a custom error. See the [`ConstructionError`] enum for further information.
+    ///    has raised a custom error. See the [`crate::inject::ConstructionError`] enum for further information.
     ///
     pub fn construct<TService: FromInjector + 'static>(&self) -> ConstructionResult<TService> {
         match &self.inner {

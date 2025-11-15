@@ -23,7 +23,7 @@ pub use nexustack_macros::cron_jobs;
 #[cfg(feature = "derive")]
 pub use nexustack_macros::cron;
 
-#[doc = include_str!("../../../nexustack_macros_impl/src/cron/expand/CRON.md")]
+#[doc = include_str!("../../../nexustack_macros/src/cron/CRON.md")]
 const fn _check_cron_doc_test() {}
 
 /// A module that re-exports the [`mod@cron`] crate.

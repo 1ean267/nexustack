@@ -18,10 +18,10 @@ use std::{any::TypeId, marker::PhantomData};
 /// # Remarks
 /// This type cannot be constructed manually but is used as a
 /// Non-Static, Non-Send, Non-Sync proxy that cannot escape the calling stack of a service
-/// factory function (see [`Injectable`]). A [`ServiceProvider`] can be resolved from the injector
-/// (for example for lazy service retrieval) but it is only usable when the [`ServiceProvider`] or
-/// [`ServiceScope`] is fully constructed. Prior use will result in a [`InjectionError`] at service
-/// retrieval time. For a general purpose way to retrieve services, see the [`ServiceProvider`] type.
+/// factory function (see [`crate::inject::Injectable`]). A [`crate::inject::ServiceProvider`] can be resolved from the injector
+/// (for example for lazy service retrieval) but it is only usable when the [`crate::inject::ServiceProvider`] or
+/// [`crate::inject::ServiceScope`] is fully constructed. Prior use will result in a [`crate::inject::InjectionError`] at service
+/// retrieval time. For a general purpose way to retrieve services, see the [`crate::inject::ServiceProvider`] type.
 pub struct Injector<'i> {
     inner: InjectorInner<'i>,
     service_token: ServiceToken,
@@ -120,7 +120,7 @@ impl<'i> Injector<'i> {
     ///
     /// # Errors
     ///  * `InjectionError` when the service cannot be resolved either due to a resolution error or when a constructor/factory function
-    ///    has raised a custom error. See the [`InjectError`] enum for further information.
+    ///    has raised a custom error. See the [`crate::inject::InjectionError`] enum for further information.
     ///
     pub fn resolve<TService: 'static>(&self) -> InjectionResult<TService> {
         if self.has_service_type_in_chain(TypeId::of::<TService>()) {

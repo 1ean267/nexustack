@@ -5,23 +5,40 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
-pub mod callsite;
+#[cfg(feature = "openapi")]
+mod callsite;
+
+#[cfg(any(feature = "openapi", feature = "cron"))]
 mod ctxt;
+
+#[cfg(feature = "openapi")]
 mod receiver;
 
+#[cfg(any(feature = "openapi", feature = "cron"))]
 pub(crate) mod attr;
+#[cfg(feature = "openapi")]
 pub(crate) mod case;
+#[cfg(feature = "openapi")]
 pub(crate) mod respan;
+
+#[cfg(any(feature = "openapi", feature = "cron"))]
 pub(crate) mod symbol;
 
+#[cfg(feature = "openapi")]
 pub use self::callsite::callsite;
+
+#[cfg(any(feature = "openapi", feature = "cron"))]
 pub use self::ctxt::Ctxt;
+
+#[cfg(feature = "openapi")]
 pub use self::receiver::replace_receiver;
 
+#[cfg(feature = "openapi")]
 pub(crate) trait IntoIteratorExt: IntoIterator {
     fn exactly_one(self) -> Option<Self::Item>;
 }
 
+#[cfg(feature = "openapi")]
 impl<I: IntoIterator> IntoIteratorExt for I {
     fn exactly_one(self) -> Option<Self::Item> {
         let mut iter = self.into_iter();

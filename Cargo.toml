@@ -3,7 +3,6 @@ resolver = "2"
 members = [
     "crates/nexustack",
     "crates/nexustack_macros",
-    "crates/nexustack_macros_impl",
     "samples/nexustack_sample"
 ]
 
@@ -24,8 +23,6 @@ either = "1.15.0"
 futures-util = "0.3.31"
 nexustack = { path = "crates/nexustack" }
 nexustack_macros = { path = "crates/nexustack_macros" }
-nexustack_macros_impl = { path = "crates/nexustack_macros_impl" }
-pin-project = "1.1.10"
 pretty_assertions = "1.4.1"
 proc-macro2 = "1.0.101"
 quote = "1.0.40"

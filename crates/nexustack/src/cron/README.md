@@ -33,7 +33,7 @@ To use the `cron` feature, follow these steps:
     }
     ```
 
-3. Define your cron jobs by implementing the [`CronJob`] trait or using the [`#[cron]`](crate::cron) attribute macro.\
+3. Define your cron jobs by implementing the [`crate::cron::CronJob`] trait or using the [`#[cron]`](crate::cron) attribute macro.\
     ```rust, no_run
     use nexustack::cron::{CronResult, cron};
 

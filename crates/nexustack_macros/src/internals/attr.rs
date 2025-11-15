@@ -12,7 +12,10 @@
 use crate::internals::{Ctxt, symbol::Symbol};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use syn::{Token, meta::ParseNestedMeta, punctuated::Punctuated};
+use syn::meta::ParseNestedMeta;
+
+#[cfg(feature = "openapi")]
+use syn::{Token, punctuated::Punctuated};
 
 pub(crate) struct Attr<'c, T> {
     cx: &'c Ctxt,
@@ -43,12 +46,14 @@ impl<'c, T> Attr<'c, T> {
         }
     }
 
+    #[cfg(feature = "openapi")]
     pub(crate) fn set_opt<A: ToTokens>(&mut self, obj: A, value: Option<T>) {
         if let Some(value) = value {
             self.set(obj, value);
         }
     }
 
+    #[cfg(feature = "openapi")]
     pub(crate) fn set_if_none(&mut self, value: T) {
         if self.value.is_none() {
             self.value = Some(value);
@@ -59,6 +64,7 @@ impl<'c, T> Attr<'c, T> {
         self.value
     }
 
+    #[cfg(feature = "openapi")]
     pub(crate) fn get_with_tokens(self) -> Option<(TokenStream, T)> {
         match self.value {
             Some(v) => Some((self.tokens, v)),
@@ -67,8 +73,10 @@ impl<'c, T> Attr<'c, T> {
     }
 }
 
+#[cfg(feature = "openapi")]
 pub(crate) struct BoolAttr<'c>(pub(crate) Attr<'c, ()>);
 
+#[cfg(feature = "openapi")]
 impl<'c> BoolAttr<'c> {
     pub(crate) fn none(cx: &'c Ctxt, name: Symbol) -> Self {
         BoolAttr(Attr::none(cx, name))
@@ -83,6 +91,7 @@ impl<'c> BoolAttr<'c> {
     }
 }
 
+#[cfg(feature = "openapi")]
 pub(crate) struct VecAttr<'c, T> {
     cx: &'c Ctxt,
     name: Symbol,
@@ -90,6 +99,7 @@ pub(crate) struct VecAttr<'c, T> {
     values: Vec<T>,
 }
 
+#[cfg(feature = "openapi")]
 impl<'c, T> VecAttr<'c, T> {
     pub(crate) fn none(cx: &'c Ctxt, name: Symbol) -> Self {
         VecAttr {
@@ -173,6 +183,7 @@ pub(crate) fn get_lit_str2_expr(
     }
 }
 
+#[cfg(feature = "openapi")]
 pub(crate) fn parse_lit_into_bool(
     cx: &Ctxt,
     attr_name: Symbol,
@@ -243,6 +254,7 @@ pub(crate) fn parse_lit_into_expr_path(
     })
 }
 
+#[cfg(feature = "openapi")]
 pub(crate) fn parse_lit_into_where(
     cx: &Ctxt,
     attr_name: Symbol,
@@ -265,6 +277,7 @@ pub(crate) fn parse_lit_into_where(
     )
 }
 
+#[cfg(feature = "openapi")]
 pub(crate) fn parse_lit_into_ty(
     cx: &Ctxt,
     attr_name: Symbol,

@@ -20,6 +20,17 @@ use futures_util::TryFutureExt;
 use std::{any::TypeId, borrow::Cow};
 use tokio_util::sync::CancellationToken;
 
+/// A composite application part that combines two other application parts, `Head` and `Tail`.
+///
+/// The `Node` struct allows you to chain two application parts together, enabling them to
+/// work as a single unit. Each part must implement the `ApplicationPart` trait, and the
+/// `Node` struct itself implements `ApplicationPart`, delegating its behavior to the
+/// `Head` and `Tail` components.
+///
+/// # Type Parameters
+/// - `Head`: The first application part in the chain.
+/// - `Tail`: The second application part in the chain.
+///
 pub struct Node<Head, Tail> {
     pub(crate) head: Head,
     pub(crate) tail: Tail,

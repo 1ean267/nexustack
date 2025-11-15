@@ -54,9 +54,9 @@ pub trait FromInjector {
     /// # Errors
     ///
     /// This function will return an error if either a dependency could not be resolved via the provided
-    /// [`Injector`] resulting in a [`ConstructionError::InjectionError`]
+    /// [`Injector`] resulting in a [`crate::inject::ConstructionError::InjectionError`]
     /// or the construction of the service itself errored resulting in a
-    /// [`ConstructionError::Custom`] error.
+    /// [`crate::inject::ConstructionError::Custom`] error.
     fn from_injector(injector: &Injector) -> ConstructionResult<Self>
     where
         Self: Sized;

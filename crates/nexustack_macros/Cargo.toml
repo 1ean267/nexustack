@@ -2,7 +2,7 @@
 name = "nexustack_macros"
 edition = "2024"
 readme = "README.md"
-keywords = ["nexustack", "inject", "dependency-injection", "DI", "inversion of control", "IOC", "container"]
+keywords = ["nexustack", "http", "websocket", "mqtt", "amqp", "cron", "dependency injection", "modular architecture", "openapi", "asyncapi", "rust", "framework", "enterprise", "server", "api", "real-time communication", "iot", "message broker", "scheduling", "rust framework"]
 categories = ["web-programming"]
 rust-version.workspace = true
 version.workspace = true
@@ -14,8 +14,18 @@ license.workspace = true
 [lib]
 proc-macro = true
 
+[features]
+default = []
+openapi = []
+inject = []
+cron = ["dep:cron"]
+
 [dependencies]
-proc-macro2 = { workspace = true }
-nexustack_macros_impl = { workspace = true }
+cron = { workspace = true, optional = true }
+proc-macro2 = { workspace = true, features = ["span-locations"]}
+quote = { workspace = true }
+syn = { workspace = true, features = ["full", "extra-traits", "visit", "visit-mut"] }
 
 [dev-dependencies]
+rust-format = { workspace = true, features = ["token_stream"] }
+pretty_assertions = { workspace = true }

@@ -160,7 +160,7 @@ impl InjectionError {
         }
     }
 
-    /// Accesses the list of [`ServiceTokens`] that describe the dependency chain
+    /// Accesses the list of [`crate::inject::ServiceToken`]s that describe the dependency chain
     /// of the service resolution operation
     #[allow(clippy::must_use_candidate)]
     pub const fn dependency_chain(&self) -> &Vec<ServiceToken> {

@@ -5,8 +5,6 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
-use std::str::FromStr as _;
-
 use nexustack::{
     Application, ApplicationBuilder, application_builder,
     cron::{
@@ -15,6 +13,7 @@ use nexustack::{
     },
     inject::{InjectionResult, ServiceProvider, injectable},
 };
+use std::str::FromStr as _;
 use tracing::instrument;
 
 #[tokio::main(flavor = "multi_thread")]

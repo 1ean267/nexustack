@@ -6,7 +6,6 @@
  */
 
 #![doc = include_str!("../README.md")]
-#![cfg_attr(feature = "unsize", feature(unsize))]
 
 #[cfg(feature = "derive")]
 extern crate nexustack_macros;
@@ -31,7 +30,7 @@ mod callsite;
 mod utils;
 
 pub use application::{
-    Application, ApplicationBuilder, ApplicationPart, ApplicationPartBuilder, Chain, Index,
-    application_builder,
+    Application, ApplicationBuilder, ApplicationPart, ApplicationPartBuilder, Chain, Here, InHead,
+    InTail, Index, Node, application_builder,
 };
 pub use callsite::Callsite;

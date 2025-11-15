@@ -8,4 +8,5 @@
 #![allow(clippy::too_many_lines)]
 #![allow(missing_docs)]
 
+#[cfg(feature = "openapi")]
 mod openapi;
