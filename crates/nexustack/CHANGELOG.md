@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2](https://github.com/1ean267/nexustack/compare/nexustack-v0.1.1...nexustack-v0.1.2) - 2025-11-15
+
+### Other
+
+- Logo uses absolute path
+- Adjust docs.rs to show feature flags
+- Correct path to crate README
+- release v0.1.1
+
 ## [0.1.1](https://github.com/1ean267/nexustack/releases/tag/nexustack-v0.1.1) - 2025-11-15
 
 ### Added

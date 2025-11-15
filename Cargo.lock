@@ -390,7 +390,7 @@ dependencies = [
 
 [[package]]
 name = "nexustack"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "chrono",
@@ -412,7 +412,7 @@ dependencies = [
 
 [[package]]
 name = "nexustack_macros"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "cron",
  "pretty_assertions",
@@ -424,7 +424,7 @@ dependencies = [
 
 [[package]]
 name = "nexustack_sample"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "chrono",
