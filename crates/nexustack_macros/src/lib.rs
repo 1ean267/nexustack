@@ -5,6 +5,7 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
+#[cfg(any(feature = "openapi", feature = "inject", feature = "cron"))]
 mod dummy;
 #[cfg(feature = "openapi")]
 #[macro_use]
