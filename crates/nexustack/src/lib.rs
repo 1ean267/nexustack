@@ -7,7 +7,7 @@
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![cfg_attr(docsrs, feature(rustdoc_internals))]
-#![doc = include_str!("../../../README.md")]
+#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "../../README.md"))]
 
 #[cfg(feature = "derive")]
 extern crate nexustack_macros;
@@ -17,14 +17,14 @@ extern crate nexustack_macros;
 #[path = "private.rs"]
 pub mod __private;
 
-#[doc = include_str!("./inject/README.md")]
+#[doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "src/inject/README.md"))]
 pub mod inject;
 
 #[cfg(feature = "openapi")]
 pub mod openapi;
 
 #[cfg(feature = "cron")]
-#[doc = include_str!("./cron/README.md")]
+#[doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "src/cron/README.md"))]
 pub mod cron;
 
 mod application;

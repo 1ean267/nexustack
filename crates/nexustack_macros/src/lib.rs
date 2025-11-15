@@ -52,7 +52,7 @@ pub fn api_schema(
 
 #[cfg(feature = "cron")]
 #[proc_macro_attribute]
-#[cfg_attr(not(doctest), doc = include_str!("cron/CRON.md"))]
+#[cfg_attr(not(doctest), doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "src/cron/CRON.md")))]
 pub fn cron(
     attr: proc_macro::TokenStream,
     item: proc_macro::TokenStream,
