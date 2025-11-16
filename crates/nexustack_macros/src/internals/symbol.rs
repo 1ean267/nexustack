@@ -24,6 +24,9 @@ pub const SCHEDULE: Symbol = Symbol("schedule");
 #[cfg(feature = "cron")]
 pub const SCHEDULE_WITH: Symbol = Symbol("schedule_with");
 
+#[cfg(feature = "module")]
+pub const FEATURES: Symbol = Symbol("features");
+
 #[cfg(feature = "openapi")]
 #[path = ""]
 mod optionapi {

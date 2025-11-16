@@ -14,4 +14,5 @@
 * cron: Rename `CronRunner` to `Cron` as it is the feature
 * cron: Ugly naming when registering the cron feature to the application builder and adding cron_jobs to it.
 * cron: Review error type
+* cron: Should not require cron-jobs to be an async fn
 * ci: Build check with all feature combinations

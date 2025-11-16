@@ -9,10 +9,10 @@
 
 #[cfg(any(feature = "inject", feature = "cron"))]
 mod dummy;
+mod internals;
 #[cfg(feature = "openapi")]
 #[macro_use]
 mod fragment;
-mod internals;
 
 #[cfg(feature = "inject")]
 mod inject;
@@ -23,6 +23,9 @@ mod openapi;
 #[cfg(feature = "cron")]
 mod cron;
 
+#[cfg(feature = "module")]
+mod module;
+
 #[cfg(feature = "inject")]
 use crate::inject::injectable as injectable_impl;
 
@@ -31,6 +34,9 @@ use crate::openapi::api_schema as api_schema_impl;
 
 #[cfg(feature = "cron")]
 use crate::cron::{cron as cron_impl, cron_jobs as cron_jobs_impl};
+
+#[cfg(feature = "module")]
+use crate::module::module as module_impl;
 
 #[cfg(feature = "inject")]
 #[proc_macro_attribute]
@@ -67,4 +73,14 @@ pub fn cron(
 #[proc_macro]
 pub fn cron_jobs(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     cron_jobs_impl(input.into()).into()
+}
+
+#[cfg(feature = "module")]
+#[cfg_attr(not(doctest), doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "../nexustack/src/MODULE.md")))]
+#[proc_macro_attribute]
+pub fn module(
+    attr: proc_macro::TokenStream,
+    item: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    module_impl(attr.into(), item.into()).into()
 }

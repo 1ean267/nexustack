@@ -1,18 +1,18 @@
 <div align="center">
-  <img alt="Nexustack logo" src="`HTTP`s://github.com/1ean267/nexustack/raw/main/artifacts/logo_no_text_round.png" height="128">
+  <img alt="Nexustack logo" src="https://github.com/1ean267/nexustack/raw/main/artifacts/logo_no_text_round.png" height="128">
   <h1>Nexustack</h1>
-  <a href="`HTTP`s://github.com/1ean267/nexustack/actions">
-    <img alt="GitHub branch check runs" src="`HTTP`s://img.shields.io/github/check-runs/1ean267/nexustack/main?style=for-the-badge&labelColor=000000">
+  <a href="https://github.com/1ean267/nexustack/actions">
+    <img alt="GitHub branch check runs" src="https://img.shields.io/github/check-runs/1ean267/nexustack/main?style=for-the-badge&labelColor=000000">
   </a>
-  <a href="`HTTP`s://crates.io/crates/nexustack">
-    <img alt="Deps.rs Crate Dependencies (latest)" src="`HTTP`s://img.shields.io/deps-rs/nexustack/latest?style=for-the-badge&labelColor=000000">
+  <a href="https://crates.io/crates/nexustack">
+    <img alt="Deps.rs Crate Dependencies (latest)" src="https://img.shields.io/deps-rs/nexustack/latest?style=for-the-badge&labelColor=000000">
   </a>
-  <a href="`HTTP`s://crates.io/crates/nexustack"><img alt="Version" src="`HTTP`s://img.shields.io/crates/v/nexustack.svg?style=for-the-badge&labelColor=000000"></a>
-  <a href="`HTTP`s://docs.rs/nexustack/latest/nexustack/">
-    <img alt="docs.rs" src="`HTTP`s://img.shields.io/docsrs/nexustack?style=for-the-badge&labelColor=000000">
+  <a href="https://crates.io/crates/nexustack"><img alt="Version" src="https://img.shields.io/crates/v/nexustack.svg?style=for-the-badge&labelColor=000000"></a>
+  <a href="https://docs.rs/nexustack/latest/nexustack/">
+    <img alt="docs.rs" src="https://img.shields.io/docsrs/nexustack?style=for-the-badge&labelColor=000000">
   </a>
-  <a href="`HTTP`s://github.com/1ean267/nexustack/blob/main/LICENSE">
-    <img alt="License" src="`HTTP`s://img.shields.io/crates/l/nexustack?style=for-the-badge&labelColor=000000">
+  <a href="https://github.com/1ean267/nexustack/blob/main/LICENSE">
+    <img alt="License" src="https://img.shields.io/crates/l/nexustack?style=for-the-badge&labelColor=000000">
   </a>
 </div>
 
@@ -49,10 +49,10 @@ Nexustack is designed with enterprise environments in mind. It prioritizes stabi
 - **`WebSockets`** · Real-time communication using `WebSockets`.
 - **`MQTT`** · Support for `MQTT` protocol for `IoT` and messaging.
 - **`AMQP`** · Integration with `AMQP` for message brokers like `RabbitMQ`.
-- **[Cron Jobs](`crate::cron`)** · Schedule and manage periodic tasks.
-- **[Dependency Injection](`crate::inject`)** · A powerful DI system inspired by `NestJS` and `ASP.NET Core`.
-- **Modular Design** · Structure your application into reusable modules.
-- **[`OpenAPI` Documentation](`crate::openapi`)** · Automatically generate `OpenAPI` documentation for your `HTTP` services.
+- **[Cron Jobs](https://docs.rs/nexustack/latest/nexustack/inject/cron.html)** · Schedule and manage periodic tasks.
+- **[Dependency Injection](https://docs.rs/nexustack/latest/nexustack/inject/index.html)** · A powerful DI system inspired by `NestJS` and `ASP.NET Core`.
+- **[Modular Design](https://docs.rs/nexustack/latest/nexustack/attr.module.html)** · Structure your application into reusable modules.
+- **[`OpenAPI` Documentation](https://docs.rs/nexustack/latest/nexustack/openapi/index.html)** · Automatically generate `OpenAPI` documentation for your `HTTP` services.
 - **`AsyncAPI` Documentation** · Generate `AsyncAPI` documentation for `WebSockets`, `MQTT`, and `AMQP` services.
 
 > **Note**: Not all features are implemented yet. Nexustack is a work in progress.

@@ -5,6 +5,9 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
+mod notes;
+
+use crate::notes::NotesModule as _;
 use nexustack::{
     Application, ApplicationBuilder, application_builder,
     cron::{
@@ -42,6 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             remove_expired_sessions_cron_job,
             some_other_cron_job,
         ])
+        .add_notes()
         .build()?;
 
     app.run().await?;

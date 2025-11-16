@@ -16,7 +16,7 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
-default = ["derive", "nexustack_macros/inject"]
+default = ["derive", "nexustack_macros/inject", "nexustack_macros/module"]
 derive = []
 openapi = ["serde", "serde_json", "const_format", "nexustack_macros/openapi"]
 chrono = ["dep:chrono"]
