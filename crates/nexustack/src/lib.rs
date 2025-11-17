@@ -29,8 +29,10 @@ pub mod openapi;
 pub mod cron;
 
 #[cfg(feature = "derive")]
-#[doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "src/MODULE.md"))]
 pub use nexustack_macros::module;
+
+#[doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "../nexustack_macros/src/module/MODULE.md"))]
+const fn _check_module_doc_test() {}
 
 mod application;
 mod callsite;

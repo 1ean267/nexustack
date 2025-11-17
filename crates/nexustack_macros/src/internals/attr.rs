@@ -12,15 +12,15 @@
 use crate::internals::{Ctxt, symbol::Symbol};
 use syn::meta::ParseNestedMeta;
 
-#[cfg(any(feature = "openapi", feature = "cron"))]
+#[cfg(any(feature = "openapi", feature = "cron", feature = "module"))]
 use proc_macro2::TokenStream;
-#[cfg(any(feature = "openapi", feature = "cron"))]
+#[cfg(any(feature = "openapi", feature = "cron", feature = "module"))]
 use quote::ToTokens;
 
 #[cfg(any(feature = "openapi", feature = "module"))]
 use syn::{Token, punctuated::Punctuated};
 
-#[cfg(any(feature = "openapi", feature = "cron"))]
+#[cfg(any(feature = "openapi", feature = "cron", feature = "module"))]
 pub(crate) struct Attr<'c, T> {
     cx: &'c Ctxt,
     name: Symbol,
@@ -28,7 +28,7 @@ pub(crate) struct Attr<'c, T> {
     pub(crate) value: Option<T>,
 }
 
-#[cfg(any(feature = "openapi", feature = "cron"))]
+#[cfg(any(feature = "openapi", feature = "cron", feature = "module"))]
 impl<'c, T> Attr<'c, T> {
     pub(crate) fn none(cx: &'c Ctxt, name: Symbol) -> Self {
         Attr {

@@ -76,7 +76,7 @@ pub fn cron_jobs(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 }
 
 #[cfg(feature = "module")]
-#[cfg_attr(not(doctest), doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "../nexustack/src/MODULE.md")))]
+#[cfg_attr(not(doctest), doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "/src/module/MODULE.md")))]
 #[proc_macro_attribute]
 pub fn module(
     attr: proc_macro::TokenStream,
