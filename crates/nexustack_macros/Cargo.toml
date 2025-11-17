@@ -22,6 +22,7 @@ proc-macro = true
 default = []
 openapi = []
 inject = []
+module = []
 cron = ["dep:cron"]
 
 [dependencies]

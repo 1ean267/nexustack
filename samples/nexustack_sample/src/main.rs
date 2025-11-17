@@ -5,11 +5,13 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
+mod notes;
+
+use crate::notes::NotesModule as _;
 use nexustack::{
     Application, ApplicationBuilder, application_builder,
     cron::{
-        CronApplicationBuilder as _, CronResult, CronRunner as _, cron, cron_jobs,
-        schedule::Schedule,
+        Cron as _, CronApplicationBuilder as _, CronResult, cron, cron_jobs, schedule::Schedule,
     },
     inject::{InjectionResult, ServiceProvider, injectable},
 };
@@ -42,6 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             remove_expired_sessions_cron_job,
             some_other_cron_job,
         ])
+        .add_notes()
         .build()?;
 
     app.run().await?;

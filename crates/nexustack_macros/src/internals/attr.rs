@@ -17,7 +17,7 @@ use proc_macro2::TokenStream;
 #[cfg(any(feature = "openapi", feature = "cron"))]
 use quote::ToTokens;
 
-#[cfg(feature = "openapi")]
+#[cfg(any(feature = "openapi", feature = "module"))]
 use syn::{Token, punctuated::Punctuated};
 
 #[cfg(any(feature = "openapi", feature = "cron"))]
@@ -304,4 +304,33 @@ pub(crate) fn parse_lit_into_ty(
             None
         }
     })
+}
+
+#[cfg(feature = "module")]
+pub(crate) fn parse_lit_into_ty_list(
+    cx: &Ctxt,
+    attr_name: Symbol,
+    meta: &ParseNestedMeta,
+) -> syn::Result<Vec<syn::Type>> {
+    let string = match get_lit_str(cx, attr_name, meta)? {
+        Some(string) => string,
+        None => return Ok(Vec::new()),
+    };
+
+    Ok(
+        match string.parse_with(Punctuated::<syn::Type, Token![,]>::parse_terminated) {
+            Ok(types) => Vec::from_iter(types),
+            Err(_) => {
+                cx.error_spanned_by(
+                    &string,
+                    format!(
+                        "failed to parse type list: {} = {:?}",
+                        attr_name,
+                        string.value()
+                    ),
+                );
+                Vec::new()
+            }
+        },
+    )
 }

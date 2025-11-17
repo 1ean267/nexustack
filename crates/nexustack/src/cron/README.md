@@ -18,7 +18,7 @@ To use the `cron` feature, follow these steps:
         application_builder,
         Application as _,
         ApplicationBuilder as _,
-        cron::{CronApplicationBuilder as _, CronRunner as _},
+        cron::{Cron as _, CronApplicationBuilder as _},
     };
 
     #[tokio::main(flavor = "multi_thread")]
@@ -51,9 +51,9 @@ To use the `cron` feature, follow these steps:
         cron::{
             cron_jobs,
             cron,
+            Cron as _,
             CronApplicationBuilder as _,
             CronResult,
-            CronRunner as _,
         },
     };
 
@@ -203,9 +203,9 @@ use nexustack::{
     cron::{
         cron,
         cron_jobs,
+        Cron as _,
         CronApplicationBuilder as _,
         CronResult,
-        CronRunner as _,
     },
 };
 
@@ -245,9 +245,9 @@ use nexustack::{
     cron::{
         cron,
         cron_jobs,
+        Cron as _,
         CronResult,
         CronApplicationBuilder as _,
-        CronRunner as _,
     },
     inject::{ServiceProvider, injectable},
 };
@@ -321,9 +321,9 @@ use nexustack::{
     cron::{
         cron,
         cron_jobs,
+        Cron as _, 
         CronApplicationBuilder as _,
         CronResult,
-        CronRunner as _, 
         schedule::Schedule,
     },
     inject::{ServiceProvider, injectable, InjectionResult},
@@ -505,11 +505,11 @@ use nexustack::{
     cron::{
         cron,
         cron_jobs,
+        Cron as _,
         CronApplicationBuilder as _,
         CronClock,
         CronError,
         CronResult,
-        CronRunner as _,
     },
     inject::{ServiceProvider, injectable},
 };
