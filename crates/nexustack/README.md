@@ -104,9 +104,9 @@ use nexustack::{
     cron::{
       cron,
       cron_jobs,
+      Cron as _,
       CronApplicationBuilder as _,
       CronResult,
-      CronRunner as _,
       },
 };
 

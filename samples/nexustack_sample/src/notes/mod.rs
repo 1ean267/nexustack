@@ -7,12 +7,12 @@
 
 use nexustack::{
     ApplicationBuilder,
-    cron::{CronApplicationBuilder as _, CronResult, CronRunner, cron, cron_jobs},
+    cron::{Cron, CronApplicationBuilder as _, CronResult, cron, cron_jobs},
     module,
 };
 
 /// Extension trait to add the Notes module to the application builder.
-#[module(features = "CronRunner")]
+#[module(features = "Cron")]
 pub trait NotesModule {
     /// Adds the Notes module to the application builder.
     fn add_notes(self) -> impl ApplicationBuilder {

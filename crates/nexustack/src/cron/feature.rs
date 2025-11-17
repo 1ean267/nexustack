@@ -103,7 +103,7 @@ pub trait CronApplicationBuilder: ApplicationBuilder {
     ) -> impl ApplicationBuilder<Chain = Self::Chain>
     where
         Self: Sized,
-        Self::Chain: CronRunner<I>,
+        Self::Chain: Cron<I>,
         F: FnOnce(&mut Self::Chain);
 }
 
@@ -139,7 +139,7 @@ impl<B: ApplicationBuilder> CronApplicationBuilder for B {
     ) -> impl ApplicationBuilder<Chain = Self::Chain>
     where
         Self: Sized,
-        Self::Chain: CronRunner<I>,
+        Self::Chain: Cron<I>,
         F: FnOnce(&mut Self::Chain),
     {
         self.configure_chain(configure)
@@ -150,7 +150,7 @@ impl<B: ApplicationBuilder> CronApplicationBuilder for B {
 ///
 /// This trait provides methods to add cron jobs to the application. It is typically implemented
 /// by application parts or nodes in the application builder chain.
-pub trait CronRunner<Index> {
+pub trait Cron<Index> {
     /// Adds a cron job of the specified type to the application.
     ///
     /// This method registers a cron job by its type, allowing it to be scheduled and executed
@@ -166,10 +166,10 @@ pub trait CronRunner<Index> {
         Job: CronJob + 'static;
 }
 
-impl<Head, Tail, HeadIndex> CronRunner<InHead<HeadIndex>> for Node<Head, Tail>
+impl<Head, Tail, HeadIndex> Cron<InHead<HeadIndex>> for Node<Head, Tail>
 where
     HeadIndex: Index,
-    Head: CronRunner<HeadIndex>,
+    Head: Cron<HeadIndex>,
 {
     fn add_cron_job<Job>(&mut self) -> &mut Self
     where
@@ -180,10 +180,10 @@ where
     }
 }
 
-impl<Head, Tail, TailIndex> CronRunner<InTail<TailIndex>> for Node<Head, Tail>
+impl<Head, Tail, TailIndex> Cron<InTail<TailIndex>> for Node<Head, Tail>
 where
     TailIndex: Index,
-    Tail: CronRunner<TailIndex>,
+    Tail: Cron<TailIndex>,
 {
     fn add_cron_job<Job>(&mut self) -> &mut Self
     where
@@ -194,7 +194,7 @@ where
     }
 }
 
-impl<Clock> CronRunner<Here> for CronApplicationPartBuilder<Clock>
+impl<Clock> Cron<Here> for CronApplicationPartBuilder<Clock>
 where
     Clock: CronClock + Send + 'static,
     <<Clock as CronClock>::TimeZone as TimeZone>::Offset: Send,

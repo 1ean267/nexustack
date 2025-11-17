@@ -13,7 +13,7 @@ pub fn expand_cron_jobs(input: TokenStream) -> syn::Result<TokenStream> {
     let jobs =
         syn::punctuated::Punctuated::<syn::Type, syn::Token![,]>::parse_terminated.parse2(input)?;
 
-    // TODO: Hygiene. This used CronRunner
+    // TODO: Hygiene. This uses Cron
     let expanded = jobs.iter().map(|job| {
         quote_spanned! { job.span()=> .add_cron_job::<#job>() }
     });

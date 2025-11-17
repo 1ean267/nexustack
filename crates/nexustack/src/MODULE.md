@@ -35,7 +35,7 @@ use nexustack::{
         cron_jobs,
         CronApplicationBuilder as _,
         CronResult,
-        CronRunner,
+        Cron,
     },
 };
 
@@ -58,7 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 // -- In the modules mod.rs --
 
-#[module(features = "CronRunner")]
+#[module(features = "Cron")]
 pub trait NotesModule {
     fn add_notes(self) -> impl ApplicationBuilder {
         self.configure_cron(cron_jobs![remove_outdated_notes_cron_job])
@@ -86,7 +86,7 @@ In this example, the `NotesModule` trait defines a module that adds a cron job t
 The [`#[module]`](crate::module) attribute is used to define a module. It supports the following properties:
 
 - **features**\
-  Specifies the nexustack features required by the module. For example, [`#[module(features = "CronRunner")]`](crate::module) indicates that the module depends on the nexustack `Cron` feature.
+  Specifies the nexustack features required by the module. For example, [`#[module(features = "Cron")]`](crate::module) indicates that the module depends on the nexustack `Cron` feature.
 - **crate**\
   Specifies a path to the Nexustack crate instance to use when referring to Nexustack APIs from generated code. This is normally only applicable when invoking re-exported Nexustack derives from a public macro in a different crate.
 

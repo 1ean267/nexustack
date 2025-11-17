@@ -11,8 +11,7 @@ use crate::notes::NotesModule as _;
 use nexustack::{
     Application, ApplicationBuilder, application_builder,
     cron::{
-        CronApplicationBuilder as _, CronResult, CronRunner as _, cron, cron_jobs,
-        schedule::Schedule,
+        Cron as _, CronApplicationBuilder as _, CronResult, cron, cron_jobs, schedule::Schedule,
     },
     inject::{InjectionResult, ServiceProvider, injectable},
 };

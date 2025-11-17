@@ -16,7 +16,7 @@ mod feature;
 
 pub use clock::{CronClock, DefaultCronClock};
 pub use error::{CronError, CronResult};
-pub use feature::{CronApplicationBuilder, CronRunner};
+pub use feature::{Cron, CronApplicationBuilder};
 
 pub use nexustack_macros::cron_jobs;
 
