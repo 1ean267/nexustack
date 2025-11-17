@@ -23,6 +23,7 @@ pub use nexustack_macros::cron_jobs;
 #[cfg(feature = "derive")]
 pub use nexustack_macros::cron;
 
+#[cfg(test)]
 #[doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "../nexustack_macros/src/cron/CRON.md"))]
 const fn _check_cron_doc_test() {}
 
