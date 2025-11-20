@@ -5,18 +5,31 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
+mod api;
+mod data_access;
+mod get;
+mod note;
+
+use data_access::NoteRepository;
 use nexustack::{
     ApplicationBuilder,
     cron::{Cron, CronApplicationBuilder as _, CronResult, cron, cron_jobs},
+    http::{Http, HttpApplicationBuilder},
     module,
 };
 
 /// Extension trait to add the Notes module to the application builder.
-#[module(features = "Cron")]
+#[module(features = "Cron, Http")]
 pub trait NotesModule {
     /// Adds the Notes module to the application builder.
     fn add_notes(self) -> impl ApplicationBuilder {
         self.configure_cron(cron_jobs![remove_outdated_notes_cron_job])
+            .configure_services(|services| {
+                services.add_scoped::<NoteRepository>();
+            })
+            .configure_http(|http_builder| {
+                http_builder.add_controller::<get::NoteController>();
+            })
     }
 }
 

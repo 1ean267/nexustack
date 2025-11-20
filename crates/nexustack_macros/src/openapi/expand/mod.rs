@@ -18,7 +18,7 @@ mod tuple_struct;
 mod unit_struct;
 
 use crate::{
-    internals::{Ctxt, IntoIteratorExt, replace_receiver},
+    internals::{Ctxt, IntoIteratorExt, default::Default, replace_receiver},
     openapi::{
         bound, dummy,
         internals::{
@@ -168,7 +168,7 @@ impl Parameters {
 // All the generics in the input, plus a bound `T: Schema` for each generic
 // field type that will be handled by us.
 fn build_generics(cont: &Container) -> syn::Generics {
-    let mut generics = bound::without_defaults(cont.generics);
+    let mut generics = crate::bound::without_defaults(cont.generics);
     let mut default_bound_checked = false;
 
     if cont.attrs.derive().read() {
@@ -288,9 +288,9 @@ fn describe_struct_visitor<'a>(
             let deprecated = field.attrs.deprecated();
 
             let default = match field.attrs.default().or(cattrs.default()) {
-                attr::Default::None => None,
-                attr::Default::Default => Some(quote!(<#ty as _nexustack::__private::Default>::default())),
-                attr::Default::Path(expr_path) => Some(quote!(#expr_path())),
+                Default::None => None,
+                Default::Default => Some(quote!(<#ty as _nexustack::__private::Default>::default())),
+                Default::Path(expr_path) => Some(quote!(#expr_path())),
             };
 
             if let Some(default) = default {

@@ -8,6 +8,7 @@
 use crate::{
     dummy,
     internals::{Ctxt, attr::*, symbol::*},
+    is_attr,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens as _, format_ident, quote, quote_spanned};
@@ -235,35 +236,6 @@ fn expand_function_cron(ctxt: &Ctxt, attr: TokenStream, mut item_fn: syn::ItemFn
 }
 
 fn is_cron_service_attr(attr: &syn::Attribute) -> bool {
-    match &attr.meta {
-        syn::Meta::Path(attr_path) => {
-            is_path(attr_path, &["cron", "service"])
-                || is_path(attr_path, &["cron", "cron", "service"])
-                || is_path(attr_path, &["nexustack", "cron", "cron", "service"])
-        }
-        _ => false,
-    }
-}
-
-// TODO: Stolen from inject expand, refactor later
-fn is_path(path: &syn::Path, segments: &[&str]) -> bool {
-    if path.leading_colon.is_some() {
-        return false;
-    }
-
-    if path.segments.len() != segments.len() {
-        return false;
-    }
-
-    for (i, segment) in path.segments.iter().enumerate() {
-        if !segment.arguments.is_none() {
-            return false;
-        }
-
-        if segment.ident != segments[i] {
-            return false;
-        }
-    }
-
-    true
+    // TODO: Is the "cron" duplication correct?
+    is_attr(attr, &["nexustack", "cron", "cron", "service"])
 }

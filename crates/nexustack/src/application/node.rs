@@ -17,7 +17,7 @@ use crate::{
 };
 use either::Either;
 use futures_util::TryFutureExt;
-use std::{any::TypeId, borrow::Cow};
+use std::{any::TypeId, borrow::Cow, fmt::Debug};
 use tokio_util::sync::CancellationToken;
 
 /// A composite application part that combines two other application parts, `Head` and `Tail`.
@@ -34,6 +34,38 @@ use tokio_util::sync::CancellationToken;
 pub struct Node<Head, Tail> {
     pub(crate) head: Head,
     pub(crate) tail: Tail,
+}
+
+impl<Head, Tail> Node<Head, Tail> {
+    pub fn new(head: Head, tail: Tail) -> Self {
+        Self { head, tail }
+    }
+}
+
+impl<Head, Tail> Clone for Node<Head, Tail>
+where
+    Head: Clone,
+    Tail: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            head: self.head.clone(),
+            tail: self.tail.clone(),
+        }
+    }
+}
+
+impl<Head, Tail> Debug for Node<Head, Tail>
+where
+    Head: Debug,
+    Tail: Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Node")
+            .field("head", &self.head)
+            .field("tail", &self.tail)
+            .finish()
+    }
 }
 
 impl<Head, Tail> ApplicationPart for Node<Head, Tail>
@@ -144,6 +176,7 @@ where
     Head: Chain<HeadIndex>,
 {
     type Element = Head::Element;
+
     fn get(&self) -> &Self::Element {
         self.head.get()
     }
@@ -159,6 +192,7 @@ where
     Tail: Chain<TailIndex>,
 {
     type Element = Tail::Element;
+
     fn get(&self) -> &Self::Element {
         self.tail.get()
     }

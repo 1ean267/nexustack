@@ -55,7 +55,7 @@ fn process_item_trait(ctxt: &Ctxt, attr: TokenStream, item_trait: syn::ItemTrait
                 }
             } else if meta.path == FEATURES {
                 // #[module(features(...))]
-                let feats = parse_lit_into_ty_list(ctxt, FEATURES, &meta)?;
+                let feats = parse_lit_into_path_list(ctxt, FEATURES, &meta)?;
                 features.set(&meta.path, feats);
             } else {
                 let path = meta.path.to_token_stream().to_string().replace(' ', "");
@@ -206,16 +206,7 @@ fn process_item_trait(ctxt: &Ctxt, attr: TokenStream, item_trait: syn::ItemTrait
         .collect::<Vec<_>>();
 
     let indices = features.iter().map(|feature| {
-        let feature_ident = match feature {
-            syn::Type::Path(type_path) => &type_path.path.segments.last().unwrap().ident,
-            _ => {
-                ctxt.error_spanned_by(feature, "Expected a type path for the feature.");
-
-                // Will error anyway
-                &format_ident!("UnknownFeature")
-            }
-        };
-
+        let feature_ident = &feature.segments.last().unwrap().ident;
         let index_ident = format_ident!("_{}__Index", feature_ident);
 
         quote! { , #index_ident: _nexustack::Index }
@@ -225,17 +216,28 @@ fn process_item_trait(ctxt: &Ctxt, attr: TokenStream, item_trait: syn::ItemTrait
         quote! {}
     } else {
         let clauses = features.iter().map(|feature| {
-            let feature_ident = match feature {
-                syn::Type::Path(type_path) => &type_path.path.segments.last().unwrap().ident,
-                _ => {
-                    // Error already handled above
-                    &format_ident!("UnknownFeature")
-                }
-            };
-
+            let feature_ident = &feature.segments.last().unwrap().ident;
             let index_ident = format_ident!("_{}__Index", feature_ident);
+
+            let mut feature_ty = feature.clone();
+
+            match &mut feature_ty.segments.last_mut().unwrap().arguments {
+                arguments @ syn::PathArguments::None => {
+                    *arguments =
+                        syn::PathArguments::AngleBracketed(syn::parse_quote!(<#index_ident>));
+                }
+                syn::PathArguments::AngleBracketed(angle_bracketed_generic_arguments) => {
+                    angle_bracketed_generic_arguments
+                        .args
+                        .insert(0, syn::parse_quote!(#index_ident));
+                }
+                syn::PathArguments::Parenthesized(_) => {
+                    ctxt.error_spanned_by(feature, "Expected a type path for the feature.");
+                }
+            }
+
             quote! {
-                T::Chain: #feature<#index_ident>
+                T::Chain: #feature_ty
             }
         });
 
@@ -246,14 +248,7 @@ fn process_item_trait(ctxt: &Ctxt, attr: TokenStream, item_trait: syn::ItemTrait
         quote! {}
     } else {
         let gen_arg = features.iter().map(|feature| {
-            let feature_ident = match feature {
-                syn::Type::Path(type_path) => &type_path.path.segments.last().unwrap().ident,
-                _ => {
-                    // Error already handled above
-                    &format_ident!("UnknownFeature")
-                }
-            };
-
+            let feature_ident = &feature.segments.last().unwrap().ident;
             format_ident!("_{}__Index", feature_ident)
         });
 

@@ -43,10 +43,10 @@ pub trait CronClock {
 
     /// Delays execution until the specified `date_time` is reached or the cancellation token is triggered.
     ///
-    /// # Arguments
+    /// # Paramaters
     ///
-    /// * `date_time` - The target date and time to delay until.
-    /// * `cancellation_token` - A token that can be used to cancel the delay.
+    /// - `date_time` - The target date and time to delay until.
+    /// - `cancellation_token` - A token that can be used to cancel the delay.
     ///
     /// # Returns
     ///
@@ -126,10 +126,10 @@ where
 
     /// Delays execution until the specified `date_time` is reached or the cancellation token is triggered.
     ///
-    /// # Arguments
+    /// # Paramaters
     ///
-    /// * `date_time` - The target date and time to delay until.
-    /// * `cancellation_token` - A token that can be used to cancel the delay.
+    /// - `date_time` - The target date and time to delay until.
+    /// - `cancellation_token` - A token that can be used to cancel the delay.
     ///
     /// # Returns
     ///

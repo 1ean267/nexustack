@@ -29,10 +29,14 @@ unescaped_backticks = "warn"
 
 [dependencies]
 anyhow = { workspace = true }
+axum = { workspace = true }
+axum-extra = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
-nexustack = { workspace = true, features = ["cron"] }
+either = { workspace = true }
+nexustack = { workspace = true, features = ["cron", "chrono", "http", "yaml", "openapi"] }
 serde = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
+try-specialize = { workspace = true }
