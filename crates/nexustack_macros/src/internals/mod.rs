@@ -11,18 +11,24 @@ mod callsite;
 #[cfg(any(feature = "openapi", feature = "cron", feature = "inject"))]
 mod ctxt;
 
-#[cfg(feature = "openapi")]
+#[cfg(any(feature = "openapi", feature = "http"))]
 mod receiver;
 
 #[cfg(any(feature = "openapi", feature = "cron", feature = "inject"))]
 pub(crate) mod attr;
 #[cfg(feature = "openapi")]
 pub(crate) mod case;
-#[cfg(feature = "openapi")]
+#[cfg(any(feature = "openapi", feature = "http"))]
 pub(crate) mod respan;
 
 #[cfg(any(feature = "openapi", feature = "cron", feature = "inject"))]
 pub(crate) mod symbol;
+
+#[cfg(any(feature = "openapi", feature = "http"))]
+pub(crate) mod name;
+
+#[cfg(any(feature = "openapi", feature = "http"))]
+pub(crate) mod default;
 
 #[cfg(feature = "openapi")]
 pub use self::callsite::callsite;
@@ -30,7 +36,7 @@ pub use self::callsite::callsite;
 #[cfg(any(feature = "openapi", feature = "cron", feature = "inject"))]
 pub use self::ctxt::Ctxt;
 
-#[cfg(feature = "openapi")]
+#[cfg(any(feature = "openapi", feature = "http"))]
 pub use self::receiver::replace_receiver;
 
 #[cfg(feature = "openapi")]

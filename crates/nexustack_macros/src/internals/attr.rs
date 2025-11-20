@@ -30,6 +30,15 @@ pub(crate) struct Attr<'c, T> {
 
 #[cfg(any(feature = "openapi", feature = "cron", feature = "module"))]
 impl<'c, T> Attr<'c, T> {
+    pub(crate) fn some(cx: &'c Ctxt, name: Symbol, value: T) -> Self {
+        Attr {
+            cx,
+            name,
+            tokens: TokenStream::new(),
+            value: Some(value),
+        }
+    }
+
     pub(crate) fn none(cx: &'c Ctxt, name: Symbol) -> Self {
         Attr {
             cx,
@@ -58,7 +67,7 @@ impl<'c, T> Attr<'c, T> {
         }
     }
 
-    #[cfg(feature = "openapi")]
+    #[cfg(any(feature = "openapi", feature = "http"))]
     pub(crate) fn set_if_none(&mut self, value: T) {
         if self.value.is_none() {
             self.value = Some(value);
@@ -188,7 +197,7 @@ pub(crate) fn get_lit_str2_expr(
     }
 }
 
-#[cfg(feature = "openapi")]
+#[cfg(any(feature = "openapi", feature = "http"))]
 pub(crate) fn parse_lit_into_bool(
     cx: &Ctxt,
     attr_name: Symbol,
@@ -333,4 +342,27 @@ pub(crate) fn parse_lit_into_ty_list(
             }
         },
     )
+}
+
+#[cfg(feature = "http")]
+pub(crate) fn parse_lit_into_ident(
+    cx: &Ctxt,
+    attr_name: Symbol,
+    meta: &ParseNestedMeta,
+) -> syn::Result<Option<syn::Ident>> {
+    let string = match get_lit_str(cx, attr_name, meta)? {
+        Some(string) => string,
+        None => return Ok(None),
+    };
+
+    Ok(match string.parse() {
+        Ok(ident) => Some(ident),
+        Err(_) => {
+            cx.error_spanned_by(
+                &string,
+                format!("failed to parse ident: {:?}", string.value()),
+            );
+            None
+        }
+    })
 }

@@ -26,6 +26,9 @@ mod cron;
 #[cfg(feature = "module")]
 mod module;
 
+#[cfg(feature = "http")]
+mod http;
+
 #[cfg(feature = "inject")]
 use crate::inject::injectable as injectable_impl;
 
@@ -37,6 +40,9 @@ use crate::cron::{cron as cron_impl, cron_jobs as cron_jobs_impl};
 
 #[cfg(feature = "module")]
 use crate::module::module as module_impl;
+
+#[cfg(feature = "http")]
+use crate::http::{http_controller as http_controller_impl, http_response as http_response_impl};
 
 #[cfg(feature = "inject")]
 #[proc_macro_attribute]
@@ -83,4 +89,22 @@ pub fn module(
     item: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
     module_impl(attr.into(), item.into()).into()
+}
+
+#[cfg(feature = "http")]
+#[proc_macro_attribute]
+pub fn http_response(
+    attr: proc_macro::TokenStream,
+    item: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    http_response_impl(attr.into(), item.into()).into()
+}
+
+#[cfg(feature = "http")]
+#[proc_macro_attribute]
+pub fn http_controller(
+    attr: proc_macro::TokenStream,
+    item: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    http_controller_impl(attr.into(), item.into()).into()
 }
