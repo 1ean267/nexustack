@@ -80,7 +80,7 @@ impl<'i> Injector<'i> {
     ///
     /// # Type arguments
     ///
-    /// * `TService` - The type of the service to resolve from the provider.
+    /// - `TService` - The type of the service to resolve from the provider.
     ///
     /// # Example
     ///

@@ -5,14 +5,17 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
+mod client_info;
 mod notes;
+mod response;
 
-use crate::notes::NotesModule as _;
+use crate::{client_info::ClientInfoModule as _, notes::NotesModule as _};
 use nexustack::{
     Application, ApplicationBuilder, application_builder,
     cron::{
         Cron as _, CronApplicationBuilder as _, CronResult, cron, cron_jobs, schedule::Schedule,
     },
+    http::HttpApplicationBuilder as _,
     inject::{InjectionResult, ServiceProvider, injectable},
 };
 use std::str::FromStr as _;
@@ -21,7 +24,7 @@ use tracing::instrument;
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     unsafe {
-        std::env::set_var("RUST_LOG", "info");
+        std::env::set_var("RUST_LOG", "INFO");
     }
 
     let subscriber = tracing_subscriber::fmt()
@@ -40,11 +43,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .add_scoped::<MyService>();
         })
         .add_cron_with_default_clock()
+        .add_http("127.0.0.1:8080".parse()?, |http_builder| {
+            http_builder.with_open_api("Nexustack Sample API", "1.0.0", |openapi_builder| {
+                openapi_builder
+                    .with_description("This is a sample API built with Nexustack.")
+                    .with_spdx_license("MIT", "MIT")
+            })
+        })
         .configure_cron(cron_jobs![
             remove_expired_sessions_cron_job,
             some_other_cron_job,
         ])
         .add_notes()
+        .add_client_info()
         .build()?;
 
     app.run().await?;
