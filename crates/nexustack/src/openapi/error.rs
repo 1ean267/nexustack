@@ -37,8 +37,8 @@ pub trait Error: Sized + std::error::Error {
     ///
     /// The message should not be capitalized and should not end with a period.
     ///
-    /// # Arguments
-    /// * `msg` - The error message to be included in the custom error. Must implement [`std::fmt::Display`].
+    /// # Paramaters
+    /// - `msg` - The error message to be included in the custom error. Must implement [`std::fmt::Display`].
     ///
     /// [`Schema`]: crate::openapi::schema::Schema
     fn custom<T>(msg: T) -> Self

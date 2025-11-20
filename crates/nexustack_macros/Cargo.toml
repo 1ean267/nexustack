@@ -24,12 +24,17 @@ openapi = []
 inject = []
 module = []
 cron = ["dep:cron"]
+http = ["dep:either", "dep:docstrings", "dep:regex"]
+axum-client-ip = []
 
 [dependencies]
 cron = { workspace = true, optional = true }
+docstrings = { workspace = true, optional = true }
+either = { workspace = true, optional = true }
 proc-macro2 = { workspace = true, features = ["span-locations"]}
 quote = { workspace = true }
 syn = { workspace = true, features = ["full", "extra-traits", "visit", "visit-mut"] }
+regex = { workspace = true, optional = true }
 
 [dev-dependencies]
 rust-format = { workspace = true, features = ["token_stream"] }

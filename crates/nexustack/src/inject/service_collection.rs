@@ -86,11 +86,11 @@ impl ServiceCollection {
     ///
     /// # Type arguments
     ///
-    /// * `TService` - The type of the service to register.
+    /// - `TService` - The type of the service to register.
     ///
-    /// # Arguments
+    /// # Paramaters
     ///
-    /// * `value` - The value of the service type to register as service.
+    /// - `value` - The value of the service type to register as service.
     ///
     /// # Example
     ///
@@ -127,7 +127,7 @@ impl ServiceCollection {
     ///
     /// # Type arguments
     ///
-    /// * `TService` - The type of the service to register.
+    /// - `TService` - The type of the service to register.
     ///
     /// # Example
     ///
@@ -183,7 +183,7 @@ impl ServiceCollection {
     ///
     /// # Type arguments
     ///
-    /// * `TService` - The type of the service to register.
+    /// - `TService` - The type of the service to register.
     ///
     /// # Example
     ///
@@ -245,7 +245,7 @@ impl ServiceCollection {
     ///
     /// # Type arguments
     ///
-    /// * `TService` - The type of the service to register.
+    /// - `TService` - The type of the service to register.
     ///
     /// # Example
     ///
@@ -300,7 +300,7 @@ impl ServiceCollection {
     ///
     /// # Type arguments
     ///
-    /// * `TService` - The type of the service to register.
+    /// - `TService` - The type of the service to register.
     ///
     /// # Argument
     ///
@@ -372,7 +372,7 @@ impl ServiceCollection {
     ///
     /// # Type arguments
     ///
-    /// * `TService` - The type of the service to register.
+    /// - `TService` - The type of the service to register.
     ///
     /// # Argument
     ///
@@ -449,7 +449,7 @@ impl ServiceCollection {
     ///
     /// # Type arguments
     ///
-    /// * `TService` - The type of the service to register.
+    /// - `TService` - The type of the service to register.
     ///
     /// # Argument
     ///
