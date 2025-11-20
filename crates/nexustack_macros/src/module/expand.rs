@@ -205,11 +205,64 @@ fn process_item_trait(ctxt: &Ctxt, attr: TokenStream, item_trait: syn::ItemTrait
         })
         .collect::<Vec<_>>();
 
+    let indices = features.iter().map(|feature| {
+        let feature_ident = match feature {
+            syn::Type::Path(type_path) => &type_path.path.segments.last().unwrap().ident,
+            _ => {
+                ctxt.error_spanned_by(feature, "Expected a type path for the feature.");
+
+                // Will error anyway
+                &format_ident!("UnknownFeature")
+            }
+        };
+
+        let index_ident = format_ident!("_{}__Index", feature_ident);
+
+        quote! { , #index_ident: _nexustack::Index }
+    });
+
+    let where_clause = if features.is_empty() {
+        quote! {}
+    } else {
+        let clauses = features.iter().map(|feature| {
+            let feature_ident = match feature {
+                syn::Type::Path(type_path) => &type_path.path.segments.last().unwrap().ident,
+                _ => {
+                    // Error already handled above
+                    &format_ident!("UnknownFeature")
+                }
+            };
+
+            let index_ident = format_ident!("_{}__Index", feature_ident);
+            quote! {
+                T::Chain: #feature<#index_ident>
+            }
+        });
+
+        quote! { where #( #clauses ),*}
+    };
+
+    let item_gen_args = if features.is_empty() {
+        quote! {}
+    } else {
+        let gen_arg = features.iter().map(|feature| {
+            let feature_ident = match feature {
+                syn::Type::Path(type_path) => &type_path.path.segments.last().unwrap().ident,
+                _ => {
+                    // Error already handled above
+                    &format_ident!("UnknownFeature")
+                }
+            };
+
+            format_ident!("_{}__Index", feature_ident)
+        });
+
+        quote! { < #( #gen_arg ),* >}
+    };
+
     let impl_block = quote! {
-        impl<T: _nexustack::ApplicationBuilder #( + #trait_base )*, I: _nexustack::Index> #trait_ident<I> for T
-        #(
-            where T::Chain: #features<I>,
-        )* {
+        impl<T: _nexustack::ApplicationBuilder #( + #trait_base )* #(#indices)*> #trait_ident #item_gen_args for T
+        #where_clause {
             #(#impl_items)*
         }
     };
@@ -218,8 +271,9 @@ fn process_item_trait(ctxt: &Ctxt, attr: TokenStream, item_trait: syn::ItemTrait
     let crate_path = crate_path.unwrap_or(format_ident!("nexustack").into());
 
     quote! {
+        #[allow(nonstandard_style)]
         #(#trait_attrs)*
-        #trait_vis trait #trait_ident<I>: #crate_path::ApplicationBuilder #( + #trait_base )* {
+        #trait_vis trait #trait_ident #item_gen_args: #crate_path::ApplicationBuilder #( + #trait_base )* {
             #(#fn_items)*
         }
 
