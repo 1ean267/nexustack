@@ -41,6 +41,8 @@ impl Schema for Nanos {
     }
 }
 
+callsite!(DurationCallsite);
+
 impl Schema for std::time::Duration {
     type Example = Self;
     type Examples = <[Self::Example; 4] as IntoIterator>::IntoIter;
@@ -51,7 +53,7 @@ impl Schema for std::time::Duration {
         B: SchemaBuilder<Self::Examples>,
     {
         let mut struct_schema_builder = schema_builder.describe_struct(
-            Some(SchemaId::new("Duration", callsite!())),
+            Some(SchemaId::new("Duration", *DurationCallsite)),
             2,
             Some("A span of time"),
             || {
@@ -84,6 +86,8 @@ impl Schema for std::time::Duration {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+callsite!(SystemTimeCallsite);
+
 impl Schema for std::time::SystemTime {
     type Example = Self;
     type Examples = <[Self::Example; 2] as IntoIterator>::IntoIter;
@@ -94,7 +98,7 @@ impl Schema for std::time::SystemTime {
         B: SchemaBuilder<Self::Examples>,
     {
         let mut struct_schema_builder = schema_builder.describe_struct(
-            Some(SchemaId::new("SystemTime", callsite!())),
+            Some(SchemaId::new("SystemTime", *SystemTimeCallsite)),
             2,
             Some("A measurement of the system clock"),
             || {

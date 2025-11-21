@@ -35,6 +35,9 @@ pub fn expand_tuple_struct(cont: &Container, fields: &[Field]) -> TokenStream {
     let examples = examples_type(fields, &example_cont_id);
 
     quote! {
+        static __callsite: _nexustack::__private::utils::AtomicOnceCell<_nexustack::Callsite> =
+            _nexustack::__private::utils::AtomicOnceCell::new();
+
         #[automatically_derived]
         #example_cont
 
@@ -268,7 +271,7 @@ fn describe(
         let cont_span = cont.original.span();
         let cont_callsite = callsite(&cont_span);
         quote! {
-            _nexustack::__private::Option::Some(_nexustack::openapi::SchemaId::new(#type_name, #cont_callsite))
+            _nexustack::__private::Option::Some(_nexustack::openapi::SchemaId::new(#type_name, *__callsite.get_or_init(|| #cont_callsite)))
         }
     };
 

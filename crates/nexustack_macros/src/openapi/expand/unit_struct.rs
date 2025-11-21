@@ -31,6 +31,9 @@ pub fn expand_unit_struct(cont: &Container) -> TokenStream {
     let examples = examples_type(&example_cont_id);
 
     quote! {
+        static __callsite: _nexustack::__private::utils::AtomicOnceCell<_nexustack::Callsite> =
+            _nexustack::__private::utils::AtomicOnceCell::new();
+
         #[automatically_derived]
         #example_cont
 
@@ -82,7 +85,7 @@ fn describe(cont: &Container, example_cont: &ExampleContainerIdentifier) -> Frag
     quote_expr! {
         _nexustack::openapi::SchemaBuilder::describe_unit_struct(
             __schema_builder,
-            _nexustack::__private::Option::Some(_nexustack::openapi::SchemaId::new(#type_name, #cont_callsite)),
+            _nexustack::__private::Option::Some(_nexustack::openapi::SchemaId::new(#type_name, *__callsite.get_or_init(|| #cont_callsite))),
             _nexustack::__private::Option::Some(#description),
             || _nexustack::__private::Result::Ok(_nexustack::__private::once(#example_cont_instantiation)),
             #deprecated,

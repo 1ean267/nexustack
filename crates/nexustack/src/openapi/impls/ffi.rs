@@ -9,14 +9,14 @@
  * Based on https://docs.rs/serde/latest/src/serde/ser/impls.rs.html
  */
 
-use crate::{
-    callsite,
-    openapi::{
-        example::SchemaExamples,
-        schema::Schema,
-        schema_builder::{EnumSchemaBuilder, SchemaBuilder, SchemaId, VariantTag},
-    },
+use crate::openapi::{
+    example::SchemaExamples,
+    schema::Schema,
+    schema_builder::{EnumSchemaBuilder, SchemaBuilder, SchemaId, VariantTag},
 };
+
+#[cfg(any(unix, windows))]
+use crate::callsite;
 
 impl Schema for std::ffi::CStr {
     type Example = <[u8] as Schema>::Example;
@@ -45,6 +45,15 @@ impl Schema for std::ffi::CString {
 }
 
 #[cfg(any(unix, windows))]
+callsite!(OsStrCallsite);
+
+#[cfg(any(unix, windows))]
+callsite!(OsStrUnixVariantCallsite);
+
+#[cfg(any(unix, windows))]
+callsite!(OsStrWindowsVariantCallsite);
+
+#[cfg(any(unix, windows))]
 impl Schema for std::ffi::OsStr {
     type Example = &'static Self;
     type Examples =
@@ -59,7 +68,7 @@ impl Schema for std::ffi::OsStr {
 
         let is_human_readable = schema_builder.is_human_readable();
         let mut enum_schema_builder = schema_builder.describe_enum(
-            Some(SchemaId::new("OsString", callsite!())),
+            Some(SchemaId::new("OsString", *OsStrCallsite)),
             2,
             true,
             VariantTag::default(),
@@ -72,14 +81,14 @@ impl Schema for std::ffi::OsStr {
         )?;
         enum_schema_builder.collect_newtype_variant(
             0,
-            SchemaId::new("Unix", callsite!()),
+            SchemaId::new("Unix", *OsStrUnixVariantCallsite),
             Some("A Unix system platform-native string. An arbitrary sequences of non-zero bytes, in many cases interpreted as UTF-8"),
             false,
             <[u8] as Schema>::describe,
         )?;
         enum_schema_builder.collect_newtype_variant(
             1,
-            SchemaId::new("Windows", callsite!()),
+            SchemaId::new("Windows", *OsStrWindowsVariantCallsite),
             Some("A Windows system platform-native string. An arbitrary sequences of non-zero 16-bit values, interpreted as UTF-16 when it is valid to do so"),
             false,
             <Vec<u16> as Schema>::describe,

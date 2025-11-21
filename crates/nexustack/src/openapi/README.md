@@ -147,6 +147,8 @@ struct MyType {
     b: u64,
 }
 
+callsite!(MyTypeCallsite);
+
 impl Schema for MyType {
     type Example = MyType;
     type Examples = <[Self::Example; 1] as IntoIterator>::IntoIter;
@@ -157,7 +159,7 @@ impl Schema for MyType {
         B: SchemaBuilder<Self::Examples>,
     {
         let mut struct_schema_builder = schema_builder.describe_struct(
-            Some(SchemaId::new("MyType", callsite!())),
+            Some(SchemaId::new("MyType", *MyTypeCallsite*)),
             2usize,
             Some("My custom struct description"),
             || Ok([

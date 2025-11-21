@@ -13,19 +13,52 @@ use std::{cell::UnsafeCell, sync::atomic::AtomicU8};
 const _: () = ensure_send::<AtomicOnceCell<()>>();
 const _: () = ensure_sync::<AtomicOnceCell<()>>();
 
+/// A thread-safe, single-assignment cell that can be initialized once and read many times.
+///
+/// The `AtomicOnceCell` is a synchronization primitive that allows you to store a value that
+/// can only be written once but can be read multiple times. It is useful for scenarios where
+/// you need to lazily initialize a value in a thread-safe manner.
+///
+/// # Example
+///
+/// ```rust
+/// use nexustack::__private::utils::AtomicOnceCell;
+/// use std::{sync::Arc, thread};
+///
+/// let cell = Arc::new(AtomicOnceCell::new());
+/// let cell_clone = Arc::clone(&cell);
+///
+/// let handle = thread::spawn(move || {
+///     cell_clone.set(42).unwrap();
+/// });
+///
+/// handle.join().unwrap();
+///
+/// assert_eq!(cell.get(), Some(&42));
+/// ```
 #[derive(Debug)]
 pub struct AtomicOnceCell<T> {
     inner: UnsafeCell<Option<T>>,
     state: AtomicU8,
 }
 
+/// Represents the state of an `AtomicOnceCell`.
+///
+/// This enum is used internally to track whether the cell is uninitialized, being initialized,
+/// or fully initialized.
 enum AtomicOnceCellState {
+    /// The cell is uninitialized and can accept a value.
     Uninit,
+
+    /// The cell is currently being initialized by another thread.
     Busy,
+
+    /// The cell has been fully initialized and contains a value.
     Init,
 }
 
 impl<T> AtomicOnceCell<T> {
+    /// Creates a new, uninitialized `AtomicOnceCell`.
     pub const fn new() -> Self {
         Self {
             inner: UnsafeCell::new(None),
@@ -33,6 +66,7 @@ impl<T> AtomicOnceCell<T> {
         }
     }
 
+    /// Creates a new `AtomicOnceCell` initialized with the given value.
     pub const fn from_value(value: T) -> Self {
         Self {
             inner: UnsafeCell::new(Some(value)),
@@ -40,6 +74,7 @@ impl<T> AtomicOnceCell<T> {
         }
     }
 
+    /// Returns a reference to the value if it has been initialized, or `None` otherwise.
     pub fn get(&self) -> Option<&T> {
         let state = self.state.load(Ordering::Acquire);
 
@@ -55,11 +90,30 @@ impl<T> AtomicOnceCell<T> {
         result
     }
 
-    #[cfg(any())]
-    pub fn get_mut(&mut self) -> Option<&mut T> {
+    /// Returns a mutable reference to the value if it has been initialized, or `None` otherwise.
+    ///
+    /// This function is only available when the `AtomicOnceCell` is not shared between threads.
+    pub const fn get_mut(&mut self) -> Option<&mut T> {
         self.inner.get_mut().as_mut()
     }
 
+    /// Sets the value of the cell. Returns an error containing the value if the cell
+    /// has already been initialized.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use nexustack::__private::utils::AtomicOnceCell;
+    ///
+    /// let cell = AtomicOnceCell::new();
+    /// assert!(cell.set(42).is_ok());
+    /// assert!(cell.set(43).is_err());
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// This function returns an `Err` containing the value if the cell has already been initialized.
+    /// The cell can only be set once, and subsequent attempts to set it will fail.
     pub fn set(&self, value: T) -> Result<(), T> {
         let res = self.state.compare_exchange(
             AtomicOnceCellState::Uninit as u8,
@@ -69,7 +123,7 @@ impl<T> AtomicOnceCell<T> {
         );
 
         if res.is_ok() {
-            // SAFETY: There are no readers of this memory location, as the state is not set to init yes and
+            // SAFETY: There are no readers of this memory location, as the state is not set to init yet and
             //         we are the only writer, as we are the one that set the busy flag.
             *unsafe { &mut *self.inner.get() } = Some(value);
             self.state
@@ -81,7 +135,17 @@ impl<T> AtomicOnceCell<T> {
         Err(value)
     }
 
-    #[cfg(any())]
+    /// Returns a reference to the value, initializing it with the provided closure if necessary.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use nexustack::__private::utils::AtomicOnceCell;
+    ///
+    /// let cell = AtomicOnceCell::new();
+    /// let value = cell.get_or_init(|| 42);
+    /// assert_eq!(value, &42);
+    /// ```
     pub fn get_or_init<F>(&self, f: F) -> &T
     where
         F: FnOnce() -> T,
@@ -93,10 +157,10 @@ impl<T> AtomicOnceCell<T> {
             Ordering::Relaxed,
         );
 
-        if let Ok(_) = res {
+        if res.is_ok() {
             let value = f();
 
-            // SAFETY: There are no readers of this memory location, as the state is not set to init yes and
+            // SAFETY: There are no readers of this memory location, as the state is not set to init yet and
             //         we are the only writer, as we are the one that set the busy flag.
             *unsafe { &mut *self.inner.get() } = Some(value);
             self.state
@@ -112,14 +176,37 @@ impl<T> AtomicOnceCell<T> {
         }
     }
 
-    #[cfg(any())]
+    /// Consumes the `AtomicOnceCell` and returns the inner value, if it was initialized.
+    ///
+    /// This function is only available when the `AtomicOnceCell` is not shared between threads.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use nexustack::__private::utils::AtomicOnceCell;
+    ///
+    /// let cell = AtomicOnceCell::from_value(42);
+    /// assert_eq!(cell.into_inner(), Some(42));
+    /// ```
     pub fn into_inner(self) -> Option<T> {
         self.inner.into_inner()
     }
 
-    #[cfg(any())]
+    /// Takes the value out of the `AtomicOnceCell`, leaving it uninitialized.
+    ///
+    /// This function is only available when the `AtomicOnceCell` is not shared between threads.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use nexustack::__private::utils::AtomicOnceCell;
+    ///
+    /// let mut cell = AtomicOnceCell::from_value(42);
+    /// assert_eq!(cell.take(), Some(42));
+    /// assert!(cell.get().is_none());
+    /// ```
     pub fn take(&mut self) -> Option<T> {
-        let result = std::mem::replace(self.inner.get_mut(), None);
+        let result = self.inner.get_mut().take();
         self.state
             .store(AtomicOnceCellState::Uninit as u8, Ordering::Release);
         result

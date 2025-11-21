@@ -1266,7 +1266,9 @@ impl SchemaId {
     /// use nexustack::openapi::SchemaId;
     /// use nexustack::callsite;
     ///
-    /// let id = SchemaId::new("MyType", callsite!());
+    /// callsite!(MyTypeCallsite);
+    ///
+    /// let id = SchemaId::new("MyType", *MyTypeCallsite);
     /// ```
     #[must_use]
     pub const fn new(name: &'static str, callsite: Callsite) -> Self {
@@ -2475,6 +2477,8 @@ pub trait SchemaBuilder<E: Iterator<Item: Serialize + 'static>>: Sized {
     ///
     /// struct MyType;
     ///
+    /// callsite!(MyTypeCallsite);
+    ///
     /// impl Schema for MyType {
     ///     type Example = ();
     ///     type Examples = <[Self::Example; 1] as IntoIterator>::IntoIter;
@@ -2485,7 +2489,7 @@ pub trait SchemaBuilder<E: Iterator<Item: Serialize + 'static>>: Sized {
     ///         B: SchemaBuilder<Self::Examples>,
     ///     {
     ///         schema_builder.describe_unit_struct(
-    ///             Some(SchemaId::new("MyType", callsite!())),
+    ///             Some(SchemaId::new("MyType", *MyTypeCallsite)),
     ///             None,
     ///             || Ok([()]),
     ///             false
@@ -2528,6 +2532,8 @@ pub trait SchemaBuilder<E: Iterator<Item: Serialize + 'static>>: Sized {
     ///
     /// struct MyType;
     ///
+    /// callsite!(MyTypeCallsite);
+    ///
     /// impl Schema for MyType {
     ///     type Example = bool;
     ///     type Examples = <[Self::Example; 2] as IntoIterator>::IntoIter;
@@ -2538,7 +2544,7 @@ pub trait SchemaBuilder<E: Iterator<Item: Serialize + 'static>>: Sized {
     ///         B: SchemaBuilder<Self::Examples>,
     ///     {
     ///         let newtype_schema_builder = schema_builder.describe_newtype_struct(
-    ///             Some(SchemaId::new("MyType", callsite!())),
+    ///             Some(SchemaId::new("MyType", *MyTypeCallsite)),
     ///             None,
     ///             || Ok([true, false]),
     ///             false
@@ -2582,6 +2588,8 @@ pub trait SchemaBuilder<E: Iterator<Item: Serialize + 'static>>: Sized {
     ///
     /// struct MyType;
     ///
+    /// callsite!(MyTypeCallsite);
+    ///
     /// impl Schema for MyType {
     ///     type Example = bool;
     ///     type Examples = <[Self::Example; 2] as IntoIterator>::IntoIter;
@@ -2592,7 +2600,7 @@ pub trait SchemaBuilder<E: Iterator<Item: Serialize + 'static>>: Sized {
     ///         B: SchemaBuilder<Self::Examples>,
     ///     {
     ///         schema_builder.collect_newtype_struct(
-    ///             Some(SchemaId::new("MyType", callsite!())),
+    ///             Some(SchemaId::new("MyType", *MyTypeCallsite)),
     ///             None,
     ///             || Ok([true, false]),
     ///             false,
@@ -2793,6 +2801,8 @@ pub trait SchemaBuilder<E: Iterator<Item: Serialize + 'static>>: Sized {
     ///     d: u64,
     /// }
     ///
+    /// callsite!(MyTypeCallsite);
+    ///
     /// impl Schema for MyType {
     ///     type Example = MyType;
     ///     type Examples = <[Self::Example; 1] as IntoIterator>::IntoIter;
@@ -2803,7 +2813,7 @@ pub trait SchemaBuilder<E: Iterator<Item: Serialize + 'static>>: Sized {
     ///         B: SchemaBuilder<Self::Examples>,
     ///     {
     ///         let mut struct_schema_builder = schema_builder.describe_struct(
-    ///             Some(SchemaId::new("MyType", callsite!())),
+    ///             Some(SchemaId::new("MyType", *MyTypeCallsite)),
     ///             5usize,
     ///             Some("My custom struct description"),
     ///             || Ok([
