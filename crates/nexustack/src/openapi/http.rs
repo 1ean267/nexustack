@@ -554,9 +554,9 @@ impl HttpOperationId {
     /// # Example
     /// ```rust
     /// use nexustack::openapi::HttpOperationId;
-    /// use nexustack::init_callsite;
+    /// use nexustack::callsite;
     ///
-    /// init_callsite!(MyTypeCallsite);
+    /// callsite!(MyTypeCallsite);
     ///
     /// let id = HttpOperationId::new("MyType", *MyTypeCallsite);
     /// ```

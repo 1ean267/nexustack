@@ -115,6 +115,8 @@ const _: () = {
         }
     }
 
+    callsite!(GetOneEndpointCallsite);
+
     impl openapi::HttpOperation for GetOneEndpoint {
         fn describe<B>(mut operation_builder: B) -> Result<B::Ok, B::Error>
         where
@@ -128,7 +130,7 @@ const _: () = {
             )?;
 
             operation_builder.collect_operation(
-                HttpOperationId::new("NoteController.get_one", callsite!()),
+                HttpOperationId::new("NoteController.get_one", *GetOneEndpointCallsite),
                 "GET",
                 "/api/notes/{id}",
                 Some(["Notes"]),
@@ -157,13 +159,15 @@ const _: () = {
         }
     }
 
+    callsite!(GetManyEndpointCallsite);
+
     impl openapi::HttpOperation for GetManyEndpoint {
         fn describe<B>(mut operation_builder: B) -> Result<B::Ok, B::Error>
         where
             B: HttpOperationBuilder,
         {
             operation_builder.collect_operation(
-                HttpOperationId::new("NoteController.get_many", callsite!()),
+                HttpOperationId::new("NoteController.get_many", *GetManyEndpointCallsite),
                 "GET",
                 "/api/notes",
                 Some(["Notes"]),

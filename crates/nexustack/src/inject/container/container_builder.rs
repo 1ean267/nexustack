@@ -20,7 +20,7 @@ use crate::inject::{
     service_scope::ServiceScope,
     service_token::ServiceToken,
 };
-use crate::utils::atomic_once_cell::AtomicOnceCell;
+use crate::utils::AtomicOnceCell;
 use std::{any::TypeId, cell::RefCell, collections::HashMap, sync::Arc};
 
 enum ContainerBuilderEntry {
