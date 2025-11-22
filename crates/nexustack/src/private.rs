@@ -18,11 +18,29 @@ pub use self::core::iter::Once;
 pub use self::core::iter::Zip;
 pub use self::core::iter::once;
 pub use self::core::marker::PhantomData;
+pub use self::core::marker::Send;
 pub use self::core::option::Option::{self, None, Some};
 pub use self::core::result::Result::{self, Err, Ok};
+
+#[path = ""]
+pub mod utils {
+    pub use crate::utils::AtomicOnceCell;
+}
 
 #[cfg(feature = "cron")]
 #[path = ""]
 pub mod cron {
     pub use cron::Schedule;
+}
+
+#[cfg(feature = "http")]
+#[path = ""]
+pub mod axum {
+    pub use axum::*;
+}
+
+#[cfg(feature = "http")]
+#[path = ""]
+pub mod serde {
+    pub use serde::*;
 }

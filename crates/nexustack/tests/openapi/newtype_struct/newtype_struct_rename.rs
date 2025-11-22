@@ -16,7 +16,7 @@ pub struct P(
 
 #[test]
 fn test_openapi_3_0() {
-    use nexustack::openapi::json::{Specification, build_schema};
+    use nexustack::openapi::json::{build_schema, specification::Specification};
 
     let schema = build_schema::<P>(Specification::OpenAPI3_0).unwrap();
 
@@ -35,7 +35,9 @@ fn test_openapi_3_0() {
 
 #[test]
 fn test_openapi_3_0_with_collection() {
-    use nexustack::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+    use nexustack::openapi::json::{
+        SchemaCollection, build_schema_with_collection, specification::Specification,
+    };
     use std::{cell::RefCell, rc::Rc};
 
     let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -73,7 +75,7 @@ fn test_openapi_3_0_with_collection() {
 
 #[test]
 fn test_openapi_3_1() {
-    use nexustack::openapi::json::{Specification, build_schema};
+    use nexustack::openapi::json::{build_schema, specification::Specification};
 
     let schema = build_schema::<P>(Specification::OpenAPI3_1).unwrap();
 
@@ -91,7 +93,9 @@ fn test_openapi_3_1() {
 
 #[test]
 fn test_openapi_3_1_with_collection() {
-    use nexustack::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+    use nexustack::openapi::json::{
+        SchemaCollection, build_schema_with_collection, specification::Specification,
+    };
     use std::{cell::RefCell, rc::Rc};
 
     let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));

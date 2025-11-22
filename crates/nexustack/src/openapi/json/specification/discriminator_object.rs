@@ -6,7 +6,7 @@
  */
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 /// Represents discriminator information.
 ///
@@ -20,9 +20,9 @@ use std::collections::HashMap;
 pub struct DiscriminatorObject {
     /// REQUIRED. The name of the property in the payload that will hold the discriminator value.
     #[serde(rename = "propertyName")]
-    pub property_name: String,
+    pub property_name: Cow<'static, str>,
 
     /// An object to hold mappings between payload values and schema names or references.
     #[serde(rename = "mapping", default, skip_serializing_if = "Option::is_none")]
-    pub mapping: Option<HashMap<String, String>>,
+    pub mapping: Option<HashMap<Cow<'static, str>, Cow<'static, str>>>,
 }

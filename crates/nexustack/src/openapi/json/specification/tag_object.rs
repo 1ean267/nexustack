@@ -7,6 +7,7 @@
 
 use super::ExternalDocumentationObject;
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 
 /// Adds metadata to a single tag that is used by the Operation Object.
 ///
@@ -16,7 +17,7 @@ use serde::{Deserialize, Serialize};
 pub struct TagObject {
     /// REQUIRED. The name of the tag.
     #[serde(rename = "name")]
-    pub name: String,
+    pub name: Cow<'static, str>,
 
     /// A description for the tag. `CommonMark` syntax MAY be used for rich text representation.
     #[serde(
@@ -24,7 +25,7 @@ pub struct TagObject {
         default,
         skip_serializing_if = "Option::is_none"
     )]
-    pub description: Option<String>,
+    pub description: Option<Cow<'static, str>>,
 
     /// Additional external documentation for this tag.
     #[serde(

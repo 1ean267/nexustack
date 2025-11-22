@@ -11,7 +11,7 @@ use crate::inject::{
     injection_error::{InjectionError, InjectionResult},
     service_token::ServiceToken,
 };
-use crate::utils::{atomic_once_cell::AtomicOnceCell, ensure_send, ensure_sync};
+use crate::utils::{AtomicOnceCell, ensure_send, ensure_sync};
 use std::sync::{Arc, Weak};
 
 const _: () = ensure_send::<ServiceProvider>();

@@ -11,7 +11,7 @@ use super::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
-use std::{collections::HashMap, ops::Not};
+use std::{borrow::Cow, collections::HashMap, ops::Not};
 
 /// Describes a single operation parameter.
 ///
@@ -39,7 +39,7 @@ pub enum ParameterObject {
         ///   the parameter definition SHALL be ignored.
         /// * For all other cases, the name corresponds to the parameter name used by the in property.
         #[serde(rename = "name")]
-        name: String,
+        name: Cow<'static, str>,
 
         /// REQUIRED.
         /// The location of the parameter.
@@ -54,7 +54,7 @@ pub enum ParameterObject {
             default,
             skip_serializing_if = "Option::is_none"
         )]
-        description: Option<String>,
+        description: Option<Cow<'static, str>>,
 
         /// Determines whether this parameter is mandatory.
         /// If the parameter location is "path", this property is REQUIRED and its value MUST be true.
@@ -75,9 +75,9 @@ pub enum ParameterObject {
         #[serde(
             rename = "allowEmptyValue",
             default,
-            skip_serializing_if = "<&bool>::not"
+            skip_serializing_if = "Option::is_none"
         )]
-        allow_empty_value: bool,
+        allow_empty_value: Option<bool>,
 
         /// Describes how the parameter value will be serialized depending on the type of the parameter value.
         /// Default values (based on value of in):  
@@ -117,7 +117,7 @@ pub enum ParameterObject {
         /// Furthermore, if referencing a schema that contains an example, the example value SHALL
         /// override the example provided by the schema.
         /// To represent examples of media types that cannot naturally be represented in JSON or YAML,
-        /// a string value can contain the example with escaping where necessary.
+        /// a Cow<'static, str> value can contain the example with escaping where necessary.
         #[serde(rename = "example", default, skip_serializing_if = "Option::is_none")]
         example: Option<JsonValue>,
 
@@ -127,7 +127,7 @@ pub enum ParameterObject {
         /// Furthermore, if referencing a schema that contains an example, the examples value SHALL override
         /// the example provided by the schema.
         #[serde(rename = "examples", default, skip_serializing_if = "Option::is_none")]
-        examples: Option<HashMap<String, ExampleOrReferenceObject>>,
+        examples: Option<HashMap<Cow<'static, str>, ExampleOrReferenceObject>>,
     },
     /// For more complex scenarios, the content property can define the media type and schema of the parameter.
     /// A parameter MUST contain either a schema property, or a content property, but not both.
@@ -142,7 +142,7 @@ pub enum ParameterObject {
         ///   the parameter definition SHALL be ignored.
         /// * For all other cases, the name corresponds to the parameter name used by the in property.
         #[serde(rename = "name")]
-        name: String,
+        name: Cow<'static, str>,
 
         /// REQUIRED.
         /// The location of the parameter.
@@ -157,7 +157,7 @@ pub enum ParameterObject {
             default,
             skip_serializing_if = "Option::is_none"
         )]
-        description: Option<String>,
+        description: Option<Cow<'static, str>>,
 
         /// Determines whether this parameter is mandatory.
         /// If the parameter location is "path", this property is REQUIRED and its value MUST be true.
@@ -186,7 +186,7 @@ pub enum ParameterObject {
         /// The key is the media type and the value describes it.
         /// The map MUST only contain one entry.
         #[serde(rename = "content", default, skip_serializing_if = "Option::is_none")]
-        content: Option<HashMap<String, MediaTypeObject>>,
+        content: Option<HashMap<Cow<'static, str>, MediaTypeObject>>,
     },
 }
 

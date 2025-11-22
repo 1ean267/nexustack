@@ -5,10 +5,9 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
-use std::collections::HashMap;
-
 use super::{HeaderOrReferenceObject, ParameterStyle};
 use serde::{Deserialize, Serialize};
+use std::{borrow::Cow, collections::HashMap};
 
 /// A single encoding definition applied to a single schema property.
 /// See <https://swagger.io/specification/#encoding-object>
@@ -27,13 +26,13 @@ pub struct EncodingObject {
         default,
         skip_serializing_if = "Option::is_none"
     )]
-    pub content_type: Option<String>,
+    pub content_type: Option<Cow<'static, str>>,
 
     /// A map allowing additional information to be provided as headers, for example Content-Disposition.
     /// Content-Type is described separately and SHALL be ignored in this section.
     /// This property SHALL be ignored if the request body media type is not a multipart.
     #[serde(rename = "headers", default, skip_serializing_if = "Option::is_none")]
-    pub headers: Option<HashMap<String, HeaderOrReferenceObject>>,
+    pub headers: Option<HashMap<Cow<'static, str>, HeaderOrReferenceObject>>,
 
     /// Describes how a specific property value will be serialized depending on its type.
     /// See Parameter Object for details on the style property.

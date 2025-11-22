@@ -37,6 +37,10 @@ const IPV4_SOCKET_ADDR_REGEX: &str = const_format::formatcp!("(?:{IPV4_ADDR_REGE
 const IPV6_SOCKET_ADDR_REGEX: &str =
     const_format::formatcp!(r"(?:\[{IPV6_ADDR_REGEX}(?:%{U32_REGEX})?\]:{U16_REGEX})");
 
+callsite!(IpAddrCallsite);
+callsite!(IpAddrV4VariantCallsite);
+callsite!(IpAddrV6VariantCallsite);
+
 impl Schema for std::net::IpAddr {
     type Example = Self;
     type Examples = std::iter::Chain<
@@ -79,7 +83,7 @@ impl Schema for std::net::IpAddr {
             variant_builder.end()
         } else {
             let mut enum_schema_builder = schema_builder.describe_enum(
-                Some(SchemaId::new("IpAddr", callsite!())),
+                Some(SchemaId::new("IpAddr", *IpAddrCallsite)),
                 2,
                 true,
                 VariantTag::default(),
@@ -93,14 +97,14 @@ impl Schema for std::net::IpAddr {
             )?;
             enum_schema_builder.collect_newtype_variant(
                 0,
-                SchemaId::new("V4", callsite!()),
+                SchemaId::new("V4", *IpAddrV4VariantCallsite),
                 None,
                 false,
                 <std::net::Ipv4Addr as Schema>::describe,
             )?;
             enum_schema_builder.collect_newtype_variant(
                 1,
-                SchemaId::new("V6", callsite!()),
+                SchemaId::new("V6", *IpAddrV6VariantCallsite),
                 None,
                 false,
                 <std::net::Ipv6Addr as Schema>::describe,
@@ -217,6 +221,10 @@ impl Schema for std::net::Ipv6Addr {
     }
 }
 
+callsite!(SocketAddrCallsite);
+callsite!(SocketAddrV4VariantCallsite);
+callsite!(SocketAddrV6VariantCallsite);
+
 impl Schema for std::net::SocketAddr {
     type Example = Self;
     type Examples = std::iter::Chain<
@@ -264,7 +272,7 @@ impl Schema for std::net::SocketAddr {
             enum_schema_builder.end()
         } else {
             let mut enum_schema_builder = schema_builder.describe_enum(
-                Some(SchemaId::new("SocketAddr", callsite!())),
+                Some(SchemaId::new("SocketAddr", *SocketAddrCallsite)),
                 2,
                 true,
                 VariantTag::default(),
@@ -274,14 +282,14 @@ impl Schema for std::net::SocketAddr {
             )?;
             enum_schema_builder.collect_newtype_variant(
                 0,
-                SchemaId::new("V4", callsite!()),
+                SchemaId::new("V4", *SocketAddrV4VariantCallsite),
                 None,
                 false,
                 <std::net::SocketAddrV4 as Schema>::describe,
             )?;
             enum_schema_builder.collect_newtype_variant(
                 1,
-                SchemaId::new("V6", callsite!()),
+                SchemaId::new("V6", *SocketAddrV6VariantCallsite),
                 None,
                 false,
                 <std::net::SocketAddrV6 as Schema>::describe,
@@ -413,7 +421,9 @@ impl Schema for std::net::SocketAddrV6 {
 mod test {
     #[test]
     fn test_ip_addr_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -501,7 +511,9 @@ mod test {
 
     #[test]
     fn test_ip_v4_addr_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -544,7 +556,9 @@ mod test {
 
     #[test]
     fn test_ip_v6_addr_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -599,7 +613,9 @@ mod test {
     #[test]
     #[allow(clippy::too_many_lines)]
     fn test_socket_addr_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -715,7 +731,9 @@ mod test {
 
     #[test]
     fn test_socket_addr_v4_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -759,7 +777,9 @@ mod test {
 
     #[test]
     fn test_socket_addr_v6_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));

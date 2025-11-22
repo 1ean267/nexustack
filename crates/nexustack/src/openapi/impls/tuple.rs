@@ -121,7 +121,9 @@ tuple_impls! {
 mod test {
     #[test]
     fn test_tuple_1_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -186,7 +188,9 @@ mod test {
 
     #[test]
     fn test_tuple_2_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -268,7 +272,9 @@ mod test {
 
     #[test]
     fn test_tuple_3_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -329,7 +335,9 @@ mod test {
 
     #[test]
     fn test_tuple_4_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -396,7 +404,9 @@ mod test {
 
     #[test]
     fn test_tuple_5_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -469,7 +479,9 @@ mod test {
 
     #[test]
     fn test_tuple_6_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -548,7 +560,9 @@ mod test {
 
     #[test]
     fn test_tuple_7_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -633,7 +647,9 @@ mod test {
 
     #[test]
     fn test_tuple_8_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -724,7 +740,9 @@ mod test {
 
     #[test]
     fn test_tuple_9_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -821,7 +839,9 @@ mod test {
 
     #[test]
     fn test_tuple_10_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -926,7 +946,9 @@ mod test {
     #[test]
     #[allow(clippy::too_many_lines)]
     fn test_tuple_11_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -1045,7 +1067,9 @@ mod test {
     #[test]
     #[allow(clippy::too_many_lines)]
     fn test_tuple_12_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -1171,7 +1195,9 @@ mod test {
     #[test]
     #[allow(clippy::too_many_lines)]
     fn test_tuple_13_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -1304,7 +1330,9 @@ mod test {
     #[test]
     #[allow(clippy::too_many_lines)]
     fn test_tuple_14_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -1444,7 +1472,9 @@ mod test {
     #[test]
     #[allow(clippy::too_many_lines)]
     fn test_tuple_15_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
@@ -1591,7 +1621,9 @@ mod test {
     #[test]
     #[allow(clippy::too_many_lines)]
     fn test_tuple_16_i32_schema() {
-        use crate::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+        use crate::openapi::json::{
+            SchemaCollection, build_schema_with_collection, specification::Specification,
+        };
         use std::{cell::RefCell, rc::Rc};
 
         let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));

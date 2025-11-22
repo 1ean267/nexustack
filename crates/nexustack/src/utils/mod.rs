@@ -5,7 +5,9 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
-pub mod atomic_once_cell;
+mod atomic_once_cell;
+
+pub use atomic_once_cell::AtomicOnceCell;
 
 #[allow(dead_code)]
 pub const fn ensure_send<T: Send>() {}

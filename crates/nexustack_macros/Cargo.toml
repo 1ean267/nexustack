@@ -24,6 +24,7 @@ openapi = []
 inject = []
 module = []
 cron = ["dep:cron"]
+http = []
 
 [dependencies]
 cron = { workspace = true, optional = true }

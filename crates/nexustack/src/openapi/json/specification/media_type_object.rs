@@ -8,7 +8,7 @@
 use super::{EncodingObject, ExampleOrReferenceObject, SchemaOrReferenceObject};
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 /// Each Media Type Object provides schema and examples for the media type identified by its key.
 /// See <https://swagger.io/specification/#media-type-object>
@@ -32,12 +32,12 @@ pub struct MediaTypeObject {
     /// Furthermore, if referencing a schema which contains an example,
     /// the examples value SHALL override the example provided by the schema.
     #[serde(rename = "examples", default, skip_serializing_if = "Option::is_none")]
-    pub examples: Option<HashMap<String, ExampleOrReferenceObject>>,
+    pub examples: Option<HashMap<Cow<'static, str>, ExampleOrReferenceObject>>,
 
     /// A map between a property name and its encoding information.
     /// The key, being the property name, MUST exist in the schema as a property.
     /// The encoding object SHALL only apply to requestBody objects when the media type is
     /// multipart or application/x-www-form-urlencoded.
     #[serde(rename = "encoding", default, skip_serializing_if = "Option::is_none")]
-    pub encoding: Option<HashMap<String, EncodingObject>>,
+    pub encoding: Option<HashMap<Cow<'static, str>, EncodingObject>>,
 }

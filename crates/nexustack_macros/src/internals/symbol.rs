@@ -15,7 +15,12 @@ use syn::{Ident, Path};
 #[derive(Copy, Clone)]
 pub struct Symbol(&'static str);
 
-#[cfg(any(feature = "openapi", feature = "inject", feature = "cron"))]
+#[cfg(any(
+    feature = "openapi",
+    feature = "inject",
+    feature = "cron",
+    feature = "http"
+))]
 pub const CRATE: Symbol = Symbol("crate");
 
 #[cfg(feature = "cron")]
@@ -26,6 +31,15 @@ pub const SCHEDULE_WITH: Symbol = Symbol("schedule_with");
 
 #[cfg(feature = "module")]
 pub const FEATURES: Symbol = Symbol("features");
+
+#[cfg(any(feature = "openapi", feature = "http"))]
+pub const DESCRIPTION: Symbol = Symbol("description");
+
+#[cfg(any(feature = "openapi", feature = "http"))]
+pub const DEPRECATED: Symbol = Symbol("deprecated");
+
+#[cfg(any(feature = "openapi", feature = "http"))]
+pub const DOC: Symbol = Symbol("doc");
 
 #[cfg(feature = "openapi")]
 #[path = ""]
@@ -40,11 +54,8 @@ mod optionapi {
     pub const CONTENT: Symbol = Symbol("content");
     pub const DEFAULT: Symbol = Symbol("default");
     pub const DENY_UNKNOWN_FIELDS: Symbol = Symbol("deny_unknown_fields");
-    pub const DEPRECATED: Symbol = Symbol("deprecated");
-    pub const DESCRIPTION: Symbol = Symbol("description");
     pub const DESERIALIZE_WITH: Symbol = Symbol("deserialize_with");
     pub const DESERIALIZE: Symbol = Symbol("deserialize");
-    pub const DOC: Symbol = Symbol("doc");
     pub const EXPECTING: Symbol = Symbol("expecting");
     pub const FIELD_IDENTIFIER: Symbol = Symbol("field_identifier");
     pub const FLATTEN: Symbol = Symbol("flatten");
@@ -76,6 +87,19 @@ mod optionapi {
 
 #[cfg(feature = "openapi")]
 pub use optionapi::*;
+
+#[cfg(feature = "http")]
+#[path = ""]
+mod http {
+    use super::*;
+
+    pub const API_SKIP: Symbol = Symbol("api_skip");
+    pub const ENCODER: Symbol = Symbol("encoder");
+    pub const STATUS_CODE: Symbol = Symbol("status_code");
+}
+
+#[cfg(feature = "http")]
+pub use http::*;
 
 impl PartialEq<Symbol> for Ident {
     fn eq(&self, word: &Symbol) -> bool {
