@@ -48,6 +48,11 @@ impl Schema for Url {
     }
 }
 
+callsite!(HostCallsite);
+callsite!(HostDomainVariantCallsite);
+callsite!(HostIpv4VariantCallsite);
+callsite!(HostIpv6VariantCallsite);
+
 impl<S> Schema for Host<S>
 where
     S: Schema,
@@ -74,7 +79,7 @@ where
     {
         let is_human_readable = schema_builder.is_human_readable();
         let mut enum_builder = schema_builder.describe_enum(
-            Some(SchemaId::new("Host", callsite!())),
+            Some(SchemaId::new("Host", *HostCallsite)),
             3,
             false,
             VariantTag::ExternallyTagged,
@@ -102,7 +107,7 @@ where
 
         enum_builder.collect_newtype_variant(
             0,
-            SchemaId::new("Domain", callsite!()),
+            SchemaId::new("Domain", *HostDomainVariantCallsite),
             Some("A DNS domain name."),
             false,
             <S as Schema>::describe,
@@ -110,7 +115,7 @@ where
 
         enum_builder.collect_newtype_variant(
             0,
-            SchemaId::new("Ipv4", callsite!()),
+            SchemaId::new("Ipv4", *HostIpv4VariantCallsite),
             Some("An IPv4 address."),
             false,
             <Ipv4Addr as Schema>::describe,
@@ -118,7 +123,7 @@ where
 
         enum_builder.collect_newtype_variant(
             0,
-            SchemaId::new("Ipv6", callsite!()),
+            SchemaId::new("Ipv6", *HostIpv6VariantCallsite),
             Some("An IPv6 address."),
             false,
             <Ipv6Addr as Schema>::describe,

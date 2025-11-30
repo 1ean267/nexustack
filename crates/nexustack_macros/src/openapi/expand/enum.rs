@@ -37,10 +37,24 @@ pub fn expand_enum<'a>(cont: &Container, variants: &[Variant<'a>]) -> TokenStrea
     let params = Parameters::new(cont);
     let (impl_generics, ty_generics, where_clause) = params.generics.split_for_impl();
     let (example_cont, example_cont_id) = example_container(variants, cont);
-    let body = Stmts(describe(variants, cont, &example_cont_id));
+    let mut variant_callsites: Vec<syn::Ident> = Vec::with_capacity(variants.len());
+    let body = Stmts(describe(
+        variants,
+        cont,
+        &example_cont_id,
+        &mut variant_callsites,
+    ));
     let examples = examples_type(variants, &example_cont_id);
 
     quote! {
+        static __callsite: _nexustack::__private::utils::AtomicOnceCell<_nexustack::Callsite> =
+            _nexustack::__private::utils::AtomicOnceCell::new();
+
+        #(
+            static #variant_callsites: _nexustack::__private::utils::AtomicOnceCell<_nexustack::Callsite> =
+                _nexustack::__private::utils::AtomicOnceCell::new();
+        )*
+
         #[automatically_derived]
         #example_cont
 
@@ -546,6 +560,7 @@ fn describe(
     variants: &[Variant],
     cont: &Container,
     example_cont: &ExampleContainerIdentifier,
+    variant_callsites: &mut Vec<syn::Ident>,
 ) -> Fragment {
     let cattrs = &cont.attrs;
     assert!(variants.len() as u64 <= u64::from(u32::MAX));
@@ -558,7 +573,9 @@ fn describe(
         .iter()
         .filter(|variant| !variant.attrs.skip() && !variant.attrs.other())
         .enumerate()
-        .map(|(variant_index, variant)| describe_variant(variant, variant_index as u32, cattrs))
+        .map(|(variant_index, variant)| {
+            describe_variant(variant, variant_index as u32, cattrs, variant_callsites)
+        })
         .collect::<Vec<_>>();
 
     let mut serialized_variants = variants
@@ -607,7 +624,7 @@ fn describe(
         let cont_callsite = callsite(&cont_span);
 
         quote! {
-            _nexustack::__private::Option::Some(_nexustack::openapi::SchemaId::new(#type_name, #cont_callsite))
+            _nexustack::__private::Option::Some(_nexustack::openapi::SchemaId::new(#type_name, *__callsite.get_or_init(|| #cont_callsite)))
         }
     };
 
@@ -632,19 +649,20 @@ fn describe_variant(
     variant: &Variant,
     variant_index: u32,
     cattrs: &attr::Container,
+    variant_callsites: &mut Vec<syn::Ident>,
 ) -> TokenStream {
     let body = Stmts(match (cattrs.tag(), variant.attrs.untagged()) {
         (attr::TagType::External, false) => {
-            describe_externally_tagged_variant(variant, variant_index, cattrs)
+            describe_externally_tagged_variant(variant, variant_index, cattrs, variant_callsites)
         }
         (attr::TagType::Internal { .. }, false) => {
-            describe_internally_tagged_variant(variant, cattrs, variant_index)
+            describe_internally_tagged_variant(variant, cattrs, variant_index, variant_callsites)
         }
         (attr::TagType::Adjacent { .. }, false) => {
-            describe_adjacently_tagged_variant(variant, cattrs, variant_index)
+            describe_adjacently_tagged_variant(variant, cattrs, variant_index, variant_callsites)
         }
         (attr::TagType::None, _) | (_, true) => {
-            describe_untagged_variant(variant, cattrs, variant_index)
+            describe_untagged_variant(variant, cattrs, variant_index, variant_callsites)
         }
     });
 
@@ -657,14 +675,17 @@ fn describe_externally_tagged_variant(
     variant: &Variant,
     variant_index: u32,
     cattrs: &attr::Container,
+    variant_callsites: &mut Vec<syn::Ident>,
 ) -> Fragment {
     let variant_name = variant.attrs.name().serialize_name();
     let variant_span = variant.original.span();
+    let variant_callsite_ident = format_ident!("__callsite_variant_{}", variant_name.to_string());
     let variant_callsite = callsite(&variant_span);
-    let variant_id =
-        quote! { _nexustack::openapi::SchemaId::new(#variant_name, #variant_callsite) };
+    let variant_id = quote! { _nexustack::openapi::SchemaId::new(#variant_name, *__callsite.get_or_init(|| #variant_callsite)) };
     let description = variant.attrs.description();
     let deprecated = variant.attrs.deprecated();
+
+    variant_callsites.push(variant_callsite_ident);
 
     match effective_style(variant) {
         Style::Unit => quote_block! {
@@ -693,8 +714,10 @@ fn describe_externally_tagged_variant(
                 )?;
             }
         }
-        Style::Tuple => describe_tuple_variant(variant, &variant.fields, variant_index),
-        Style::Struct => describe_struct_variant(variant, cattrs, &variant.fields, variant_index),
+        Style::Tuple => describe_tuple_variant(variant, &variant.fields, variant_index, variant_id),
+        Style::Struct => {
+            describe_struct_variant(variant, cattrs, &variant.fields, variant_index, variant_id)
+        }
     }
 }
 
@@ -702,14 +725,17 @@ fn describe_internally_tagged_variant(
     variant: &Variant,
     cattrs: &attr::Container,
     variant_index: u32,
+    variant_callsites: &mut Vec<syn::Ident>,
 ) -> Fragment {
     let variant_name = variant.attrs.name().serialize_name();
     let variant_span = variant.original.span();
+    let variant_callsite_ident = format_ident!("__callsite_variant_{}", variant_name.to_string());
     let variant_callsite = callsite(&variant_span);
-    let variant_id =
-        quote! { _nexustack::openapi::SchemaId::new(#variant_name, #variant_callsite) };
+    let variant_id = quote! { _nexustack::openapi::SchemaId::new(#variant_name, *__callsite.get_or_init(|| #variant_callsite)) };
     let description = variant.attrs.description();
     let deprecated = variant.attrs.deprecated();
+
+    variant_callsites.push(variant_callsite_ident);
 
     match effective_style(variant) {
         Style::Unit => quote_block! {
@@ -738,7 +764,9 @@ fn describe_internally_tagged_variant(
                 )?;
             }
         }
-        Style::Struct => describe_struct_variant(variant, cattrs, &variant.fields, variant_index),
+        Style::Struct => {
+            describe_struct_variant(variant, cattrs, &variant.fields, variant_index, variant_id)
+        }
         Style::Tuple => unreachable!("checked in internals/check"),
     }
 }
@@ -747,14 +775,17 @@ fn describe_adjacently_tagged_variant(
     variant: &Variant,
     cattrs: &attr::Container,
     variant_index: u32,
+    variant_callsites: &mut Vec<syn::Ident>,
 ) -> Fragment {
     let variant_name = variant.attrs.name().serialize_name();
     let variant_span = variant.original.span();
+    let variant_callsite_ident = format_ident!("__callsite_variant_{}", variant_name.to_string());
     let variant_callsite = callsite(&variant_span);
-    let variant_id =
-        quote! { _nexustack::openapi::SchemaId::new(#variant_name, #variant_callsite) };
+    let variant_id = quote! { _nexustack::openapi::SchemaId::new(#variant_name, *__callsite.get_or_init(|| #variant_callsite)) };
     let description = variant.attrs.description();
     let deprecated = variant.attrs.deprecated();
+
+    variant_callsites.push(variant_callsite_ident);
 
     match effective_style(variant) {
         Style::Unit => quote_block! {
@@ -783,8 +814,10 @@ fn describe_adjacently_tagged_variant(
                 )?;
             }
         }
-        Style::Tuple => describe_tuple_variant(variant, &variant.fields, variant_index),
-        Style::Struct => describe_struct_variant(variant, cattrs, &variant.fields, variant_index),
+        Style::Tuple => describe_tuple_variant(variant, &variant.fields, variant_index, variant_id),
+        Style::Struct => {
+            describe_struct_variant(variant, cattrs, &variant.fields, variant_index, variant_id)
+        }
     }
 }
 
@@ -792,14 +825,17 @@ fn describe_untagged_variant(
     variant: &Variant,
     cattrs: &attr::Container,
     variant_index: u32,
+    variant_callsites: &mut Vec<syn::Ident>,
 ) -> Fragment {
     let variant_name = variant.attrs.name().serialize_name();
     let variant_span = variant.original.span();
+    let variant_callsite_ident = format_ident!("__callsite_variant_{}", variant_name.to_string());
     let variant_callsite = callsite(&variant_span);
-    let variant_id =
-        quote! { _nexustack::openapi::SchemaId::new(#variant_name, #variant_callsite) };
+    let variant_id = quote! { _nexustack::openapi::SchemaId::new(#variant_name, *__callsite.get_or_init(|| #variant_callsite)) };
     let description = variant.attrs.description();
     let deprecated = variant.attrs.deprecated();
+
+    variant_callsites.push(variant_callsite_ident);
 
     match effective_style(variant) {
         Style::Unit => {
@@ -831,12 +867,19 @@ fn describe_untagged_variant(
 
             }
         }
-        Style::Tuple => describe_tuple_variant(variant, &variant.fields, variant_index),
-        Style::Struct => describe_struct_variant(variant, cattrs, &variant.fields, variant_index),
+        Style::Tuple => describe_tuple_variant(variant, &variant.fields, variant_index, variant_id),
+        Style::Struct => {
+            describe_struct_variant(variant, cattrs, &variant.fields, variant_index, variant_id)
+        }
     }
 }
 
-fn describe_tuple_variant(variant: &Variant, fields: &[Field], variant_index: u32) -> Fragment {
+fn describe_tuple_variant(
+    variant: &Variant,
+    fields: &[Field],
+    variant_index: u32,
+    variant_id: TokenStream,
+) -> Fragment {
     let describe_stmts = describe_tuple_struct_visitor(fields, &TupleTrait::TupleVariant);
 
     let mut non_skipped_fields = fields
@@ -853,12 +896,6 @@ fn describe_tuple_variant(variant: &Variant, fields: &[Field], variant_index: u3
 
     let description = variant.attrs.description();
     let deprecated = variant.attrs.deprecated();
-
-    let variant_name = variant.attrs.name().serialize_name();
-    let variant_span = variant.original.span();
-    let variant_callsite = callsite(&variant_span);
-    let variant_id =
-        quote! { _nexustack::openapi::SchemaId::new(#variant_name, #variant_callsite) };
 
     quote_block! {
         let #let_mut __builder = _nexustack::openapi::EnumSchemaBuilder::describe_tuple_variant(
@@ -879,6 +916,7 @@ fn describe_struct_variant(
     cattrs: &attr::Container,
     fields: &[Field],
     variant_index: u32,
+    variant_id: TokenStream,
 ) -> Fragment {
     let fields = fields
         .iter()
@@ -896,12 +934,6 @@ fn describe_struct_variant(
 
     let description = variant.attrs.description();
     let deprecated = variant.attrs.deprecated();
-
-    let variant_name = variant.attrs.name().serialize_name();
-    let variant_span = variant.original.span();
-    let variant_callsite = callsite(&variant_span);
-    let variant_id =
-        quote! { _nexustack::openapi::SchemaId::new(#variant_name, #variant_callsite) };
 
     quote_block! {
         let #let_mut __builder = _nexustack::openapi::EnumSchemaBuilder::describe_struct_variant(

@@ -259,6 +259,8 @@ where
 
 ////////////////////////////////////////////////////////////////////////////////
 
+callsite!(PhantomDataCallsite);
+
 impl<T> Schema for std::marker::PhantomData<T>
 where
     T: ?Sized,
@@ -272,7 +274,7 @@ where
         B: SchemaBuilder<Self::Examples>,
     {
         schema_builder.describe_unit_struct(
-            Some(SchemaId::new("PhantomData", callsite!())),
+            Some(SchemaId::new("PhantomData", *PhantomDataCallsite)),
             None,
             || Ok(std::iter::once(std::marker::PhantomData)),
             false,
@@ -281,6 +283,8 @@ where
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+callsite!(RangeFromCallsite);
 
 impl<Idx> Schema for std::ops::RangeFrom<Idx>
 where
@@ -297,7 +301,7 @@ where
     {
         let is_human_readable = schema_builder.is_human_readable();
         let mut struct_schema_builder = schema_builder.describe_struct(
-            Some(SchemaId::new("RangeFrom", callsite!())),
+            Some(SchemaId::new("RangeFrom", *RangeFromCallsite)),
             1,
             Some("A range only bounded inclusively below"),
             || {
@@ -319,6 +323,8 @@ where
 
 ////////////////////////////////////////////////////////////////////////////////
 
+callsite!(RangeInclusiveCallsite);
+
 impl<Idx> Schema for std::ops::RangeInclusive<Idx>
 where
     Idx: Schema,
@@ -336,7 +342,7 @@ where
     {
         let is_human_readable = schema_builder.is_human_readable();
         let mut struct_schema_builder = schema_builder.describe_struct(
-            Some(SchemaId::new("RangeInclusive", callsite!())),
+            Some(SchemaId::new("RangeInclusive", *RangeInclusiveCallsite)),
             2,
             Some("A range bounded inclusively below and above"),
             || {
@@ -368,6 +374,8 @@ where
 
 ////////////////////////////////////////////////////////////////////////////////
 
+callsite!(RangeToCallsite);
+
 impl<Idx> Schema for std::ops::RangeTo<Idx>
 where
     Idx: Schema,
@@ -383,7 +391,7 @@ where
     {
         let is_human_readable = schema_builder.is_human_readable();
         let mut struct_schema_builder = schema_builder.describe_struct(
-            Some(SchemaId::new("RangeTo", callsite!())),
+            Some(SchemaId::new("RangeTo", *RangeToCallsite)),
             1,
             Some("A range only bounded exclusively above"),
             || {
@@ -405,6 +413,11 @@ where
 
 ////////////////////////////////////////////////////////////////////////////////
 
+callsite!(BoundCallsite);
+callsite!(BoundUnboundedVariantCallsite);
+callsite!(BoundIncludedVariantCallsite);
+callsite!(BoundExcludedVariantCallsite);
+
 impl<T> Schema for std::ops::Bound<T>
 where
     T: Schema,
@@ -425,7 +438,7 @@ where
     {
         let is_human_readable = schema_builder.is_human_readable();
         let mut enum_schema_builder = schema_builder.describe_enum(
-            Some(SchemaId::new("Bound", callsite!())),
+            Some(SchemaId::new("Bound", *BoundCallsite)),
             3,
             true,
             VariantTag::default(),
@@ -443,20 +456,20 @@ where
         )?;
         enum_schema_builder.describe_unit_variant(
             0,
-            SchemaId::new("Unbounded", callsite!()),
+            SchemaId::new("Unbounded", *BoundUnboundedVariantCallsite),
             Some("An infinite endpoint. Indicates that there is no bound in this direction"),
             false,
         )?;
         enum_schema_builder.collect_newtype_variant(
             1,
-            SchemaId::new("Included", callsite!()),
+            SchemaId::new("Included", *BoundIncludedVariantCallsite),
             Some("An inclusive bound"),
             false,
             <T as Schema>::describe,
         )?;
         enum_schema_builder.collect_newtype_variant(
             2,
-            SchemaId::new("Excluded", callsite!()),
+            SchemaId::new("Excluded", *BoundExcludedVariantCallsite),
             Some("An exclusive bound"),
             false,
             <T as Schema>::describe,
@@ -688,6 +701,10 @@ where
 
 ////////////////////////////////////////////////////////////////////////////////
 
+callsite!(ResultCallsite);
+callsite!(ResultOkVariantCallsite);
+callsite!(ResultErrVariantCallsite);
+
 impl<T, E> Schema for Result<T, E>
 where
     T: Schema,
@@ -706,7 +723,7 @@ where
     {
         let is_human_readable = schema_builder.is_human_readable();
         let mut enum_builder = schema_builder.describe_enum(
-            Some(SchemaId::new("Result", callsite!())),
+            Some(SchemaId::new("Result", *ResultCallsite)),
             2,
             true,
             VariantTag::default(),
@@ -722,14 +739,14 @@ where
         )?;
         enum_builder.collect_newtype_variant(
             0,
-            SchemaId::new("Ok", callsite!()),
+            SchemaId::new("Ok", *ResultOkVariantCallsite),
             Some("The success result"),
             false,
             <T as Schema>::describe,
         )?;
         enum_builder.collect_newtype_variant(
             1,
-            SchemaId::new("Err", callsite!()),
+            SchemaId::new("Err", *ResultErrVariantCallsite),
             Some("The error result"),
             false,
             <E as Schema>::describe,

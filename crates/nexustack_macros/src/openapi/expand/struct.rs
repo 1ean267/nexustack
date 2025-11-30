@@ -49,7 +49,7 @@ pub fn expand_struct(cont: &Container, fields: &[Field]) -> TokenStream {
         }
     }
 
-    if generic_fields.is_empty() {
+    let impl_block = if generic_fields.is_empty() {
         let type_name = cont.attrs.name().serialize_name();
         base_case(
             ident,
@@ -68,6 +68,13 @@ pub fn expand_struct(cont: &Container, fields: &[Field]) -> TokenStream {
             non_generic_fields.as_slice(),
             generic_fields.as_slice(),
         )
+    };
+
+    quote! {
+        static __callsite: _nexustack::__private::utils::AtomicOnceCell<_nexustack::Callsite> =
+            _nexustack::__private::utils::AtomicOnceCell::new();
+
+        #impl_block
     }
 }
 
@@ -446,7 +453,7 @@ fn describe_struct_as_struct(
     let id = if let Some(name) = name {
         let cont_span = cont.original.span();
         let cont_callsite = callsite(&cont_span);
-        quote! { _nexustack::__private::Option::Some(_nexustack::openapi::SchemaId::new(#name, #cont_callsite)) }
+        quote! { _nexustack::__private::Option::Some(_nexustack::openapi::SchemaId::new(#name, *__callsite.get_or_init(|| #cont_callsite))) }
     } else {
         quote! { _nexustack::__private::Option::None }
     };
@@ -494,7 +501,7 @@ fn describe_struct_as_map(
     let id = if let Some(name) = name {
         let cont_span = cont.original.span();
         let cont_callsite = callsite(&cont_span);
-        quote! { _nexustack::__private::Option::Some(_nexustack::openapi::SchemaId::new(#name, #cont_callsite)) }
+        quote! { _nexustack::__private::Option::Some(_nexustack::openapi::SchemaId::new(#name, *__callsite.get_or_init(|| #cont_callsite))) }
     } else {
         quote! { _nexustack::__private::Option::None }
     };

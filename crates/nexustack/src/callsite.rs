@@ -22,13 +22,14 @@ static NEXT_SEQ_NUM: AtomicUsize = AtomicUsize::new(1);
 /// ```rust
 /// use nexustack::callsite;
 ///
-/// let cs1 = callsite!();
-/// let cs2 = callsite!();
-/// assert_ne!(cs1, cs2); // Each callsite is unique
+/// callsite!(cs1);
+/// callsite!(cs2);
+///
+/// assert_ne!(*cs1, *cs2); // Each callsite is unique
 /// println!("Callsite 1: {}", cs1);
 /// println!("Callsite 2: {}", cs2);
 /// ```
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Callsite {
     /// Unique sequence number for this callsite.
     seq_num: usize,
@@ -70,7 +71,7 @@ impl Callsite {
     ///
     /// ```rust
     /// use nexustack::{callsite, Callsite};
-    /// let cs = callsite!();
+    /// callsite!(cs);
     /// assert!(cs.file().ends_with(".rs"));
     /// ```
     #[must_use]
@@ -84,7 +85,7 @@ impl Callsite {
     ///
     /// ```rust
     /// use nexustack::callsite;
-    /// let cs = callsite!();
+    /// callsite!(cs);
     /// assert!(cs.line() > 0);
     /// ```
     #[must_use]
@@ -98,7 +99,7 @@ impl Callsite {
     ///
     /// ```rust
     /// use nexustack::callsite;
-    /// let cs = callsite!();
+    /// callsite!(cs);
     /// assert!(cs.column() > 0);
     /// ```
     #[must_use]
@@ -122,7 +123,7 @@ impl Display for Callsite {
     ///
     /// ```rust
     /// use nexustack::callsite;
-    /// let cs = callsite!();
+    /// callsite!(cs);
     /// println!("{}", cs); // e.g., "src/main.rs:10:5"
     /// ```
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -130,18 +131,61 @@ impl Display for Callsite {
     }
 }
 
-/// Macro to create a new [`Callsite`] at the current location in the source code.
+/// Macro to initialize a callsite with a unique identifier and provide a dereferenceable
+/// static instance of the [`Callsite`].
+///
+/// This macro creates a struct and a static instance of it, which dereferences to a
+/// lazily-initialized [`Callsite`]. The callsite is initialized the first time it is accessed.
+///
+/// # Arguments
+///
+/// * `$v` - The visibility of the generated struct and static instance.
+/// * `$i` - The identifier for the generated struct and static instance.
 ///
 /// # Examples
 ///
 /// ```rust
-/// use nexustack::callsite;
-/// let cs = callsite!();
-/// println!("Callsite: {}", cs);
+/// use nexustack::{callsite};
+///
+/// callsite!(pub MY_CALLSITE);
+///
+/// println!("Callsite: {}", MY_CALLSITE);
 /// ```
 #[macro_export]
 macro_rules! callsite {
-    () => {
-        $crate::Callsite::new(file!(), line!() as usize, column!() as usize)
+    ($v:vis $i:ident) => {
+
+        #[allow(missing_copy_implementations)]
+        #[allow(non_camel_case_types)]
+        #[allow(dead_code)]
+        $v struct $i {__private_field: ()}
+
+        #[doc(hidden)]
+        #[allow(non_upper_case_globals)]
+        $v static $i: $i = $i {__private_field: ()};
+
+        const _: () = {
+            static CALLSITE: $crate::__private::utils::AtomicOnceCell<$crate::Callsite> = $crate::__private::utils::AtomicOnceCell::new();
+            // TODO: Macro hygiene
+            impl ::std::ops::Deref for $i {
+                type Target = $crate::Callsite;
+
+                fn deref(&self) -> &Self::Target {
+                    CALLSITE.get_or_init(|| $crate::Callsite::new(file!(), line!() as usize, column!() as usize))
+                }
+            }
+
+            impl ::std::fmt::Debug for $i {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                    ::std::fmt::Debug::fmt(&**self, f)
+                }
+            }
+
+            impl ::std::fmt::Display for $i {
+                fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                    ::std::fmt::Display::fmt(&**self, f)
+                }
+            }
+        };
     };
 }
