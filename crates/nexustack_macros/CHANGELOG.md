@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1](https://github.com/1ean267/nexustack/compare/nexustack_macros-v0.2.0...nexustack_macros-v0.2.1) - 2025-11-30
+
+### Fixed
+
+- Ensure callsite is cached
+
+### Other
+
+- Merge pull request #7 from 1ean267/fix-callsite-caching
+
 ## [0.2.0](https://github.com/1ean267/nexustack/compare/nexustack_macros-v0.1.2...nexustack_macros-v0.2.0) - 2025-11-17
 
 ### Added

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1](https://github.com/1ean267/nexustack/compare/nexustack-v0.2.0...nexustack-v0.2.1) - 2025-11-30
+
+### Fixed
+
+- Ensure callsite is cached
+
 ## [0.2.0](https://github.com/1ean267/nexustack/compare/nexustack-v0.1.2...nexustack-v0.2.0) - 2025-11-17
 
 ### Added
