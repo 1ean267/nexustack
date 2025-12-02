@@ -28,9 +28,12 @@ missing_crate_level_docs = "warn"
 unescaped_backticks = "warn"
 
 [dependencies]
+axum-extra = { workspace = true }
 anyhow = { workspace = true }
+axum = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
-nexustack = { workspace = true, features = ["cron"] }
+either = { workspace = true }
+nexustack = { workspace = true, features = ["cron", "chrono", "http", "yaml", "openapi"] }
 serde = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

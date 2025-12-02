@@ -6,8 +6,10 @@
  */
 
 mod atomic_once_cell;
+mod optional;
 
 pub use atomic_once_cell::AtomicOnceCell;
+pub use optional::Optional;
 
 #[allow(dead_code)]
 pub const fn ensure_send<T: Send>() {}

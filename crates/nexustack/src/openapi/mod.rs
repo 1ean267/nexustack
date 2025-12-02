@@ -9,29 +9,47 @@
 #[doc(hidden)]
 #[path = "private/mod.rs"]
 pub mod __private;
+#[cfg(feature = "http")]
+mod http;
+
+mod error;
+mod schema;
+mod spec;
+mod version;
 
 #[cfg(feature = "derive")]
 pub use nexustack_macros::api_schema;
 
-mod either;
-mod error;
-mod example;
-mod impls;
-mod impossible;
-mod nop;
-mod post_process;
-mod schema;
-mod schema_builder;
-
-pub mod json;
-
 pub use error::Error;
-pub use example::SchemaExamples;
-pub use impossible::Impossible;
-pub use nop::Nop;
-pub use schema::Schema;
-pub use schema_builder::{
-    Combinator, CombinatorSchemaBuilder, EnumSchemaBuilder, FieldMod, IntoSchemaBuilder,
-    MapSchemaBuilder, SchemaBuilder, SchemaId, StructSchemaBuilder, StructVariantSchemaBuilder,
-    TupleSchemaBuilder, TupleStructSchemaBuilder, TupleVariantSchemaBuilder, VariantTag,
+pub use version::SpecificationVersion;
+
+#[path = ""]
+pub mod generator {
+    pub use crate::openapi::schema::generator::{
+        SchemaCollection, build_schema, build_schema_with_collection,
+    };
+}
+
+// TODO: Replace with pub mod http; when stable (need to change macros)
+#[cfg(feature = "http")]
+pub use http::{
+    HttpDocument, HttpDocumentBuilder, HttpServer, HttpServerVariable, Tag,
+    content_type::{HttpContentType, HttpContentTypeBuilder},
+    operation::{
+        HttpOperation, HttpOperationBuilder, HttpOperationId, HttpSecurityRequirementBuilder,
+    },
+    response::{HttpResponse, HttpResponseBuilder},
+};
+
+pub use schema::{
+    Schema,
+    builder::{
+        Combinator, CombinatorSchemaBuilder, EnumSchemaBuilder, FieldMod, IntoSchemaBuilder,
+        MapSchemaBuilder, SchemaBuilder, SchemaId, StructSchemaBuilder, StructVariantSchemaBuilder,
+        TupleSchemaBuilder, TupleStructSchemaBuilder, TupleVariantSchemaBuilder, VariantTag,
+    },
+    example::SchemaExamples,
+    impossible::Impossible,
+    nop::Nop,
+    optional::Optional,
 };

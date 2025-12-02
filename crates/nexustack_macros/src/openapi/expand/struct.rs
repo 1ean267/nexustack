@@ -11,7 +11,7 @@
 
 use crate::{
     fragment::{Fragment, Stmts},
-    internals::callsite,
+    internals::{callsite, name::Name},
     openapi::{
         expand::{
             ExampleContainerIdentifier, Parameters, StructTrait, describe_struct_visitor, mut_if,
@@ -20,7 +20,6 @@ use crate::{
         internals::{
             ast::{Container, Field},
             attr,
-            name::Name,
         },
         serde::{build_example_field_attribute, build_example_struct_attribute},
     },

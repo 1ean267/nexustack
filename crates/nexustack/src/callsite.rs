@@ -46,11 +46,11 @@ impl Callsite {
     ///
     /// This method is intended for use by the `callsite!` macro and is not part of the public API.
     ///
-    /// # Arguments
+    /// # Paramaters
     ///
-    /// * `file` - The file name where the callsite is located.
-    /// * `line` - The line number in the file.
-    /// * `column` - The column number in the file.
+    /// - `file` - The file name where the callsite is located.
+    /// - `line` - The line number in the file.
+    /// - `column` - The column number in the file.
     ///
     /// # Returns
     ///
@@ -137,19 +137,19 @@ impl Display for Callsite {
 /// This macro creates a struct and a static instance of it, which dereferences to a
 /// lazily-initialized [`Callsite`]. The callsite is initialized the first time it is accessed.
 ///
-/// # Arguments
+/// # Paramaters
 ///
-/// * `$v` - The visibility of the generated struct and static instance.
-/// * `$i` - The identifier for the generated struct and static instance.
+/// - `$v` - The visibility of the generated struct and static instance.
+/// - `$i` - The identifier for the generated struct and static instance.
 ///
 /// # Examples
 ///
 /// ```rust
-/// use nexustack::{callsite};
+/// use nexustack::{callsite, callsite};
 ///
 /// callsite!(pub MY_CALLSITE);
 ///
-/// println!("Callsite: {}", MY_CALLSITE);
+/// println!("Callsite: {}", *MY_CALLSITE);
 /// ```
 #[macro_export]
 macro_rules! callsite {
