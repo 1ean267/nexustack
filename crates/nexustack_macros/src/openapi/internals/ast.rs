@@ -11,7 +11,7 @@
 
 //! An OpenApi ast, parsed from the Syn ast and ready to generate Rust code.
 
-use crate::internals::Ctxt;
+use crate::internals::{Ctxt, default::Default};
 use crate::openapi::internals::{attr, check};
 use proc_macro2::TokenStream;
 use syn::Token;
@@ -142,7 +142,7 @@ impl<'a> Data<'a> {
 fn enum_from_ast<'a>(
     cx: &Ctxt,
     variants: &'a mut Punctuated<syn::Variant, Token![,]>,
-    container_default: &attr::Default,
+    container_default: &Default,
 ) -> Vec<Variant<'a>> {
     let variants: Vec<Variant> = variants
         .iter_mut()
@@ -177,7 +177,7 @@ fn enum_from_ast<'a>(
 fn struct_from_ast<'a>(
     cx: &Ctxt,
     fields: &'a mut syn::Fields,
-    container_default: &attr::Default,
+    container_default: &Default,
 ) -> (Style, Vec<Field<'a>>) {
     match fields {
         syn::Fields::Named(fields) => (
@@ -204,7 +204,7 @@ fn struct_from_ast<'a>(
 fn fields_from_ast<'a>(
     cx: &Ctxt,
     fields: &'a mut Punctuated<syn::Field, Token![,]>,
-    container_default: &attr::Default,
+    container_default: &Default,
 ) -> Vec<Field<'a>> {
     fields
         .iter_mut()

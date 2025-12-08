@@ -7,7 +7,7 @@
 
 mod expand;
 
-pub use expand::expand_injectable;
+pub use expand::{expand_injectable, expand_resolvable_type};
 
 use proc_macro2::TokenStream;
 

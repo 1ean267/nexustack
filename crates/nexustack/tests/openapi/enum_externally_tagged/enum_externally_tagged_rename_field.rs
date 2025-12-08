@@ -38,8 +38,8 @@ pub enum Message {
 
 #[test]
 fn test_openapi_3_0() {
-    use nexustack::openapi::json::{Specification, build_schema};
-    let schema = build_schema::<Message>(Specification::OpenAPI3_0).unwrap();
+    use nexustack::openapi::{SpecificationVersion, generator::build_schema};
+    let schema = build_schema::<Message>(SpecificationVersion::OpenAPI3_0).unwrap();
 
     pretty_assertions::assert_eq!(
         serde_json::to_value(schema).unwrap(),
@@ -136,12 +136,15 @@ fn test_openapi_3_0() {
 
 #[test]
 fn test_openapi_3_0_with_collection() {
-    use nexustack::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+    use nexustack::openapi::{
+        SpecificationVersion,
+        generator::{SchemaCollection, build_schema_with_collection},
+    };
     use std::{cell::RefCell, rc::Rc};
 
     let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
     let schema = build_schema_with_collection::<Message>(
-        Specification::OpenAPI3_0,
+        SpecificationVersion::OpenAPI3_0,
         schema_collection.clone(),
     )
     .unwrap();
@@ -255,8 +258,8 @@ fn test_openapi_3_0_with_collection() {
 
 #[test]
 fn test_openapi_3_1() {
-    use nexustack::openapi::json::{Specification, build_schema};
-    let schema = build_schema::<Message>(Specification::OpenAPI3_1).unwrap();
+    use nexustack::openapi::{SpecificationVersion, generator::build_schema};
+    let schema = build_schema::<Message>(SpecificationVersion::OpenAPI3_1).unwrap();
 
     pretty_assertions::assert_eq!(
         serde_json::to_value(schema).unwrap(),
@@ -457,12 +460,15 @@ fn test_openapi_3_1() {
 
 #[test]
 fn test_openapi_3_1_with_collection() {
-    use nexustack::openapi::json::{SchemaCollection, Specification, build_schema_with_collection};
+    use nexustack::openapi::{
+        SpecificationVersion,
+        generator::{SchemaCollection, build_schema_with_collection},
+    };
     use std::{cell::RefCell, rc::Rc};
 
     let schema_collection = Rc::new(RefCell::new(SchemaCollection::new()));
     let schema = build_schema_with_collection::<Message>(
-        Specification::OpenAPI3_1,
+        SpecificationVersion::OpenAPI3_1,
         schema_collection.clone(),
     )
     .unwrap();

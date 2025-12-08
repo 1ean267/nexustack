@@ -7,11 +7,13 @@
 
 use crate::openapi::{
     error,
-    impossible::Impossible,
-    schema::Schema,
-    schema_builder::{
-        Combinator, FieldMod, IntoSchemaBuilder, MapSchemaBuilder, SchemaBuilder, SchemaId,
-        StructSchemaBuilder, VariantTag,
+    schema::{
+        Schema,
+        builder::{
+            Combinator, FieldMod, IntoSchemaBuilder, MapSchemaBuilder, SchemaBuilder, SchemaId,
+            StructSchemaBuilder, VariantTag,
+        },
+        impossible::Impossible,
     },
 };
 use serde::Serialize;

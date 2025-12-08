@@ -5,9 +5,12 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
-use crate::openapi::internals::{
-    ast::{Container, Field, Variant},
-    attr,
+use crate::{
+    internals::default::Default,
+    openapi::internals::{
+        ast::{Container, Field, Variant},
+        attr,
+    },
 };
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -169,9 +172,9 @@ fn build_cont_deny_unknown_fields_opt(cont: &Container) -> TokenStream {
 
 fn build_cont_default_opt(cont: &Container) -> TokenStream {
     match cont.attrs.default() {
-        attr::Default::None => TokenStream::new(),
-        attr::Default::Default => quote! { default },
-        attr::Default::Path(expr_path) => {
+        Default::None => TokenStream::new(),
+        Default::Default => quote! { default },
+        Default::Path(expr_path) => {
             // TODO: Does the stringify work??
             let expr_path = quote! { #expr_path }.to_string();
             quote! { default = #expr_path }

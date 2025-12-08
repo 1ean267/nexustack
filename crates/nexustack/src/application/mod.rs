@@ -35,8 +35,8 @@ pub trait ApplicationPartBuilder {
 
     /// Builds an application part instance using the provided service provider.
     ///
-    /// # Arguments
-    /// * `service_provider` - The application's service provider, used to resolve dependencies for the application part.
+    /// # Paramaters
+    /// - `service_provider` - The application's service provider, used to resolve dependencies for the application part.
     ///
     /// # Returns
     /// A [`ConstructionResult`] containing the constructed [`Self::ApplicationPart`] on success, or an error if construction fails.
@@ -66,8 +66,8 @@ pub trait ApplicationPart {
 
     /// Called before application startup for this part.
     ///
-    /// # Arguments
-    /// * `cancellation_token` - A token that can be used to cancel startup. If cancelled, this function should return immediately and not error.
+    /// # Paramaters
+    /// - `cancellation_token` - A token that can be used to cancel startup. If cancelled, this function should return immediately and not error.
     ///
     /// # Returns
     /// A future that resolves to `Result<(), Self::Error>`.
@@ -81,8 +81,8 @@ pub trait ApplicationPart {
 
     /// Runs the main logic for this application part.
     ///
-    /// # Arguments
-    /// * `cancellation_token` - A token that can be used to cancel execution. If cancelled, this function should return immediately and not error.
+    /// # Paramaters
+    /// - `cancellation_token` - A token that can be used to cancel execution. If cancelled, this function should return immediately and not error.
     ///
     /// # Returns
     /// A future that resolves to `Result<(), Self::Error>`.
@@ -93,8 +93,8 @@ pub trait ApplicationPart {
 
     /// Called before application shutdown for this part.
     ///
-    /// # Arguments
-    /// * `cancellation_token` - A token that can be used to cancel execution. If cancelled, this function should return immediately and not error.
+    /// # Paramaters
+    /// - `cancellation_token` - A token that can be used to cancel execution. If cancelled, this function should return immediately and not error.
     ///
     /// # Returns
     /// A future that resolves to `Result<(), Self::Error>`. Should not block for too long.
@@ -147,8 +147,8 @@ pub trait ApplicationBuilder {
     /// - `B`: The application part builder type to add. Must implement [`ApplicationPartBuilder`].
     /// - `F`: The factory closure type.
     ///
-    /// # Arguments
-    /// * `factory` - A closure that produces a new instance of the part builder.
+    /// # Paramaters
+    /// - `factory` - A closure that produces a new instance of the part builder.
     ///
     /// # Returns
     /// A new builder with the application part added.
@@ -175,8 +175,8 @@ pub trait ApplicationBuilder {
     /// - `I`: The index into the builder chain used to select which occurrence of `B` to configure.
     ///   See [`Index`].
     ///
-    /// # Arguments
-    /// * `configure` - A closure invoked with a mutable reference to the selected builder
+    /// # Paramaters
+    /// - `configure` - A closure invoked with a mutable reference to the selected builder
     ///   instance, allowing customization.
     ///
     /// # Returns
@@ -204,8 +204,8 @@ pub trait ApplicationBuilder {
     /// # Type Parameters
     /// - `F`: A closure that receives a mutable reference to the builder chain.
     ///
-    /// # Arguments
-    /// * `configure` - A closure invoked with a mutable reference to the builder chain, allowing customization.
+    /// # Paramaters
+    /// - `configure` - A closure invoked with a mutable reference to the builder chain, allowing customization.
     ///
     /// # Returns
     /// The builder instance, allowing further chaining. The chain type is unchanged.
@@ -219,8 +219,8 @@ pub trait ApplicationBuilder {
     /// # Type Parameters
     /// - `F`: The configuration closure type.
     ///
-    /// # Arguments
-    /// * `configure` - A closure that receives a mutable reference to the [`ServiceCollection`] and can register services.
+    /// # Paramaters
+    /// - `configure` - A closure that receives a mutable reference to the [`ServiceCollection`] and can register services.
     ///
     /// # Returns
     /// The builder instance, allowing further chaining.
@@ -347,7 +347,7 @@ pub trait Application {
     /// This method creates a new cancellation token and listens for shutdown signals (e.g., Ctrl+C).
     ///
     /// # Returns
-    /// * `Result<(), Self::Error>` - Returns `Ok(())` if the application runs and shuts down successfully, or an error if any part fails.
+    /// - `Result<(), Self::Error>` - Returns `Ok(())` if the application runs and shuts down successfully, or an error if any part fails.
     ///
     /// # Errors
     /// Returns an error if any application part fails during startup, run, or shutdown.
@@ -364,11 +364,11 @@ pub trait Application {
     /// This method listens for shutdown signals (e.g., Ctrl+C) and cancels the application when either the specified cancellation token
     /// is triggered or a shutdown signal is received. The specified cancellation token is not cancelled by this method.
     ///
-    /// # Arguments
-    /// * `cancellation_token` - A [`CancellationToken`] used to control graceful shutdown. The application will shut down when this token is cancelled or a shutdown signal is received.
+    /// # Paramaters
+    /// - `cancellation_token` - A [`CancellationToken`] used to control graceful shutdown. The application will shut down when this token is cancelled or a shutdown signal is received.
     ///
     /// # Returns
-    /// * `Result<(), Self::Error>` - Returns `Ok(())` if the application runs and shuts down successfully, or an error if any part fails.
+    /// - `Result<(), Self::Error>` - Returns `Ok(())` if the application runs and shuts down successfully, or an error if any part fails.
     ///
     /// # Errors
     /// Returns an error if any application part fails during startup, run, or shutdown.
@@ -382,7 +382,7 @@ pub trait Application {
     /// Returns a reference to the application's [`ServiceProvider`].
     ///
     /// # Returns
-    /// * `&ServiceProvider` - The service provider used to resolve dependencies for application parts.
+    /// - `&ServiceProvider` - The service provider used to resolve dependencies for application parts.
     fn service_provider(&self) -> &ServiceProvider;
 }
 

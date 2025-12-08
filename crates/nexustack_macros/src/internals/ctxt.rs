@@ -11,6 +11,7 @@
  * Licensed under the MIT license. See https://github.com/serde-rs/serde/blob/master/LICENSE-MIT
  */
 
+use proc_macro2::Span;
 use quote::ToTokens;
 use std::{cell::RefCell, fmt::Display, thread};
 
@@ -46,6 +47,15 @@ impl Ctxt {
             .unwrap()
             // Curb monomorphization from generating too many identical methods.
             .push(syn::Error::new_spanned(obj.into_token_stream(), msg));
+    }
+
+    pub fn error<T: Display>(&self, span: Span, msg: T) {
+        self.errors
+            .borrow_mut()
+            .as_mut()
+            .unwrap()
+            // Curb monomorphization from generating too many identical methods.
+            .push(syn::Error::new(span, msg));
     }
 
     /// Add one of Syn's parse errors.

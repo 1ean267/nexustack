@@ -10,8 +10,8 @@
  */
 
 use crate::{
-    internals::{Ctxt, attr::*, symbol::*},
-    openapi::internals::name::{MultiName, Name},
+    internals::{Ctxt, attr::*, default::Default, name::Name, symbol::*},
+    openapi::internals::name::MultiName,
 };
 use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
@@ -700,7 +700,7 @@ impl Variant {
     pub fn from_ast(cx: &Ctxt, variant: &mut syn::Variant) -> Self {
         let mut ser_name = Attr::none(cx, RENAME);
         let mut de_name = Attr::none(cx, RENAME);
-        let mut de_aliases = VecAttr::none(cx, RENAME);
+        let mut de_aliases = VecAttr::none(cx, ALIAS);
         let mut skip = BoolAttr::none(cx, SKIP);
         let mut rename_all_ser_rule = Attr::none(cx, RENAME_ALL);
         let mut rename_all_de_rule = Attr::none(cx, RENAME_ALL);
@@ -961,35 +961,6 @@ pub struct Field {
     transparent: bool,
     deprecated: bool,
     description: String,
-}
-
-/// Represents the default to use for a field when deserializing.
-#[derive(Debug, PartialEq, Eq)]
-pub enum Default {
-    /// Field must always be specified because it does not have a default.
-    None,
-    /// The default is given by `std::default::Default::default()`.
-    #[allow(clippy::enum_variant_names)]
-    Default,
-    /// The default is given by this function.
-    Path(syn::ExprPath),
-}
-
-impl Default {
-    pub fn is_none(&self) -> bool {
-        match self {
-            Default::None => true,
-            Default::Default | Default::Path(_) => false,
-        }
-    }
-
-    pub fn or<'a>(&'a self, other: &'a Default) -> &'a Default {
-        if self.is_none() {
-            return other;
-        }
-
-        self
-    }
 }
 
 impl Field {
