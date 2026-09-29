@@ -35,6 +35,10 @@ pub use nexustack_macros::module;
 #[doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "../nexustack_macros/src/module/MODULE.md"))]
 const fn _check_module_doc_test() {}
 
+#[cfg(feature = "http")]
+#[doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "src/http/README.md"))]
+pub mod http;
+
 mod application;
 mod callsite;
 mod utils;
@@ -44,3 +48,5 @@ pub use application::{
     InTail, Index, Node, application_builder,
 };
 pub use callsite::Callsite;
+
+type BoxError = Box<dyn std::error::Error + Send + Sync>;

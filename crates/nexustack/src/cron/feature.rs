@@ -57,8 +57,7 @@ pub trait CronApplicationBuilder: ApplicationBuilder {
         self,
     ) -> impl ApplicationBuilder<Chain = Node<CronApplicationPartBuilder<Clock>, Self::Chain>>
     where
-        Clock: CronClock + 'static,
-        Self: Sized;
+        Clock: CronClock + 'static;
 
     /// Adds cron services to the application using the default clock implementation.
     ///
@@ -92,19 +91,15 @@ pub trait CronApplicationBuilder: ApplicationBuilder {
     fn add_cron_with_default_clock(
         self,
     ) -> impl ApplicationBuilder<Chain = Node<CronApplicationPartBuilder<DefaultCronClock>, Self::Chain>>
-    where
-        Self: Sized;
+where;
 
     /// Configures a cron job of the specified type.
     // TODO: This should be named add_cron_job (Which is not in sync with the other app features)
-    fn configure_cron<I: Index, F>(
-        self,
-        configure: F,
-    ) -> impl ApplicationBuilder<Chain = Self::Chain>
+    fn configure_cron<I, F>(self, configure: F) -> impl ApplicationBuilder<Chain = Self::Chain>
     where
-        Self: Sized,
-        Self::Chain: Cron<I>,
-        F: FnOnce(&mut Self::Chain);
+        I: Index,
+        F: FnOnce(&mut Self::Chain),
+        Self::Chain: Cron<I>;
 }
 
 impl<B: ApplicationBuilder> CronApplicationBuilder for B {

@@ -5,6 +5,7 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
+use crate::BoxError;
 use crate::inject::service_token::ServiceToken;
 use crate::utils::{ensure_clone, ensure_send, ensure_sync};
 use std::{borrow::Cow, sync::Arc};
@@ -202,7 +203,7 @@ pub enum ConstructionError {
     /// A service cannot be constructed as the construction of the service itself errored.
     /// Contains the error describing the construction failure.
     #[error(transparent)]
-    Custom(#[from] Box<dyn std::error::Error + Send + Sync>),
+    Custom(#[from] BoxError),
 }
 
 /// Conversion into a [`ConstructionResult`].

@@ -16,27 +16,6 @@ use crate::openapi::internals::{
 use std::collections::HashSet;
 use syn::{Token, punctuated::Pair};
 
-// Remove the default from every type parameter because in the generated impls
-// they look like associated types: "error: associated type bindings are not
-// allowed here".
-pub fn without_defaults(generics: &syn::Generics) -> syn::Generics {
-    syn::Generics {
-        params: generics
-            .params
-            .iter()
-            .map(|param| match param {
-                syn::GenericParam::Type(param) => syn::GenericParam::Type(syn::TypeParam {
-                    eq_token: None,
-                    default: None,
-                    ..param.clone()
-                }),
-                _ => param.clone(),
-            })
-            .collect(),
-        ..generics.clone()
-    }
-}
-
 pub fn with_where_predicates(
     generics: &syn::Generics,
     predicates: &[syn::WherePredicate],

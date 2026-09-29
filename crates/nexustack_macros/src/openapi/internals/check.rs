@@ -9,9 +9,9 @@
  * Based on https://github.com/serde-rs/serde/blob/master/serde_derive/src/internals/check.rs
  */
 
-use crate::internals::Ctxt;
+use crate::internals::{Ctxt, default::Default};
 use crate::openapi::internals::ast::{Container, Data, Field, Style};
-use crate::openapi::internals::attr::{Default, Identifier, TagType};
+use crate::openapi::internals::attr::{Identifier, TagType};
 use crate::openapi::internals::{Derive, ungroup};
 use syn::Type;
 
