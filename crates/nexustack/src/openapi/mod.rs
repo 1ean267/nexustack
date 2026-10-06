@@ -10,28 +10,31 @@
 #[path = "private/mod.rs"]
 pub mod __private;
 
+mod error;
+mod schema;
+mod spec;
+mod string_serializer;
+mod version;
+
 #[cfg(feature = "derive")]
 pub use nexustack_macros::api_schema;
 
-mod either;
-mod error;
-mod example;
-mod impls;
-mod impossible;
-mod nop;
-mod post_process;
-mod schema;
-mod schema_builder;
-
-pub mod json;
-
 pub use error::Error;
-pub use example::SchemaExamples;
-pub use impossible::Impossible;
-pub use nop::Nop;
-pub use schema::Schema;
-pub use schema_builder::{
-    Combinator, CombinatorSchemaBuilder, EnumSchemaBuilder, FieldMod, IntoSchemaBuilder,
-    MapSchemaBuilder, SchemaBuilder, SchemaId, StructSchemaBuilder, StructVariantSchemaBuilder,
-    TupleSchemaBuilder, TupleStructSchemaBuilder, TupleVariantSchemaBuilder, VariantTag,
+pub use version::SpecificationVersion;
+
+#[cfg(feature = "http")]
+pub mod http;
+
+pub use schema::{
+    Schema,
+    builder::{
+        Combinator, CombinatorSchemaBuilder, EnumSchemaBuilder, FieldMod, IntoSchemaBuilder,
+        MapSchemaBuilder, SchemaBuilder, SchemaId, StructSchemaBuilder, StructVariantSchemaBuilder,
+        TupleSchemaBuilder, TupleStructSchemaBuilder, TupleVariantSchemaBuilder, VariantTag,
+    },
+    error::SchemaGenerationError,
+    example::SchemaExamples,
+    impossible::Impossible,
+    nop::Nop,
+    optional::Optional,
 };

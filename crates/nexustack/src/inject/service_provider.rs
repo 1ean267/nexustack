@@ -74,7 +74,7 @@ impl ServiceProvider {
     ///
     /// # Type arguments
     ///
-    /// * `TService` - The type of the service to resolve from the provider.
+    /// - `TService` - The type of the service to resolve from the provider.
     ///
     /// # Example
     ///
@@ -127,7 +127,7 @@ impl ServiceProvider {
     ///
     /// # Type arguments
     ///
-    /// * `TService` - The type of the service to create.
+    /// - `TService` - The type of the service to create.
     ///
     /// # Example
     ///
